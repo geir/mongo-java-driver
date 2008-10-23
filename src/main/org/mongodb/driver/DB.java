@@ -17,8 +17,8 @@
 package org.mongodb.driver;
 
 import org.mongodb.driver.admin.DBAdmin;
-import org.mongodb.driver.options.impl.DBOptions;
-import org.mongodb.driver.options.impl.CollectionOptions;
+import org.mongodb.driver.options.DBOptions;
+import org.mongodb.driver.options.DBCollectionOptions;
 
 import java.util.List;
 
@@ -56,8 +56,7 @@ public interface DB {
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
      */    
-    public DBCollection createCollection(String name, CollectionOptions options) throws MongoDBException;
-
+    public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException;
 
     /**
      *  Gets a DBCollection object representing the specified collection in the database.

@@ -16,7 +16,7 @@
 
 package org.mongodb.driver;
 
-import org.mongodb.driver.options.impl.CollectionOptions;
+import org.mongodb.driver.options.DBCollectionOptions;
 
 import java.util.List;
 import java.util.Map;
@@ -208,5 +208,5 @@ public interface DBCollection {
      */
     public String getName();
 
-    public CollectionOptions getOptions() throws MongoDBException ;
+    public DBCollectionOptions getOptions() throws MongoDBException ;
 }

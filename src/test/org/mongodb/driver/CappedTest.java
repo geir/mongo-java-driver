@@ -19,12 +19,7 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.options.collection.CappedCollection;
-import org.mongodb.driver.options.impl.MongoOption;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCollection;
-import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.options.DBCollectionOptions;
 
 public class CappedTest extends TestBase {
 
@@ -40,9 +35,7 @@ public class CappedTest extends TestBase {
 
         _db.dropCollection("test");
 
-        CappedCollection co = new CappedCollection(2000, 10);
-
-        DBCollection testColl = _db.createCollection("test", co);
+        DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000, 10));
 
         for (int i=0; i < 10; i++) {
             testColl.insert(new MongoDoc("name", i));
@@ -53,17 +46,15 @@ public class CappedTest extends TestBase {
         for (int i=0; i < 10; i++) {
             testColl.insert(new MongoDoc("name", i));
         }
-        assert(testColl.getCount() == 10);        
+        assert(testColl.getCount() == 10);
     }
 
     @Test
-    public void testCapOptionRetrieval() throws MongoDBException {
+    public void testCapOptionRetrieval1() throws MongoDBException {
 
         _db.dropCollection("test");
 
-        CappedCollection co = new CappedCollection(2000, 10);
-
-        DBCollection testColl = _db.createCollection("test", co);
+        DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000, 10));
 
         for (int i=0; i < 20; i++) {
             testColl.insert(new MongoDoc("name", i));
@@ -71,16 +62,33 @@ public class CappedTest extends TestBase {
 
         assert(testColl.getCount() == 10);
 
-        boolean found = false;
+        DBCollectionOptions options = testColl.getOptions();
 
-        for (MongoOption o : testColl.getOptions()) {
+        assert(options.isCapped());
+        assert(options.isReadOnly());
+        assert(options.getCappedSizeLimit() == 2000);
+        assert(options.getCappedObjectMax() == 10);
+    }
 
-            if (o instanceof CappedCollection) {
-                found = true;
-            }
+    @Test
+    public void testCapOptionRetrieval2() throws MongoDBException {
+
+        _db.dropCollection("test");
+
+        DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000));
+
+        for (int i=0; i < 20; i++) {
+            testColl.insert(new MongoDoc("name", i));
         }
 
-        assert(found);
+        assert(testColl.getCount() == 20);
+
+        DBCollectionOptions options = testColl.getOptions();
+
+        assert(options.isCapped());
+        assert(options.isReadOnly());
+        assert(options.getCappedSizeLimit() == 2000);
+        assert(options.getCappedObjectMax() == DBCollectionOptions.DB_DEFAULT);
     }
 
     @Test
@@ -96,16 +104,12 @@ public class CappedTest extends TestBase {
 
         assert(testColl.getCount() == 20);
 
-        boolean found = false;
+        DBCollectionOptions options = testColl.getOptions();
 
-        for (MongoOption o : testColl.getOptions()) {
-
-            if (o instanceof CappedCollection) {
-                found = true;
-            }
-        }
-
-        assert(!found);
+        assert(!options.isCapped());
+        assert(options.isReadOnly());
+        assert(options.getCappedSizeLimit() == DBCollectionOptions.DB_DEFAULT);
+        assert(options.getCappedObjectMax() == DBCollectionOptions.DB_DEFAULT);
     }
 
 }

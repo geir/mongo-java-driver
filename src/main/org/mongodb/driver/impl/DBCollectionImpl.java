@@ -25,10 +25,7 @@ import org.mongodb.driver.IndexInfo;
 import org.mongodb.driver.MongoSelector;
 import org.mongodb.driver.MongoModifier;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.options.impl.CollectionOptions;
-import org.mongodb.driver.options.collection.EmptyOptions;
-import org.mongodb.driver.options.collection.CappedCollection;
-import org.mongodb.driver.options.collection.InitialExtent;
+import org.mongodb.driver.options.DBCollectionOptions;
 import org.mongodb.driver.util.PKInjector;
 
 import java.util.List;
@@ -156,7 +153,7 @@ class DBCollectionImpl implements DBCollection {
         return _db.getCount(_collection, new MongoSelector());
     }
 
-    public CollectionOptions getOptions() throws MongoDBException {
+    public DBCollectionOptions getOptions() throws MongoDBException {
 
         DBCursor resp = _db.getCollectionsInfo(_collection);
 
@@ -164,8 +161,8 @@ class DBCollectionImpl implements DBCollection {
 
         MongoDoc optionDoc = (MongoDoc) doc.get("options");
 
-        CollectionOptions options = new EmptyOptions();
-        
+        DBCollectionOptions options = new DBCollectionOptions();
+
         if (optionDoc != null) {
 
             Double d = (Double) optionDoc.get("size");  // just because mongo does doubles...?
@@ -173,20 +170,30 @@ class DBCollectionImpl implements DBCollection {
             int i = d != null ? d.intValue() : 0;
 
             if (i > 0) {
-                options.add(new InitialExtent(i));
+                options.setInitialExtent(i);
             }
-            
+
             Boolean val = (Boolean) optionDoc.get("capped");
 
             if (val != null && val) {
 
-                options.add(new CappedCollection(i));  // fix
+                d = (Double) optionDoc.get("max");
+
+                int maxObj = d != null ? d.intValue() : 0;
+
+                if (maxObj > 0) {
+                    options.setCapped(i, maxObj);
+                }
+                else {
+                    options.setCapped(i);
+                }
             }
         }
 
+        options.setReadOnly();  // lock it so user isn't tempted to try to change as it's pointless
+        
         return options;
     }
-
 
     /**
      *  PKInjector

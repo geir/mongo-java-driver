@@ -19,11 +19,7 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.options.collection.InitialExtent;
-import org.mongodb.driver.options.impl.MongoOption;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCollection;
-import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.options.DBCollectionOptions;
 
 public class ExtentTest extends TestBase {
 
@@ -39,19 +35,13 @@ public class ExtentTest extends TestBase {
 
         _db.dropCollection("test");
 
-        InitialExtent co = new InitialExtent(2000);
+        DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setInitialExtent(2000));
 
-        DBCollection testColl = _db.createCollection("test", co);
+        DBCollectionOptions options = testColl.getOptions();
 
-        boolean found = false;
-        for (MongoOption o : testColl.getOptions()) {
-
-            if (o instanceof InitialExtent) {
-                found = true;
-                assert(((InitialExtent) o).getSizeInBytes() == 2000);
-            }
-        }
-
-        assert(found);
+        assert(!options.isCapped());
+        assert(options.isReadOnly());
+        assert(options.getInitialExtent() == 2000);
+        assert(options.getCappedObjectMax() == DBCollectionOptions.DB_DEFAULT);
     }
 }

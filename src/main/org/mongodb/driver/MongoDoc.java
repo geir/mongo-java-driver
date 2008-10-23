@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *   thus a MongoDoc also preserves insertion order.
  *   </p>
  */
-public class MongoDoc  implements Iterable<String> {
+public class MongoDoc implements Iterable<String> {
 
     final protected HashMap<String, Object> _map;
 
@@ -96,6 +96,12 @@ public class MongoDoc  implements Iterable<String> {
                 put(key, new MongoDoc((Map) val));
             }
         }
+    }
+
+    public void add(MongoDoc doc) {
+        _map.putAll(doc._map);
+
+        _keyList.addAll(doc._map.keySet());
     }
     
     public void put(String key, Number val)  throws MongoDBException{

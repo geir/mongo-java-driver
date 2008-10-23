@@ -14,7 +14,17 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver.options.impl;
+package org.mongodb.driver.options;
 
-public abstract class DBOptions extends MongoOptions implements DBOption{
+public class DBOptions {
+    private boolean _strictCollectionMode = false;
+
+    public boolean isStrictCollectionMode() {
+        return _strictCollectionMode;
+    }
+
+    public DBOptions setStrictCollectionMode(boolean strictCollectionMode) {
+        _strictCollectionMode = strictCollectionMode;
+        return this;
+    }
 }

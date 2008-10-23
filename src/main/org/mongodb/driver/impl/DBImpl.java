@@ -26,10 +26,8 @@ import org.mongodb.driver.DBQuery;
 import org.mongodb.driver.MongoSelector;
 import org.mongodb.driver.MongoModifier;
 import org.mongodb.driver.IndexInfo;
-import org.mongodb.driver.options.impl.CollectionOptions;
-import org.mongodb.driver.options.impl.MongoOption;
-import org.mongodb.driver.options.impl.DBOptions;
-import org.mongodb.driver.options.db.StrictCollectionMode;
+import org.mongodb.driver.options.DBOptions;
+import org.mongodb.driver.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.impl.msg.DBInsertMessage;
 import org.mongodb.driver.impl.msg.DBMessage;
@@ -155,7 +153,7 @@ class DBImpl implements DB {
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
      */
-    public DBCollection createCollection(String name, CollectionOptions options) throws MongoDBException {
+    public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException {
 
         /*
          * first, check existence
@@ -178,16 +176,18 @@ class DBImpl implements DB {
          * if not, create and return it
          */
 
+        /*
+         *  Note : The Mongo wire protocol requires that the "create" entry is first in the eventual BSON as it's the
+         *  db command to create...
+         *
+         *  TODO - ask dwight o fix this
+         */
         MongoSelector sel = new MongoSelector("create", name);
 
         if (options != null) {
-            for (MongoOption mo : options) {
-                for(String key : mo.getMongoSelector()) {
-                    sel.put(key, mo.getMongoSelector().get(key));
-                }
-            }
+            sel.add(options.getSelector());
         }
-        
+
         MongoDoc md = dbCommand(sel);
 
         Object o = md.get("ok");
@@ -320,11 +320,7 @@ class DBImpl implements DB {
             return;
         }
 
-        for(MongoOption o : dbOptions) {
-            if (o instanceof StrictCollectionMode) {
-                _strictCollections = true;
-            }
-        }
+        _strictCollections = dbOptions.isStrictCollectionMode();
     }
 
     public void resetDBOptions() {

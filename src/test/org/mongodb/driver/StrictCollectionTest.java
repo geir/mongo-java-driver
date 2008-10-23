@@ -20,12 +20,9 @@ import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 
 import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.options.db.StrictCollectionMode;
+import org.mongodb.driver.options.DBOptions;
 
 import static org.testng.AssertJUnit.*;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCollection;
-import org.mongodb.driver.MongoDBException;
 
 /**
  *  Tests if strict collection mode works.
@@ -46,7 +43,7 @@ public class StrictCollectionTest  extends TestBase {
 
         _db.dropCollection("test");
 
-        StrictCollectionMode scm = new StrictCollectionMode();
+        DBOptions scm = new DBOptions().setStrictCollectionMode(true);
         _db.setDBOptions(scm);
 
         try {
@@ -63,10 +60,9 @@ public class StrictCollectionTest  extends TestBase {
 
         _db.dropCollection("test");
 
-        StrictCollectionMode scm = new StrictCollectionMode();
-        _db.setDBOptions(scm);
+        _db.setDBOptions(new DBOptions().setStrictCollectionMode(true));
 
-        DBCollection testColl = _db.createCollection("test");
+        _db.createCollection("test");
 
         try {
             _db.createCollection("test");

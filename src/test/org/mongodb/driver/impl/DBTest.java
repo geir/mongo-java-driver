@@ -17,10 +17,8 @@
 package org.mongodb.driver.impl;
 
 import org.testng.annotations.Test;
-import org.mongodb.driver.impl.DBImpl;
-import org.mongodb.driver.impl.Mongo;
 import org.mongodb.driver.DB;
-import org.mongodb.driver.options.db.StrictCollectionMode;
+import org.mongodb.driver.options.DBOptions;
 import static org.testng.AssertJUnit.*;
 
 import java.net.InetSocketAddress;
@@ -101,7 +99,7 @@ public class DBTest {
         Mongo m = new Mongo();
 
         DB db = new DBImpl(m, "org_mongo_driver_DBTest");
-        db.setDBOptions(new StrictCollectionMode());
+        db.setDBOptions(new DBOptions().setStrictCollectionMode(true));
 
         for (String n : db.getCollectionNames()) {
             db.dropCollection(n);
