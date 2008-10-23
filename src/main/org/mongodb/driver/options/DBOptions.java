@@ -16,13 +16,27 @@
 
 package org.mongodb.driver.options;
 
+/**
+ * Represents the options for a Mongo Database
+ */
 public class DBOptions {
     private boolean _strictCollectionMode = false;
 
+    /**
+     *   Strict collection mode doesn't allow creation of collections if the collection
+     *   already exists, and limits getting collections to only those that exist.
+     *
+     * @return true if in strict collection mode
+     */
     public boolean isStrictCollectionMode() {
         return _strictCollectionMode;
     }
 
+    /**
+     *   Sets strict collection mode.
+     * @param strictCollectionMode true if strict mode, false otherwise
+     * @return this object for setter chaining
+     */
     public DBOptions setStrictCollectionMode(boolean strictCollectionMode) {
         _strictCollectionMode = strictCollectionMode;
         return this;

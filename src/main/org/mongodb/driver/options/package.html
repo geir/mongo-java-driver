@@ -1,0 +1,107 @@
+<!--
+/**
+*      Copyright (C) 2008 Geir Magnusson Jr
+*
+*    Licensed under the Apache License, Version 2.0 (the "License");
+*    you may not use this file except in compliance with the License.
+*    You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*    Unless required by applicable law or agreed to in writing, software
+*    distributed under the License is distributed on an "AS IS" BASIS,
+*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*    See the License for the specific language governing permissions and
+*    limitations under the License.
+*/
+-->
+
+<html>
+<title>Mongo DB Driver - DB and Collection Options</title>
+<body>
+
+<p>
+    Database and collection options.
+</p>
+<p>
+    Mongo provides the ability to set two different classes of options :
+</p>
+
+<ul>
+<li>
+    Options on the Database - these are options that affect all operations
+    on a given DB object.  Right now, this is limited to setting "strict mode"
+    for collection creation and getting.
+</li>
+<li>
+    Options on a collection - these are options that are set at collection
+    creation time.  They may not be modified after the collection is created.
+    These options are making the collection a "capped collection", or setting
+    the initial extent size.
+</li>
+</ul>
+
+<strong>Database Options</strong>
+
+<p>
+    Currently there is only one option you can set on a database - "strict mode" for
+    collection creation and getting. By default, Mongo is forgiving when creating a
+    collection that already exists, or putting objects into a collection that doesn't -
+    it will just do whatever needs to be done to succeed, including creating the
+    new colletion for you.
+</p>
+<p>
+    In strict mode, if you try to create a collection that already exists, it will throw
+    a MongoDBException.  If you try to get a colletion that doesn't exist, it will throw
+    a MongoDBException.
+</p>
+
+<p>
+    Here's an example of how to set strict mode :
+</p>
+<pre>
+<code>
+    Mongo mongo = new Mongo();  // connect to localhost
+
+    DB db = mongo.getDB("myDatabase");
+    _db.setDBOptions(new DBOptions().setStrictCollectionMode(true));
+</code>
+</pre>
+
+<strong>Collection Options</strong>
+
+<p>
+    Collection options are set at collection creation time.  Once set, they cannot be changed.  Currently
+    there are two options for a collection :
+</p>
+
+<ul>
+<li>
+    Capped Collection:  A capped collection is a byte-size-limited collection that can optionally limit by number of
+    documents (up to the byte limit).
+</li>
+<li>
+    Initial Extent : Can be set indepdent of the capped feature.  The initial extent is the first block of storage
+    that gets allocated for the collection.  If you know you have a limited collection (say 10 objects), then
+    setting the inital extent size allow you to help the system optimize storage as the usual default size for a
+    collection can be large.  Note that this isn't harmful - once you fill the initial extent, any further
+    object insertions will simply add more storage to the collection as normal.
+</li>
+</ul>
+
+<p>
+    Here's an example of how to use both
+</p>
+<pre>
+<code>
+    Mongo mongo = new Mongo();  // connect to localhost
+
+    DB db = mongo.getDB("myDatabase");
+    DBCollection testColl1 = _db.createCollection("test", new DBCollectionOptions().setCapped(2000, 10));
+    DBCollection testColl2 = _db.createCollection("test", new DBCollectionOptions().setInitialExtent(2000));
+</code>
+</pre>
+
+
+</body>
+</html>
