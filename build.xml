@@ -3,23 +3,43 @@
 
     <property name="targetdir" value="target"/>
     <property name="srcdir" value="src/main/"/>
+    <property name="test_srcdir" value="src/test/"/>
+    <property name="classdir" value="${targetdir}/classes"/>
+    <property name="test_classdir" value="${targetdir}/tests"/>
 
     <target name="init">        
-        <mkdir dir="${targetdir}/classes"/>
+        <mkdir dir="${classdir}"/>
+        <mkdir dir="${test_classdir}"/>
     </target>
 
     <target name="clean">
-        <delete dir="${targetdir}/classes"/>
+        <delete dir="${classdir}"/>
+        <delete dir="${test_classdir}"/>
         <delete dir="${targetdir}/api"/>
         <delete file="mongo-driver.jar"/>
     </target>
     
     <target name="compile" depends="clean, init">
-        <javac srcdir="${srcdir}" destdir="${targetdir}/classes" />
+        <javac srcdir="${srcdir}" destdir="${classdir}" />
+    </target>
+
+    <target name="compile_tests" depends="compile">
+        <javac srcdir="${test_srcdir}" destdir="${test_classdir}">
+            <classpath>
+                <path>
+                    <pathelement location="${test_classdir}/"/>
+                    <pathelement location="${classdir}/"/>
+                    <fileset dir="lib">
+                        <include name="**/*.jar"/>
+                    </fileset>
+                </path>
+            </classpath>
+
+        </javac>
     </target>
 
     <target name="jar" depends="compile" description="Builds a complete driver jar.">
-        <jar destfile="mongo-driver.jar" basedir="${targetdir}/classes"/>
+        <jar destfile="mongo-driver.jar" basedir="${classdir}"/>
     </target>
 
     <target name="doc" depends="javadoc" description="Generates javadoc into target/api"/>
@@ -36,5 +56,24 @@
              <include name="org/mongodb/driver/**"/>
            </packageset>
         </javadoc>
+    </target>
+
+    <!-- =========  TESTING  ============ -->
+
+    <taskdef resource="testngtasks" classpath="lib/testng-5.8-jdk15.jar"/>
+
+
+    <target name="test" depends="compile_tests">
+
+        <testng  outputDir="${targetdir}/testng" haltOnFailure="true" verbose="2">
+            <classpath>
+                <path>
+                    <pathelement location="${test_classdir}/"/>
+                    <pathelement location="${classdir}/"/>
+                </path>
+            </classpath>
+
+            <classfileset dir="${test_classdir}" includes="**/**.class" />
+        </testng>
     </target>
 </project>
