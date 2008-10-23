@@ -97,7 +97,7 @@ public interface DB {
 
     /**
      * Returns the options for this database.  E.g. require collections exist
-     * @return
+     * @return current options settings for this database
      */
     public DBOptions getDBOptions();
 

@@ -27,7 +27,7 @@
                   windowtitle="Mongo Driver API">
 
            <packageset dir="${srcdir}" defaultexcludes="yes">
-             <include name="org/mongo/driver/**"/>
+             <include name="org/mongodb/driver/**"/>
            </packageset>
         </javadoc>
     </target>
