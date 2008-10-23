@@ -1,0 +1,51 @@
+package org.mongo.driver.impl.msg;
+
+import org.mongo.driver.DBQuery;
+import org.mongo.driver.MongoDBException;
+import org.mongo.driver.util.DBStaticData;
+import org.mongo.driver.impl.msg.DBMessage;
+
+/**
+ *   Query message for MongoDB.  Message format is :
+ *
+ *   int  : query opcode
+ *   cstr : collection name
+ *   int  : number to skip
+ *   int  : number to return
+ *   bson : query object
+ *   bson : fields to return (optional)
+ *
+ */
+public class DBQueryMessage extends DBMessage {
+
+    protected final DBQuery _query;
+    protected final String _dbName;
+    protected final String _collection;
+
+    public DBQueryMessage(String dbName, String collection, DBQuery q) throws MongoDBException {
+        super(DBStaticData.OP_QUERY);
+        _query = q;
+        _dbName = dbName;
+        _collection = collection;
+        
+        init();
+    }
+
+    /**
+     *   Writes the query out to the underlying message byte buffer
+     *
+     * @throws Exception if something wrong w/ mongoDoc
+     */
+    protected void init() throws MongoDBException {
+
+        writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+        writeString(_dbName + "." + _collection);
+        writeInt(_query.getNumberToSkip());
+        writeInt(_query.getNumberToReturn());
+        writeMongoDoc(_query.getQuerySelector());
+
+        if(_query.getReturnFieldsSelector() != null) {
+            writeMongoDoc(_query.getReturnFieldsSelector());
+        }
+    }
+}

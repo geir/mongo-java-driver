@@ -1,0 +1,56 @@
+package org.mongo.driver;
+
+import java.util.Set;
+import java.util.HashSet;
+
+/**
+ * Typesafe class for an MongoDoc that contains
+ * only modifier actions.
+ *
+ * Currently supported modifier actions are :
+ *
+ * { $inc: { field:value } } increments field by the number value (if field is present in the object).
+ *
+ * { $set: { field:value } } sets field to the number value (if field is present in the object).
+ *
+ * Note that only the Number BSON datatype is supported right now.
+ */
+public class MongoModifier extends MongoDoc {
+
+    private static final Set<String> _MODIFIER_SET = new HashSet<String>() {
+        {
+            add("$inc");
+            add("$set");
+        }
+    };
+
+    /**
+     * Basic validation - ensure that any keys in the doc are suppored modifier verbs
+     * 
+     * @return true if valid doc, false otherwise
+     */
+    public boolean valid() {
+        for (String key : this) {
+            if (!_MODIFIER_SET.contains(key)) {
+                return false;
+            }
+
+            if (!(get(key) instanceof MongoDoc)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void checkKey(String key) throws MongoDBException {
+
+        if (key == null) {
+            throw new MongoDBException("Error : key is null");
+        }
+
+        if (key.indexOf(".") != -1) {
+            throw new MongoDBException("Error : key contains a '.'");
+        }
+    }
+
+}

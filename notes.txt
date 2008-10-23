@@ -1,0 +1,62 @@
+
+
+1) The object to pass to a mongo query should be of the form :
+
+ {
+     query : <BSONObject>,
+     order : <array>
+ }
+
+2) Document all wierd things like count being done via a db eval (see JS code)
+
+3) Need full multi-fetch trip support for Cursor. - done
+
+4) implement fixed size fetches
+
+6) You can create indexes if only the name is different - document that if the keys are the same, it won't be created
+   either (https://10gen.fogbugz.com/default.asp?941).  Dwight will fix
+
+7) Document commands ("dropIndexes")
+
+   dropDatabase (done)
+   profile
+   count     (done)
+   create    (done)
+   clean     (forgetit)
+   drop      (done)
+   validate
+   deleteIndexes
+
+8) Put in singleton Cursor support so that when a new query is started on a connection, the previous cursor becomes
+locked so that it can't do harm
+
+9) ensure that last cursor is killed
+
+10) Collections aren't created w/o an insert - so if you call count, and it doesn't exist...
+
+11) implement DBCursor.count() that's safe
+
+
+
+Native   jython     jruby    10genJS   rhino   clojure
+-------------------------------------------------------
+Map :      yes       yes                no       no
+List :     yes       yes                no(1)     ?
+
+
+(1) : iterable
+
+
+12) Reserved space : connect( "iad-sb-n2/intr" ).cursors.find();
+
+13) note that there are no $ allowed in document fields (or .)
+
+14) ensure support paired mode
+
+15) Capped collections - done
+
+16) profile
+
+17) Index stuff
+
+19) Initial extent on collection - done

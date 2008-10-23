@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<project name="mongo-api" default="jar" basedir=".">
+
+    <property name="targetdir" value="target"/>
+    <property name="srcdir" value="src/main/"/>
+
+    <target name="init">
+        <mkdir dir="${targetdir}/classes"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${srcdir}" destdir="${targetdir}/classes" />
+    </target>
+
+    <target name="jar" depends="compile" description="Builds a complete driver jar.">
+        <jar destfile="mongo-driver.jar" basedir="${targetdir}/classes"/>
+    </target>
+
+    <target name="doc" depends="javadoc" description="Generates javadoc into target/api"/>
+
+    <target name="javadoc" description="Generates javadoc into target/api">
+        <javadoc
+                  destdir="${targetdir}/api"
+                  author="true"
+                  version="true"
+                  use="true"
+                  windowtitle="Mongo Driver API">
+
+           <packageset dir="${srcdir}" defaultexcludes="yes">
+             <include name="org/mongo/driver/**"/>
+           </packageset>
+        </javadoc>
+    </target>
+</project>

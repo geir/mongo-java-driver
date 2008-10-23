@@ -1,0 +1,5 @@
+doc/*
+mongo-driver.jar
+target/*
+out/*
+test-output/*

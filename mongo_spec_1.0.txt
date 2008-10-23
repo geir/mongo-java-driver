@@ -1,0 +1,86 @@
+
+1) Introduction
+===============
+
+MongoDB is a schema-free document-oriented database accessible a simple network protocol.
+
+ * schema-free : mongo doesn't require that the layout or "schema" of your
+   data be declared or defined to the database.
+
+ * document-oriented : Mongo stores "BSON" documents, which are a binary-encoded serialization
+   of JSON-like documents.
+
+This spec describes the BSON message format and the MongoDB wire protocol.
+
+
+2) BSON Document Format
+=======================
+
+BSON is a binary message format in which zero or more key-value pairs are stored as a single
+entity.  We call this entity a "BSON document".
+
+  2-1.1 : BSON data is stored little-endian.
+
+All BSON data must be serialized in little-endian format.
+
+The following data types are specified in the BSON grammar below :
+
+  2-1.2 : byte - 8-bits
+  2-1.3 : int32 - 4 byte, 32-bit signed integer
+  2-1.4 : int64 - 8 byte, 64-bit signed integer
+  2-1.5 : double - 8 byte, 64-bit IEEE-XX floating point number
+
+BSON has a very simple grammar, expressed below.
+
+
+  <bson_object> ::= <obj_size> <element>* <eoo>
+
+  <obj_size>    ::= [int32] -> size in bytes of the BSON object, including this size field
+  <element>     ::= <element_type> <element_name> <element_data>
+  <eoo>         ::= NUL
+
+  <element_type> ::= [byte] -> One of the <data_...> types listed below
+  <element_name> ::= <cstring> {Note 1}
+  <element_data> ::= Specified data for the type - see table below
+
+  <cstring>  := UTF-8-encoded characters ended by NUL
+  NUL  :== [byte] 0x00
+
+   BSON Data Type          Data                                      Note
+ ---------------------------------------------------------------------------------------------------------
+  <data_number>     [double - value]
+  <data_string>     [int32 - length] <cstring>                   Length is the data plus  size of the string
+  <data_object>     <bson_object>
+  <data_array>      <bson_object>                              {Note 2}
+  <data_binary>     [int32 - length]  data bytes                 Length is number of bytes following
+  <data_oid>        <12 byte object id>
+  <data_boolean>    [byte]                                     0=false, 1=true
+  <data_date>       (int64 - value]                            Milliseconds since the epoch (e.g. new Date.getTime())
+  <data_null>       nothing                                    No data.  Not a 0.  Nothing.
+  <data_regex>      <(cstring)regex> <(cstring)regex options>
+  <data_ref>        <(cstring>namespace> <data_oid>
+  <data_code>       [int32 length] <cstring>                     The length is the data plus the size of
+                                                               the code as string.  The string is UTF-8.
+
+Notes
+-----
+
+{Note 1} :
+
+{Note 2} : The data for a <data_array> type is a normal BSON object, with integer values for the keys, starting
+    with 0 and continuing sequentially.  For example, expressed as JSON :
+
+                  { "0" : "blue", "1" : "red", "2" : "green" }
+
+
+* Mongo Wire Protocol
+
+
+
+-- the mongo wire protocol uses BSON documents for three things
+
+1) Representing the user's document
+2) "Selector" objects that are used in queries to match against documents
+3) "Modifier" objects that contain 'modifier actions' that modify user documents (in the case of an update (see XXXX)
+4) Return error messages
+
