@@ -3,3 +3,6 @@ mongo-driver.jar
 target/*
 out/*
 test-output/*
+mongo-java-driver.ipr
+mongo-java-driver.iws
+src/Mongo Driver.iml

@@ -4,11 +4,17 @@
     <property name="targetdir" value="target"/>
     <property name="srcdir" value="src/main/"/>
 
-    <target name="init">
+    <target name="init">        
         <mkdir dir="${targetdir}/classes"/>
     </target>
 
-    <target name="compile" depends="init">
+    <target name="clean">
+        <delete dir="${targetdir}/classes"/>
+        <delete dir="${targetdir}/api"/>
+        <delete file="mongo-driver.jar"/>
+    </target>
+    
+    <target name="compile" depends="clean, init">
         <javac srcdir="${srcdir}" destdir="${targetdir}/classes" />
     </target>
 
