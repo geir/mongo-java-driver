@@ -16,6 +16,10 @@
 
 package org.mongodb.driver.admin;
 
+import org.mongodb.driver.MongoDBException;
+
+import java.util.List;
+
 /**
  * Admin interface for a DB
  */
@@ -26,13 +30,22 @@ public interface DBAdmin {
     /**
      * Gets the profiling level for the given database - all queries will
      * @return current profiling level
+     * @throws MongoDBException on error
      */
-    public int getProfilingLevel();
+    public LEVEL getProfilingLevel() throws MongoDBException;
 
     /**
      * Sets the a new profiling level
      *
      * @param level new profiling level
+     * @throws MongoDBException on error
      */
-    public void setProfilingLevel(LEVEL level);
+    public void setProfilingLevel(LEVEL level) throws MongoDBException;
+
+    /**
+     *   Returns current profiling info from the DB
+     *   @return list of profile info objects.  Each has the query, timestamp and time of execution.
+     *   @throws MongoDBException in case of error
+     */
+    public List<ProfileInfo> getProfilingInfo() throws MongoDBException;
 }
