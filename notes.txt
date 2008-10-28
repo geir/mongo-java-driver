@@ -19,7 +19,7 @@
 7) Document commands ("dropIndexes")
 
    dropDatabase (done)
-   profile
+   profile   (done)
    count     (done)
    create    (done)
    clean     (forgetit)
@@ -28,35 +28,25 @@
    deleteIndexes
 
 8) Put in singleton Cursor support so that when a new query is started on a connection, the previous cursor becomes
-locked so that it can't do harm
+locked so that it can't do harm = no need, now does full wire read in mutex so there's never old crap on wire
 
-9) ensure that last cursor is killed
+9) ensure that last cursor is killed - done
 
 10) Collections aren't created w/o an insert - so if you call count, and it doesn't exist...
 
 11) implement DBCursor.count() that's safe
 
 
-
-Native   jython     jruby    10genJS   rhino   clojure
--------------------------------------------------------
-Map :      yes       yes                no       no
-List :     yes       yes                no(1)     ?
-
-
-(1) : iterable
-
-
 12) Reserved space : connect( "iad-sb-n2/intr" ).cursors.find();
 
-13) note that there are no $ allowed in document fields (or .)
+13) note that there are no $ allowed in document fields (or .) - done (supported in MongoDoc, Selectory, Modifier)
 
-14) ensure support paired mode
+14) ensure support paired mode - defer
 
 15) Capped collections - done
 
-16) profile
+16) profile - done
 
-17) Index stuff
+17) Index stuff - done, I think
 
 19) Initial extent on collection - done
