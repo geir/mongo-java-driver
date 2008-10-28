@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 /**
  * User: geir
@@ -127,6 +128,32 @@ public class BSONObjectTest {
         assert(bo.serializeCSTR(buff, "b") == 2);
     }
 
+    @Test
+    public void testDate() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        Date now = new Date();
+
+        md.put("date", now);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        assert(md2.get("date").equals(now));
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        assert(md2.get("date").equals(now));
+
+    }
 
 
 }

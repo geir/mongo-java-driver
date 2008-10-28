@@ -120,6 +120,10 @@ public class BSONObject {
                     messageSize += serializeBooleanElement(_buf, key, (Boolean) v);
                     break;
 
+                case DATE :
+                    messageSize += serializeDateElement(_buf, key, (Date) v);
+                    break;
+                
                 default :
                     throw new MongoDBException("Unknown type " + getType(v));
             }
@@ -138,7 +142,7 @@ public class BSONObject {
      *
      * @param byteBuff buffer of BSON to deserialize
      * @return new mongo doc
-     * @throws Exception if a problem
+     * @throws MongoDBException if a problem
      */
     public MongoDoc deserialize(byte[] byteBuff) throws MongoDBException {
         _buf = ByteBuffer.wrap(byteBuff);
@@ -201,6 +205,11 @@ public class BSONObject {
                     doc.put(key, deserializeBooleanData(_buf));
                     break;
 
+                case DATE :
+                    key = deserializeElementName(_buf);
+                    doc.put(key, deserializeDateData(_buf));
+                    break;
+
                 case EOO:
                     break;
                 
@@ -212,6 +221,17 @@ public class BSONObject {
         _buf.flip();
         
         return doc;
+    }
+
+    /**
+     *  Deserializes the data for a Date element type.
+     *
+     * @param buf buffer in which next sequence of bytes is an STRING element
+     * @return deserialized String
+     */
+    protected Date deserializeDateData(ByteBuffer buf) {
+
+        return new Date(buf.getLong());
     }
 
     /**
@@ -240,6 +260,7 @@ public class BSONObject {
      *
      * @param buf buffer in which next sequence of bytes is an STRING element
      * @return deserialized String
+     * @throws MongoDBException on error
      */
     protected MongoDoc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
 
@@ -274,7 +295,7 @@ public class BSONObject {
      *
      * @param buf buffer in which next sequence of bytes is an STRING element
      * @return deserialized String
-     * @throws Exception if an encoding problem
+     * @throws MongoDBException if an encoding problem
      */
     protected String deserializeSTRINGData(ByteBuffer buf) throws MongoDBException {
 
@@ -294,7 +315,7 @@ public class BSONObject {
      *
      * @param buf buffer in which next sequence of bytes is an STRING element
      * @return deserialized String
-     * @throws Exception if an encoding problem
+     * @throws MongoDBException if an encoding problem
      */
     protected DBObjectID deserializeOIDData(ByteBuffer buf) throws MongoDBException {
 
@@ -325,7 +346,7 @@ public class BSONObject {
      * @param key key
      * @param val val
      * @return number of bytes used in buffer
-     * @throws Exception on error
+     * @throws MongoDBException on error
      */
     protected int serializeBooleanElement(ByteBuffer buf, String key, Boolean val) throws MongoDBException {
 
@@ -358,7 +379,40 @@ public class BSONObject {
      * @param key key
      * @param val val
      * @return number of bytes used in buffer
-     * @throws Exception on error
+     * @throws MongoDBException on error
+     */
+    protected int serializeDateElement(ByteBuffer buf, String key, Date val) throws MongoDBException {
+
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(DATE);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        /*
+         * set the value :  serialize the internal long
+         */
+
+        buf.putLong(val.getTime());
+        bufSizeDelta += 8;
+
+        return bufSizeDelta;
+    }
+
+    /**
+     *   <data_object> -> <bson_object>
+     *     *
+     * @param buf buffer to write into
+     * @param key key
+     * @param val val
+     * @return number of bytes used in buffer
+     * @throws MongoDBException on error
      */
     protected int serializeNumberElement(ByteBuffer buf, String key, Number val) throws MongoDBException {
 
@@ -392,6 +446,7 @@ public class BSONObject {
      * @param key key
      * @param val val
      * @return number of bytes used in buffer
+     * @throws MongoDBException on error
      */
     protected int serializeObjectElement(ByteBuffer buf, String key, MongoDoc val) throws MongoDBException {
 
@@ -431,6 +486,7 @@ public class BSONObject {
      * @param key key
      * @param val val
      * @return number of bytes used in buffer
+     * @throws MongoDBException on error
      */
     protected int serializeOIDElement(ByteBuffer buf, String key, DBObjectID val) throws MongoDBException {
 
@@ -506,7 +562,7 @@ public class BSONObject {
      *
      * @param buf buffer to read from
      * @return element name
-     * @throws Exception if an encoding problem
+     * @throws MongoDBException if an encoding problem
      */
     protected String deserializeElementName(ByteBuffer buf) throws MongoDBException {
 
