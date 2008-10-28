@@ -19,10 +19,6 @@ package org.mongodb.driver;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCollection;
-import org.mongodb.driver.IndexInfo;
-import org.mongodb.driver.MongoDBException;
 
 import java.util.List;
 
@@ -120,7 +116,5 @@ public class IndexTest extends TestBase {
         assert(ii.getFields().get(1).equals("d"));
         assert(ii.getFields().get(2).equals("e"));
         assert(ii.getCollectionName().equals("test"));
-
     }
-
 }
