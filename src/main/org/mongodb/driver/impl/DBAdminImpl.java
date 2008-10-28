@@ -62,7 +62,7 @@ class DBAdminImpl implements DBAdmin {
         return list;
     }
 
-    public LEVEL getProfilingLevel() throws MongoDBException {
+    public ProfileLevel getProfilingLevel() throws MongoDBException {
 
         MongoSelector sel = new MongoSelector("profile", -1);
 
@@ -78,17 +78,17 @@ class DBAdminImpl implements DBAdmin {
 
         switch(level) {
             case 0 :
-                return LEVEL.OFF;
+                return ProfileLevel.OFF;
             case 1 :
-                return LEVEL.SLOW_ONLY;
+                return ProfileLevel.SLOW_ONLY;
             case 2 :
-                return LEVEL.ALL;
+                return ProfileLevel.ALL;
             default :
                 throw new MongoDBException ("PROGRAMMER ERROR : profiling level " + level + " erroneously not supported");
         }
     }
 
-    public void setProfilingLevel(LEVEL profilingLevel) throws MongoDBException {
+    public void setProfilingLevel(ProfileLevel profilingLevel) throws MongoDBException {
 
         int level;
 
@@ -120,4 +120,38 @@ class DBAdminImpl implements DBAdmin {
             throw new MongoDBException ("Error - setting profile to level " + level + " failed.  DB response : " + md);
         }
     }
+
+    public boolean validateCollection(String collectionName) throws MongoDBException {
+
+        MongoSelector sel = new MongoSelector("validate", collectionName);
+
+        MongoDoc md = _myDB.dbCommand(sel);
+
+        Object o = md.get("ok");
+
+        if (o == null || !(o instanceof Number)) {
+            throw new MongoDBException ("Error - getting validation data: " + md);
+        }
+
+        if (((Number)o).intValue() != 1) {
+            throw new MongoDBException ("Error - getting validation data: " + md);
+        }
+
+        // can only tell validation status by parsing the string looking for 'corrupt' or 'exception'
+
+        o = md.get("result");
+
+        if (o == null || !(o instanceof String)) {
+            throw new MongoDBException ("Error - getting validation data: " + md);
+        }
+
+        String s = (String) o;
+
+        if (s.indexOf("exception") != -1 || s.indexOf("corrupt") != -1) {
+            throw new MongoDBException ("Error - invalid collection: " + md);
+        }
+
+        return true;
+    }
+
 }

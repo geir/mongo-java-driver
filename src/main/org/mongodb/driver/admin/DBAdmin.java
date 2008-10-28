@@ -25,14 +25,14 @@ import java.util.List;
  */
 public interface DBAdmin {
 
-    enum LEVEL {  OFF, SLOW_ONLY, ALL }
+    enum ProfileLevel {  OFF, SLOW_ONLY, ALL }
 
     /**
      * Gets the profiling level for the given database - all queries will
      * @return current profiling level
      * @throws MongoDBException on error
      */
-    public LEVEL getProfilingLevel() throws MongoDBException;
+    public ProfileLevel getProfilingLevel() throws MongoDBException;
 
     /**
      * Sets the a new profiling level
@@ -40,7 +40,7 @@ public interface DBAdmin {
      * @param level new profiling level
      * @throws MongoDBException on error
      */
-    public void setProfilingLevel(LEVEL level) throws MongoDBException;
+    public void setProfilingLevel(ProfileLevel level) throws MongoDBException;
 
     /**
      *   Returns current profiling info from the DB
@@ -48,4 +48,14 @@ public interface DBAdmin {
      *   @throws MongoDBException in case of error
      */
     public List<ProfileInfo> getProfilingInfo() throws MongoDBException;
+
+
+    /**
+     *  Validates a named collection - examines 
+     * 
+     * @param collectionName name of collection to validate
+     * @return true if collection valid
+     * @throws MongoDBException if collection problematic
+     */
+    public boolean validateCollection(String collectionName) throws MongoDBException;
 }
