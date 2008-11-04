@@ -23,6 +23,12 @@ import java.util.Map;
  */
 public class MongoSelector extends MongoDoc {
 
+    public static final String LTE = "$lte";
+    public static final String LE = "$le";
+    public static final String GTE = "$gte";
+    public static final String GE = "$ge";
+
+    
     public MongoSelector() {
         super();
     }

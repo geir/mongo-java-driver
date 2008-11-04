@@ -152,8 +152,70 @@ public class BSONObjectTest {
         md2 = bo2.deserialize(barr);
 
         assert(md2.get("date").equals(now));
+    }
+
+    @Test
+    public void testBoolean() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        Date now = new Date();
+
+        md.put("date", true);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        assert(md2.get("date").equals(true));
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        assert(md2.get("date").equals(true));
+
+        md.put("date", false);
+
+        bo = new BSONObject();  // TODO - why can't reuse?
+        bo.serialize(md);
+
+        md2 = bo.deserialize();
+
+        assert(md2.get("date").equals(false));
+    }
+
+    @Test
+    public void testNull() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        Date now = new Date();
+
+        md.put("date", (String) null);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        assert(md2.get("date") == null);
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        assert(md2.get("date") == null);
 
     }
+
 
 
 }

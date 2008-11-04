@@ -131,13 +131,18 @@ public class MongoDoc implements Iterable<String> {
 
         checkKey(key);
 
-        _keyList.add(key);
+        if (!_map.containsKey(key)) {
+            _keyList.add(key);
+        }
         _map.put(key, val);
     }
 
     public void put(String key, String val) throws MongoDBException {
         _put(key, val);
-        _size += val.length() * 2;
+
+        if (val != null) {
+            _size += val.length() * 2;
+        }
     }
 
     public void put(String key, MongoDoc val) throws MongoDBException {
@@ -192,6 +197,10 @@ public class MongoDoc implements Iterable<String> {
         return _size;
     }
 
+    public Map getMap() {
+        return _map;
+    }
+
     public int size() {
         return _map.size();
     }
@@ -226,6 +235,77 @@ public class MongoDoc implements Iterable<String> {
             throw new MongoDBException("Error : key contains a '.'");
         }
     }
+
+    /**
+     *  Check if value for key is an int
+     * @param key key to check
+     * @return true if an int
+     */
+    public boolean isInt(String key) {
+        Object o = get(key);
+
+        return (o instanceof Number);  // yeah, this is iffy
+    }
+
+    /**
+     *  returns int value for key
+     *
+     * @param key key to get
+     * @return int value
+     * @throws ClassCastException if the value isn't a Number
+     * @throws NullPointerException if value is null
+     */
+    public int getInt(String key) {
+        Object o = get(key);
+
+        if (o == null) {
+            throw new NullPointerException("Value for " + key + " is null");
+        }
+
+        if (!(o instanceof Number)) {
+            throw new ClassCastException("Value for " + key + " isn't a number");
+        }
+
+        return ((Number) o).intValue();
+    }
+
+    /**
+     *  returns boolean value for key
+     *
+     * @param key key to get
+     * @return int value
+     * @throws ClassCastException if the value isn't a boolean
+     * @throws NullPointerException if value is null
+     */
+    public boolean getBoolean(String key) {
+        Object o = get(key);
+
+        if (o == null) {
+            throw new NullPointerException("Value for " + key + " is null");
+        }
+
+        if (!(o instanceof Boolean)) {
+            throw new ClassCastException("Value for " + key + " isn't a boolean");
+        }
+
+        return (Boolean) o;
+    }
+
+    /**
+     *  returns int value for key
+     *
+     * @param key key to get
+     * @return String  value or null
+     */
+    public String getString(String key) {
+        Object o = get(key);
+
+        if (o == null) {
+            return null;
+        }
+        return o.toString();
+    }
+
     
 //    static final byte ARRAY = 4;
 //    static final byte BINARY = 5;

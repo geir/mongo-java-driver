@@ -37,16 +37,16 @@ public class BSONObject {
 
     static final byte EOO = 0;      // x
     static final byte MAXKEY = -1;
-    static final byte NUMBER = 1;   // x
-    static final byte STRING = 2;   // x
-    static final byte OBJECT = 3;
+    static final byte NUMBER = 1;   // x t
+    static final byte STRING = 2;   // x t
+    static final byte OBJECT = 3;   // x t
     static final byte ARRAY = 4;
     static final byte BINARY = 5;
     static final byte UNDEFINED = 6;
     static final byte OID = 7;       // x
-    static final byte BOOLEAN = 8;
-    static final byte DATE = 9;      // x
-    static final byte NULL = 10;
+    static final byte BOOLEAN = 8;   // x t
+    static final byte DATE = 9;      // x t
+    static final byte NULL = 10;     // x t
     static final byte REGEX = 11;
     static final byte REF = 12;
     static final byte CODE = 13;
@@ -83,9 +83,12 @@ public class BSONObject {
     }
 
     public void serialize(MongoDoc m) throws MongoDBException {
+
         if (m == null) {
             throw new MongoDBException("Document was null");
         }
+
+        _buf.position(0);
 
         int messageSize = 0;
 
@@ -98,10 +101,14 @@ public class BSONObject {
         for (String key : m.orderedKeyList()) {
             Object v = m.get(key);
 
-            switch(getType(v)) {
+            switch(getType(v, key)) {
                 
                 case STRING :
-                    messageSize += serializeStringElement(_buf, key, (String) v);
+                    messageSize += serializeStringElement(_buf, key, (String) v, STRING);
+                    break;
+
+                case CODE :
+                    messageSize += serializeStringElement(_buf, key, (String) v, CODE);
                     break;
 
                 case NUMBER :
@@ -123,9 +130,13 @@ public class BSONObject {
                 case DATE :
                     messageSize += serializeDateElement(_buf, key, (Date) v);
                     break;
-                
+
+                case NULL :                     
+                    messageSize += serializeNullElement(_buf, key);
+                    break;
+
                 default :
-                    throw new MongoDBException("Unknown type " + getType(v));
+                    throw new MongoDBException("Unhandled type " + getType(v, key));
             }
         }
 
@@ -208,6 +219,11 @@ public class BSONObject {
                 case DATE :
                     key = deserializeElementName(_buf);
                     doc.put(key, deserializeDateData(_buf));
+                    break;
+
+                case NULL :
+                    key = deserializeElementName(_buf);
+                    doc.put(key, (String) null);
                     break;
 
                 case EOO:
@@ -337,6 +353,31 @@ public class BSONObject {
         buf.put(EOO);
 
         return 1;
+    }
+
+    /**
+     *   <data_object> -> <bson_object>
+     *     *
+     * @param buf buffer to write into
+     * @param key key
+     * @return number of bytes used in buffer
+     * @throws MongoDBException on error
+     */
+    protected int serializeNullElement(ByteBuffer buf, String key) throws MongoDBException {
+
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(NULL);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        return bufSizeDelta;
     }
 
     /**
@@ -520,13 +561,13 @@ public class BSONObject {
      * @param val val
      * @return number of bytes used in buffer
      */
-    protected int serializeStringElement(ByteBuffer buf, String key, String val) {
+    protected int serializeStringElement(ByteBuffer buf, String key, String val, byte type) {
 
         /*
          * set the type byte
          */
         int bufSizeDelta = 0;
-        buf.put(STRING);
+        buf.put(type);
         bufSizeDelta++;
 
         /*
@@ -617,15 +658,25 @@ public class BSONObject {
         return buf.position() - start;
     }
 
-    public static byte getType(Object o) throws MongoDBException {
-        if ( o == null )
+    public static byte getType(Object o, String key) throws MongoDBException {
+
+        if ( o == null ) {
             return NULL;
+        }
 
-        if ( o instanceof Number )
+        if ( o instanceof Number ) {
             return NUMBER;
+        }
 
-        if ( o instanceof String)
-            return STRING;
+        if ( o instanceof String) {
+
+            // magic awful stuff - the DB requires that a where clause is sent as CODE
+
+            if ("$where".equals(key)) {
+                return CODE;
+            }
+            return STRING;            
+        }
 
         if ( o.getClass().isArray())
             return ARRAY;

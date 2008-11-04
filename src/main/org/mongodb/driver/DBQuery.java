@@ -33,7 +33,12 @@ public class DBQuery  {
     public DBQuery() {
         this(new MongoSelector(), null, 0, 0);
     }
-    
+
+    public DBQuery(String s) throws MongoDBException {
+        this(new MongoSelector("$where", "function() { return " + s + ";}"), null, 0, 0);
+
+    }
+
     public DBQuery(MongoSelector query) {
         this(query, null, 0, 0);
     }

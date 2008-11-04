@@ -27,7 +27,6 @@ import org.mongodb.driver.MongoDoc;
  */
 public class MongoSelectorTest {
 
-
     @Test
     public void verbotenKeyTest() throws MongoDBException {
 
