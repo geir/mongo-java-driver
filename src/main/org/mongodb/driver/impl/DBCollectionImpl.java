@@ -165,9 +165,9 @@ class DBCollectionImpl implements DBCollection {
 
         if (optionDoc != null) {
 
-            Double d = (Double) optionDoc.get("size");  // just because mongo does doubles...?
+            Integer ii = (Integer) optionDoc.get("size");  // just because mongo does doubles...?
 
-            int i = d != null ? d.intValue() : 0;
+            int i = ii != null ? ii.intValue() : 0;
 
             if (i > 0) {
                 options.setInitialExtent(i);
@@ -177,9 +177,9 @@ class DBCollectionImpl implements DBCollection {
 
             if (val != null && val) {
 
-                d = (Double) optionDoc.get("max");
+                ii = (Integer) optionDoc.get("max");
 
-                int maxObj = d != null ? d.intValue() : 0;
+                int maxObj = ii != null ? ii.intValue() : 0;
 
                 if (maxObj > 0) {
                     options.setCapped(i, maxObj);

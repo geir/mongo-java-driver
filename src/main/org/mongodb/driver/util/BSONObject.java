@@ -114,7 +114,11 @@ public class BSONObject {
                     break;
 
                 case NUMBER :
-                    messageSize += serializeNumberElement(_buf, key, (Number) v);
+                    messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER);
+                    break;
+
+                case NUMBER_INT :
+                    messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER_INT);
                     break;
 
                 case OBJECT :
@@ -200,7 +204,12 @@ public class BSONObject {
 
                 case NUMBER :
                     key = deserializeElementName(_buf);
-                    doc.put(key, deserializeNUMBERData(_buf));
+                    doc.put(key, deserializeNumberData(_buf));
+                    break;
+
+                case NUMBER_INT :
+                    key = deserializeElementName(_buf);
+                    doc.put(key, deserializeNumberIntData(_buf));
                     break;
 
                 case OID :
@@ -269,8 +278,18 @@ public class BSONObject {
      * @param buf buffer in which next sequence of bytes is an STRING element
      * @return deserialized String
      */
-    protected Double deserializeNUMBERData(ByteBuffer buf) {
+    protected Double deserializeNumberData(ByteBuffer buf) {
         return buf.getDouble();
+    }
+
+    /**
+     *  Deserializes the data for a NUMBER_INT element type.
+     *
+     * @param buf buffer in which next sequence of bytes is an STRING element
+     * @return deserialized String
+     */
+    protected Integer deserializeNumberIntData(ByteBuffer buf) {
+        return buf.getInt();
     }
 
     /**
@@ -454,16 +473,17 @@ public class BSONObject {
      * @param buf buffer to write into
      * @param key key
      * @param val val
+     * @type type either NUMBER or NUMBER_INT
      * @return number of bytes used in buffer
      * @throws MongoDBException on error
      */
-    protected int serializeNumberElement(ByteBuffer buf, String key, Number val) throws MongoDBException {
+    protected int serializeNumberElement(ByteBuffer buf, String key, Number val, byte type) throws MongoDBException {
 
         /*
          * set the type byte
          */
         int bufSizeDelta = 0;
-        buf.put(NUMBER);
+        buf.put(type);
         bufSizeDelta++;
 
         /*
@@ -475,9 +495,14 @@ public class BSONObject {
          * set the value :  just serialize it
          */
 
-        buf.putDouble(val.doubleValue());
-
-        bufSizeDelta += 8;
+        if (type == NUMBER) {
+            buf.putDouble(val.doubleValue());
+            bufSizeDelta += 8;
+        }
+        else if (type == NUMBER_INT) {
+            buf.putInt(val.intValue());
+            bufSizeDelta += 4;
+        }
 
         return bufSizeDelta;
     }
@@ -666,6 +691,10 @@ public class BSONObject {
             return NULL;
         }
 
+        if (o instanceof Integer) {
+            return NUMBER_INT;
+        }
+        
         if ( o instanceof Number ) {
             return NUMBER;
         }

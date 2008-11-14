@@ -89,6 +89,30 @@ public class BSONObjectTest {
         assert(((Number) md2.get("age")).doubleValue() == 41.2);
     }
 
+    @Test
+    public void testIntegerEncoding() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        md.put("age", 40);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        assert(((Integer) md2.get("age")) == 40);
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        assert(((Integer) md2.get("age")) == 40);
+    }
+
 
     @Test
     public void testStringEncoding() throws Exception {
