@@ -167,7 +167,7 @@ class DBCollectionImpl implements DBCollection {
 
             Integer ii = (Integer) optionDoc.get("size");  // just because mongo does doubles...?
 
-            int i = ii != null ? ii.intValue() : 0;
+            int i = ii != null ? ii : 0;
 
             if (i > 0) {
                 options.setInitialExtent(i);
@@ -179,7 +179,7 @@ class DBCollectionImpl implements DBCollection {
 
                 ii = (Integer) optionDoc.get("max");
 
-                int maxObj = ii != null ? ii.intValue() : 0;
+                int maxObj = ii != null ? ii : 0;
 
                 if (maxObj > 0) {
                     options.setCapped(i, maxObj);
@@ -197,6 +197,7 @@ class DBCollectionImpl implements DBCollection {
 
     /**
      *  PKInjector
+     *  @param pki injector
      */
     public void setPKInjector(PKInjector pki) {
     }
