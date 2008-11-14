@@ -253,8 +253,6 @@ class DBCursorImpl implements DBCursor {
         _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _cursorID ));
 
         readAll();        
-
-        System.out.println("Did a getmore : " + _nReturned);
     }
 
     
