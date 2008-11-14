@@ -36,7 +36,7 @@ import java.io.UnsupportedEncodingException;
 public class BSONObject {
 
     static final byte EOO = 0;      // x
-    static final byte MAXKEY = -1;
+    static final byte MAXKEY = -1;  // x
     static final byte NUMBER = 1;   // x t
     static final byte STRING = 2;   // x t
     static final byte OBJECT = 3;   // x t
@@ -52,6 +52,8 @@ public class BSONObject {
     static final byte CODE = 13;
     static final byte SYMBOL = 14;
     static final byte CODE_W_SCOPE = 15;
+    static final byte NUMBER_INT = 16;
+    
 
     // private types
 
