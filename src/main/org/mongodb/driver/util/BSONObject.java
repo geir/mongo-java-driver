@@ -20,6 +20,8 @@ import org.mongodb.driver.MongoDoc;
 import org.mongodb.driver.DBObjectID;
 import org.mongodb.driver.MongoDBException;
 
+import java.lang.StringBuilder;
+import java.util.Formatter;
 import java.util.Date;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -248,6 +250,30 @@ public class BSONObject {
         _buf.flip();
 
         return doc;
+    }
+
+    /**
+     * Formats the BSON data to be suitable for a hex dump.
+     *
+     * @return String containing a hex dump representation of this BSONObject
+     */
+    public String getHexDump () {
+        byte[] bytes = this.toArray();
+        StringBuilder to_return = new StringBuilder();
+        Formatter formatter = new Formatter(to_return);
+
+        for (int i = 0; i < bytes.length; i++) {
+            if (i % 8 == 0) {
+                if (i != 0) {
+                    to_return.append("\n");
+                }
+                formatter.format("%4d:  ", i);
+            } else {
+                to_return.append(" ");
+            }
+            formatter.format("%02X", bytes[i]);
+        }
+        return to_return.toString();
     }
 
     /**
