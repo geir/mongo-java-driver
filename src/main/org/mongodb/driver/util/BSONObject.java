@@ -1,12 +1,12 @@
 /**
 *      Copyright (C) 2008 Geir Magnusson Jr
-*  
+*
 *    Licensed under the Apache License, Version 2.0 (the "License");
 *    you may not use this file except in compliance with the License.
 *    You may obtain a copy of the License at
-*  
+*
 *       http://www.apache.org/licenses/LICENSE-2.0
-*  
+*
 *    Unless required by applicable law or agreed to in writing, software
 *    distributed under the License is distributed on an "AS IS" BASIS,
 *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * Utility representation of a BSON Document, the binary serialization of a
  * JSON document
- * 
+ *
  */
 public class BSONObject {
 
@@ -53,7 +53,7 @@ public class BSONObject {
     static final byte SYMBOL = 14;
     static final byte CODE_W_SCOPE = 15;
     static final byte NUMBER_INT = 16;
-    
+
 
     // private types
 
@@ -104,7 +104,7 @@ public class BSONObject {
             Object v = m.get(key);
 
             switch(getType(v, key)) {
-                
+
                 case STRING :
                     messageSize += serializeStringElement(_buf, key, (String) v, STRING);
                     break;
@@ -137,7 +137,7 @@ public class BSONObject {
                     messageSize += serializeDateElement(_buf, key, (Date) v);
                     break;
 
-                case NULL :                     
+                case NULL :
                     messageSize += serializeNullElement(_buf, key);
                     break;
 
@@ -179,7 +179,7 @@ public class BSONObject {
     public MongoDoc deserialize() throws MongoDBException {
 
         _buf.position(0);
-        
+
         /*
          *  eat the message size
          */
@@ -239,14 +239,14 @@ public class BSONObject {
 
                 case EOO:
                     break;
-                
+
                 default :
                     throw new MongoDBException("Unknown type " + type);
             }
         }
 
         _buf.flip();
-        
+
         return doc;
     }
 
@@ -312,7 +312,7 @@ public class BSONObject {
         int size = tempBuf.getInt();
 
         tempBuf.position(0);
-        
+
         /**
          *   get the remaining bytes of the mongodoc
          */
@@ -582,7 +582,7 @@ public class BSONObject {
      *   <data_string> -> (int32) length <cstring> where
      *
      *   <cstring> -> UTF-8-encoded characters ended by 0 (byte?)
-     * 
+     *
      * @param buf buffer to write into
      * @param key key
      * @param val val
@@ -660,7 +660,7 @@ public class BSONObject {
      *  Serilzies a String into a cstr, which is just going to be
      *  UTF-8 encoded characters terminated by a 0 byte.  There is
      *  no prefixed type or size.
-     * 
+     *
      * @param buf buf to write into
      * @param val string to write
      * @return number of bytes written to ByteBuffer
@@ -694,7 +694,7 @@ public class BSONObject {
         if (o instanceof Integer) {
             return NUMBER_INT;
         }
-        
+
         if ( o instanceof Number ) {
             return NUMBER;
         }
@@ -706,7 +706,7 @@ public class BSONObject {
             if ("$where".equals(key)) {
                 return CODE;
             }
-            return STRING;            
+            return STRING;
         }
 
         if ( o.getClass().isArray())
