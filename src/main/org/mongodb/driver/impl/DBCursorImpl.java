@@ -67,8 +67,7 @@ class DBCursorImpl implements DBCursor {
      * 
      * @param db db this cursor is associated with
      * @param collection collection this cursor is working over
-     * @throws IOException on network error
-     * @throws MongoDBException on error
+     * @throws MongoDBException on network error
      */
     public DBCursorImpl(DBImpl db, String collection) throws MongoDBException {
         _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
