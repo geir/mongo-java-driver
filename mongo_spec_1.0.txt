@@ -1,17 +1,22 @@
+TOC
+====
+1) Introduction
+2) BSON Document Format
+3) Document Types
 
 1) Introduction
 ===============
 
-MongoDB is a schema-free document-oriented database accessible a simple network protocol.
+MongoDB is a schema-free document-oriented database accessible via a simple network protocol.
 
- * schema-free : mongo doesn't require that the layout or "schema" of your
-   data be declared or defined to the database.
+ * Schema-free : Mongo doesn't require that the layout or "schema" of your
+   data be declared or defined to the database ahead of saving the data.
 
- * document-oriented : Mongo stores "BSON" documents, which are a binary-encoded serialization
+ * Document-oriented : Mongo stores "BSON" documents, which are a binary-encoded serialization
    of JSON-like documents.
 
-This spec describes the BSON message format and the MongoDB wire protocol.
-
+This spec describes the BSON message format and the MongoDB wire protocol.  BSON documents
+are a central part of the protocol, so they will be covered first.
 
 2) BSON Document Format
 =======================
@@ -19,68 +24,109 @@ This spec describes the BSON message format and the MongoDB wire protocol.
 BSON is a binary message format in which zero or more key-value pairs are stored as a single
 entity.  We call this entity a "BSON document".
 
-  2-1.1 : BSON data is stored little-endian.
-
 All BSON data must be serialized in little-endian format.
 
-The following data types are specified in the BSON grammar below :
+Data types used in the grammar :
 
-  2-1.2 : byte - 8-bits
-  2-1.3 : int32 - 4 byte, 32-bit signed integer
-  2-1.4 : int64 - 8 byte, 64-bit signed integer
-  2-1.5 : double - 8 byte, 64-bit IEEE-XX floating point number
+  [byte]   - 1 bytes (8-bits)
+  [int32]  - 4 byte, 32-bit signed integer
+  [int64]  - 8 byte, 64-bit signed integer
+  [double] - 8 byte, 64-bit IEEE-XX floating point number
 
-BSON has a very simple grammar, expressed below.
+Grammar :
+
+  [bson_object]  ::= [obj_size] [element]* [eoo]
+
+  [obj_size]     ::= [int32]                // total size in bytes of the BSON object including 4 bytes for this field
+
+  [element]      ::= [element_type] [element_name] [element_data]
+
+  [eoo]          ::= [NULL]
+
+  [element_type] ::= [byte]                 // One of the [data_...] types listed below
+
+  [element_name] ::= [cstring]              // Note 1
+
+  [element_data] ::= (see below)            // Specific data for the type - see table below
+
+  [cstring]      ::= [byte]* [NULL]         // UTF-8-encoded characters ended by [NULL]
+  [NULL]         ::= [byte] 0x00
+  [VOID]         ::=                        // Nothing.  Not 0.  Zero bits.
 
 
-  <bson_object> ::= <obj_size> <element>* <eoo>
+Element types and data :
 
-  <obj_size>    ::= [int32] -> size in bytes of the BSON object, including this size field
-  <element>     ::= <element_type> <element_name> <element_data>
-  <eoo>         ::= NUL
+Note - for data representations, semantic meaning for a data type is indicated in within the brackets and after a
+hypen and is desrcribed in the note for that type
 
-  <element_type> ::= [byte] -> One of the <data_...> types listed below
-  <element_name> ::= <cstring> {Note 1}
-  <element_data> ::= Specified data for the type - see table below
+ Element Type    Value   Data Represntation                        Note
+---------------------------------------------------------------------------------------------------------
+  [data_number]   1      [double - value]
+  [data_string]   2      [int32 - length] [cstring]             length: bytes following (# of bytes in string
+                                                                + 1 for terminating [NULL])
+  [data_object]   3      [bson_object]
+  [data_array]    4      [bson_object]                          See note 2
+  [data_binary]   5      [int32 - length] [byte]*               length: # of bytes following
+  [data_oid]      7      [byte] * 12                            12 byte object id
+  [data_boolean]  8      [byte - value]                         value: 0x00 -> false, 0x01 -> true
+  [data_date]     9      [int64 - value]                        value: milliseconds since  epoch (e.g. new Date.getTime())
+  [data_null]    10      [VOID]                                 No data.  Not a 0.  Nothing.
+  [data_regex]   11      [cstring - regex] [cstring - options]  regex: expression, options: regex options
+  [data_ref]     12      [cstring - namespace] [data_oid]       namespace: full collection name  
+  [data_code]    13      [int32 length] [cstring]               length: bytes following (# of bytes in string
+                                                                + 1 for terminating [NULL]) and then the code as [cstring]
+  OMITTED        14
+  OMITTED        15
+  [data_int]     16      [int32 - value]
 
-  <cstring>  := UTF-8-encoded characters ended by NUL
-  NUL  :== [byte] 0x00
-
-   BSON Data Type          Data                                      Note
- ---------------------------------------------------------------------------------------------------------
-  <data_number>     [double - value]
-  <data_string>     [int32 - length] <cstring>                   Length is the data plus  size of the string
-  <data_object>     <bson_object>
-  <data_array>      <bson_object>                              {Note 2}
-  <data_binary>     [int32 - length]  data bytes                 Length is number of bytes following
-  <data_oid>        <12 byte object id>
-  <data_boolean>    [byte]                                     0=false, 1=true
-  <data_date>       (int64 - value]                            Milliseconds since the epoch (e.g. new Date.getTime())
-  <data_null>       nothing                                    No data.  Not a 0.  Nothing.
-  <data_regex>      <(cstring)regex> <(cstring)regex options>
-  <data_ref>        <(cstring>namespace> <data_oid>
-  <data_code>       [int32 length] <cstring>                     The length is the data plus the size of
-                                                               the code as string.  The string is UTF-8.
 
 Notes
 -----
 
-{Note 1} :
+Note 1: Element names available to user documents are constrained.  Please be sure to understand the limitations
+           as outlined below in XXXX.
 
-{Note 2} : The data for a <data_array> type is a normal BSON object, with integer values for the keys, starting
-    with 0 and continuing sequentially.  For example, expressed as JSON :
+Note 2: The data for a [data_array] type is a normal BSON object, with integer values for the keys, starting
+           with 0 and continuing sequentially.  For example, expressed as JSON :
 
                   { "0" : "blue", "1" : "red", "2" : "green" }
 
+Implicit Document Types
+=======================
+The mongo wire protocol uses BSON documents for three things
 
-* Mongo Wire Protocol
+1) User Document :  This is the regular document that the database stores.  These are the BSON documents
+   that are sent to the database via the INSERT operation.  User documents have limitations on the "element name" 
+   space due to the usage of special characters in the JSON-like query language.
 
+     a) A user document element name cannot begin with "$".
+     b) A user document element name cannot have a "." in the name.
+     c) The element name "_id" is reserved by the 10gen appserver for
+        use as a primary key id, ($$$ GMJ :  and it probably would be
+        prudent to avoid starting any element name with "_".)
+     d) The element name "query" cannot currently be used.
 
+   The database expects that drivers will prevent users from creating documents that violate these constraints.
+    
+2) "Selector" Docuements : Selector documents (or selectors) are BSON documents that are used in QUERY, DELETE and
+    UPDATE operations.  They are used by these operations to match against documents.  Selector objects have no
+    limitations on the "element name" space, as they must be able to supply special "marker" elements, like
+    "$where" and the special "command" operations.
 
--- the mongo wire protocol uses BSON documents for three things
-
-1) Representing the user's document
-2) "Selector" objects that are used in queries to match against documents
 3) "Modifier" objects that contain 'modifier actions' that modify user documents (in the case of an update (see XXXX)
-4) Return error messages
 
+4) Return error messages : TODO
+
+
+3) Mongo Wire Protocol
+=======================
+
+
+
+
+
+
+TODO :
+
+1) describe object id
+2) describe namespaces
