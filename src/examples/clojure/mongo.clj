@@ -14,35 +14,23 @@
 ;    limitations under the License.
 ;
 
-(def mongo (new org.mongo.driver.impl.Mongo))
-(def db (. mongo (getDB "clojure"))
+(def mongo (org.mongodb.driver.impl.Mongo.))
+(def db (.getDB mongo "clojure"))
+(def coll (.getCollection db "test"))
 
-(def coll (. db (getCollection "test" true)))
+(. coll clear)                          ; erase all records in the collection
 
-(. coll clear)
+; insert three records
+(dorun (map #(do (.insert coll {"a" (+ % 1)})) (range 0 3)))
 
-; we have to use the mongoDoc as clojure doesn't do Map
+; print the number of records in the collection.
+(println "There are" (.getCount coll (org.mongodb.driver.MongoSelector.)) "records in the collection 'test'")
 
-(def md (new org.mongo.driver.MongoDoc))
-
-(. md (put "a" 1))
-
-(. coll (insert md))
-
-(def res (. coll find))
-
-;
 ; one way to do a query
-;
+(loop [i (.find coll)]
+  (when i
+    (do (println (first i))
+        (recur (rest i)))))
 
-(loop [i res]
-        (println (first i))
-        (when (rest i) (recur (rest i)))
-)
-
-;
 ; and another
-;
-
-(map println (. coll find))
-
+(dorun (map println (.find coll)))
