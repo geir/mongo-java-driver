@@ -16,17 +16,15 @@
 
 require 'java'
 
-db = org.mongo.driver.impl.DBImpl.new("jruby")
+mongo = org.mongodb.driver.impl.Mongo.new
+db = org.mongodb.driver.impl.DBImpl.new(mongo, "jruby")
 
-coll = db.get_collection "test", true
+coll = db.get_collection "test"
 
 coll.clear
 
-doc = org.mongo.driver.MongoDoc.new
-
 10.times { |i|
-  doc["a"] = i + 1
-  coll.insert doc
+  coll.insert org.mongodb.driver.MongoDoc.new("a", i + 1)
 }
 
 coll.find.each { |i| puts i.to_s }
