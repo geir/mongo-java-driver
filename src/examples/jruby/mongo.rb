@@ -27,15 +27,15 @@ coll.clear
   coll.insert org.mongodb.driver.MongoDoc.new("a", i + 1)
 }
 
-coll.find.each { |i| puts i.to_s }
+coll.find.each { |row| puts row.to_s }
 
 
 # now use native dictionariies for objects and selectors
 
-coll = db.get_collection "test2", true
+coll = db.get_collection "test2"
 coll.clear
 
-coll.insert ":b" => 1
-coll.insert ":b" => 2
+coll.insert 'b' => 1
+coll.insert 'b' => 2
 
-coll.find.each { |i| puts i.to_s }
+coll.find.each { |row| puts row.to_s }
