@@ -14,6 +14,9 @@
 #    limitations under the License.
 #
 
+# To run:
+# CLASSPATH=mongo-driver.jar jruby src/examples/jruby/mongo.rb
+
 require 'java'
 
 mongo = org.mongodb.driver.impl.Mongo.new
