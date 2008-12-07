@@ -14,6 +14,16 @@
 ;    limitations under the License.
 ;
 
+;
+; To run:
+; $ cd src/examples/clojure
+; $ clj # or however you normally start the clojure REPL
+; Clojure
+; user=> (add-classpath "file:///full/path/to/mongo-driver.jar")
+; nil
+; user=> (load-file "mongo.clj")
+;
+
 (def mongo (org.mongodb.driver.impl.Mongo.))
 (def db (.getDB mongo "clojure"))
 (def coll (.getCollection db "test"))
