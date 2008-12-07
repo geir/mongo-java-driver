@@ -18,8 +18,10 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
-import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.options.DBCollectionOptions;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.options.DBCollectionOptions;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCollection;
 
 public class ExtentTest extends TestBase {
 

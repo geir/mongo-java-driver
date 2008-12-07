@@ -18,11 +18,11 @@ package org.mongodb.driver.impl;
 
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.admin.ProfileInfo;
-import org.mongodb.driver.MongoSelector;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.DBQuery;
-import org.mongodb.driver.DBCursor;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.DBCursor;
 
 import java.util.List;
 import java.util.ArrayList;

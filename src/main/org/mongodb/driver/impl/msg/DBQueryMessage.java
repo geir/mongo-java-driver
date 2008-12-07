@@ -16,7 +16,7 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.DBQuery;
+import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.util.DBStaticData;
 import org.mongodb.driver.impl.msg.DBMessage;

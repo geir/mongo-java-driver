@@ -1,12 +1,12 @@
 /**
 *      Copyright (C) 2008 Geir Magnusson Jr
-*  
+*
 *    Licensed under the Apache License, Version 2.0 (the "License");
 *    you may not use this file except in compliance with the License.
 *    You may obtain a copy of the License at
-*  
+*
 *       http://www.apache.org/licenses/LICENSE-2.0
-*  
+*
 *    Unless required by applicable law or agreed to in writing, software
 *    distributed under the License is distributed on an "AS IS" BASIS,
 *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,18 +16,18 @@
 
 package org.mongodb.driver.impl;
 
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCollection;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoDoc;
-import org.mongodb.driver.DBCursor;
-import org.mongodb.driver.DBObjectID;
-import org.mongodb.driver.DBQuery;
-import org.mongodb.driver.MongoSelector;
-import org.mongodb.driver.MongoModifier;
-import org.mongodb.driver.IndexInfo;
-import org.mongodb.driver.options.DBOptions;
-import org.mongodb.driver.options.DBCollectionOptions;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.DBObjectID;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.MongoModifier;
+import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.options.DBOptions;
+import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.impl.msg.DBInsertMessage;
 import org.mongodb.driver.impl.msg.DBMessage;
@@ -46,8 +46,8 @@ import java.io.IOException;
 /**
  *  Implementation of the DB class
  */
-class DBImpl implements DB {
-   
+public class DBImpl implements DB {
+
     public static final String SYSTEM_NAMESPACE_COLLECTION = "system.namespaces";
     public static final String SYSTEM_INDEX_COLLECTION = "system.indexes";
     public static final String SYSTEM_COMMAND_COLLECTION = "$cmd";
@@ -57,26 +57,19 @@ class DBImpl implements DB {
 
     protected String _dbName;
 
-    protected InetSocketAddress _addr;
-
     protected Socket _sock;
-    private final Object _dbMonitor = new Object();
+    protected final Object _dbMonitor = new Object();
 
-    protected final Mongo _myMongoServer;
+    protected final MongoImpl _myMongoServer;
 
-    public DBImpl(Mongo mongo, String dbName) throws MongoDBException {
-        this(mongo, dbName, new InetSocketAddress("127.0.0.1", Mongo.DEFAULT_MONGO_PORT));
-    }
-    
-    public DBImpl(Mongo mongo, String dbName, InetSocketAddress addr) throws MongoDBException {
+    public DBImpl(MongoImpl mongo, String dbName) throws MongoDBException {
         checkDBName(dbName);
 
         _myMongoServer = mongo;
-        _addr = addr;
         _dbName = dbName;
 
         try {
-            _sock = new Socket(_addr.getAddress(), _addr.getPort());
+            _sock = new Socket(_myMongoServer.getServerAddress().getAddress(), _myMongoServer.getServerAddress().getPort());
         }
         catch (IOException e) {
             throw new MongoDBException("Error connecting.", e);
@@ -116,7 +109,6 @@ class DBImpl implements DB {
     }
 
     protected DBCursor getCollectionsInfo() throws MongoDBException {
-
         return getCollectionsInfo(null);
     }
 
@@ -131,7 +123,7 @@ class DBImpl implements DB {
         catch (Exception e) {
             throw new MongoDBException(e);
         }
-    }        
+    }
 
     /**
      *  Creates a collection if not in strict mode.  if in strict mode, check for existence.
@@ -147,7 +139,7 @@ class DBImpl implements DB {
     /**
      *  Creates a collection with optional options.  Note that if options are passed in and not in strict
      *  mode, driver doesn't currently guarantee the options will be respected.
-     * 
+     *
      * @param name name of collection to create
      * @param options optinoal options for creation (e.g. CappedCollection)
      * @return collection
@@ -203,7 +195,7 @@ class DBImpl implements DB {
 
     /**
      *  Returns the name of this database
-     * 
+     *
      * @return name of database
      */
     public String getName() {
@@ -280,7 +272,7 @@ class DBImpl implements DB {
     /**
      * Closes the connection to the database.  After this method is called,
      * this DB object is useless.
-     * 
+     *
      * @throws Exception if a problem
      */
     public void close() throws Exception {
@@ -289,7 +281,7 @@ class DBImpl implements DB {
 
     /**
      *  Sends a message to the database
-     * 
+     *
      * @param m message to send
      * @throws MongoDBException if a problem
      */
@@ -330,7 +322,7 @@ class DBImpl implements DB {
     public boolean isStrictCollections() {
         return _strictCollections;
     }
-    
+
 
     protected DBCursor queryDB(String collection, DBQuery q) throws MongoDBException {
 
@@ -346,7 +338,7 @@ class DBImpl implements DB {
         synchronized(_dbMonitor) {
             sendToDB(new DBRemoveMessage(_dbName, collection, selector));
             return true;
-        }        
+        }
     }
 
     protected boolean replaceInDB(String collection, MongoSelector selector, MongoDoc obj) throws MongoDBException {
@@ -359,7 +351,7 @@ class DBImpl implements DB {
     protected MongoDoc repsertInDB(String collection, MongoSelector selector, MongoDoc obj) throws MongoDBException {
 
         // TODO - if  PKInjector, inject
-        
+
         synchronized(_dbMonitor) {
             sendToDB(new DBUpdateMessage(_dbName, collection, selector, obj, true));
             return obj;
@@ -466,7 +458,7 @@ class DBImpl implements DB {
                 ii.setCollectionName(ns);
                 list.add(ii);
             }
-            
+
             return list;
         }
     }

@@ -18,7 +18,10 @@ package org.mongodb.driver;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.mongodb.driver.impl.Mongo;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.IndexInfo;
 
 import java.util.List;
 

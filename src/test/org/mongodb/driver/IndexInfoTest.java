@@ -17,7 +17,7 @@
 package org.mongodb.driver;
 
 import org.testng.annotations.Test;
-import org.mongodb.driver.IndexInfo;
+import org.mongodb.driver.ts.IndexInfo;
 
 public class IndexInfoTest {
 

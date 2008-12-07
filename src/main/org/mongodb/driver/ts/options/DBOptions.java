@@ -14,7 +14,7 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver.options;
+package org.mongodb.driver.ts.options;
 
 /**
  * Represents the options for a Mongo Database

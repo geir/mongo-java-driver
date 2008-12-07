@@ -16,16 +16,16 @@
 
 package org.mongodb.driver.impl;
 
-import org.mongodb.driver.DBCollection;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.DBCursor;
-import org.mongodb.driver.MongoDoc;
-import org.mongodb.driver.DBQuery;
-import org.mongodb.driver.IndexInfo;
-import org.mongodb.driver.MongoSelector;
-import org.mongodb.driver.MongoModifier;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.options.DBCollectionOptions;
+import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.util.PKInjector;
 
 import java.util.List;

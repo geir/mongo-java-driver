@@ -1,0 +1,65 @@
+<!--
+/**
+*    Licensed under the Apache License, Version 2.0 (the "License");
+*    you may not use this file except in compliance with the License.
+*    You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*    Unless required by applicable law or agreed to in writing, software
+*    distributed under the License is distributed on an "AS IS" BASIS,
+*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*    See the License for the specific language governing permissions and
+*    limitations under the License.
+*/
+-->
+
+<html>
+<title>Typesafe Mongo DB Driver</title>
+<body>
+
+<p><b>Simple Typesafe Java driver for Mongo DB</b></p>
+<p>
+    This is a basic implementation of the Mongo DB API for Java.  Mongo is a
+    fast schema-free document store that stores JSON-like documents in
+    groups called collections.  There's a rich query language, and it includes
+    features such as indexing, capped tables, replication and more.  The
+    Mongo database can be found at <a href="http://www.10gen.com/">http://www.10gen.com</a>.
+</p>
+
+<p>
+    This is the typesafe driver - there is an object model representing the Mongo
+    documents, the query objects, and modifier objects.  If you wish to work w/o the
+    rigid object model, please see org.mongo.driver.ts.
+</p>
+
+<p>
+    This driver models Mongo as a server from which one can create database
+    objects for the individual databases, and then from each of those
+    collections can be created and used.  In a simple Java example :
+</p>
+<pre>
+<code>
+Mongo mongo = new Mongo();  // connect to localhost
+
+DB db = mongo.getDB("myDatabase");
+
+DBCollection coll = db.getCollection("test");
+coll.clear();
+
+MongoDoc doc = new MongoDoc();
+doc.put("a", 1);
+coll.insert(doc);
+
+doc.put("a", 2);
+coll.insert(doc);
+
+DBCursor cur = coll.find();
+
+for(MongoDoc d : cur) {
+    System.out.println("MongoDoc : " + d);
+}
+</code>
+</pre>
+</body>
+</html>

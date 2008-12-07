@@ -14,30 +14,31 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver.util;
+package org.mongodb.driver.ts;
 
-import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.DBObjectID;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.impl.MongoImpl;
+import org.mongodb.driver.impl.DBImpl;
 
 /**
- * Primary Key injector that uses the conventions of
- * the 10gen Babble appserver
+ *  Mongo database server.  This is the top level class of the typsafe driver.
+ * 
  */
-public class JSPKInjector implements PKInjector {
+public class Mongo extends MongoImpl {
 
-    final static String KEY = "_id";
-
-    public String getKey() {
-        return KEY;
+    public Mongo() {
+        super();
     }
 
-    public boolean injectPK(MongoDoc doc) throws MongoDBException {
+    public Mongo(String host) throws MongoDBException {
+        super(host);
+    }
 
-        if (doc.get(KEY) == null) {
-            doc.put(KEY, new DBObjectID());
-            return true;
-        }
-        return false;
+    public Mongo(String host, int port) throws MongoDBException {
+        super(host, port);
+    }
+
+    public DB getDB(String dbName) throws MongoDBException {
+        return new DBImpl(this, dbName);
     }
 }

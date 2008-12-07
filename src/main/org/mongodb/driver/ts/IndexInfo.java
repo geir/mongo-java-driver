@@ -14,7 +14,7 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.ts;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -41,6 +41,15 @@ public class IndexInfo {
     public IndexInfo(String indexName, String... fields) {
         _indexName = indexName;
         _fieldList.addAll(Arrays.asList(fields));
+    }
+
+    public IndexInfo(String indexName) {
+         _indexName = indexName;
+     }
+
+    public IndexInfo(String indexName, List<String> fields) {
+        _indexName = indexName;
+        _fieldList.addAll(fields);
     }
 
     /**

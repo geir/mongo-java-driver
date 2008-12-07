@@ -18,6 +18,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
+import org.mongodb.driver.ts.MongoDoc;
 
 import java.nio.ByteBuffer;
 import java.util.Date;

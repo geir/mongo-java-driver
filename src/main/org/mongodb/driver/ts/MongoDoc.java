@@ -14,7 +14,10 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.ts;
+
+import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.ts.DBObjectID;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -64,7 +67,7 @@ public class MongoDoc implements Iterable<String> {
      *
      * @param key key under which to store the associated value
      * @param value value to store
-     * @throws MongoDBException if a problem with key
+     * @throws org.mongodb.driver.MongoDBException if a problem with key
      */
     public MongoDoc(String key, Object value) throws MongoDBException {
         _map = new HashMap<String, Object>();

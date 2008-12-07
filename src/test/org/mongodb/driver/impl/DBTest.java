@@ -17,11 +17,10 @@
 package org.mongodb.driver.impl;
 
 import org.testng.annotations.Test;
-import org.mongodb.driver.DB;
-import org.mongodb.driver.options.DBOptions;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.options.DBOptions;
 import static org.testng.AssertJUnit.*;
-
-import java.net.InetSocketAddress;
 
 public class DBTest {
 
@@ -39,7 +38,7 @@ public class DBTest {
         }
 
         try {
-            new DBImpl(m, "", null);
+            new DBImpl(m, "");
             fail();
         }
         catch(Exception e) {
@@ -47,23 +46,15 @@ public class DBTest {
         }
 
         try {
-            new DBImpl(m, "", new InetSocketAddress("127.0.0.1", Mongo.DEFAULT_MONGO_PORT));
+            new DBImpl(m, "a.b");
             fail();
         }
         catch(Exception e) {
             // ok
         }
 
-        try {
-            new DBImpl(m, "a.b", new InetSocketAddress("127.0.0.1", Mongo.DEFAULT_MONGO_PORT));
-            fail();
-        }
-        catch(Exception e) {
-            // ok
-        }
-
-        DBImpl db = new DBImpl(m, "test_me", new InetSocketAddress("127.0.0.1", Mongo.DEFAULT_MONGO_PORT));
-
+        DBImpl db = new DBImpl(m, "test_me");
+        
         assert(db.getName().equals("test_me"));
 
         db.close();

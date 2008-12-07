@@ -16,8 +16,8 @@
 
 package org.mongodb.driver.util;
 
-import org.mongodb.driver.MongoDoc;
-import org.mongodb.driver.DBObjectID;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DBObjectID;
 import org.mongodb.driver.MongoDBException;
 
 import java.lang.StringBuilder;

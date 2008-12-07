@@ -16,8 +16,8 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.MongoSelector;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.util.DBStaticData;
 

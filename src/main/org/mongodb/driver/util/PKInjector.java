@@ -16,7 +16,7 @@
 
 package org.mongodb.driver.util;
 
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
 /**

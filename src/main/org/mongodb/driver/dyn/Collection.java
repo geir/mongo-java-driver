@@ -1,12 +1,12 @@
 /**
 *      Copyright (C) 2008 Geir Magnusson Jr
-*  
+*
 *    Licensed under the Apache License, Version 2.0 (the "License");
 *    you may not use this file except in compliance with the License.
 *    You may obtain a copy of the License at
-*  
+*
 *       http://www.apache.org/licenses/LICENSE-2.0
-*  
+*
 *    Unless required by applicable law or agreed to in writing, software
 *    distributed under the License is distributed on an "AS IS" BASIS,
 *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,25 +14,27 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.dyn;
 
-import org.mongodb.driver.options.DBCollectionOptions;
+import org.mongodb.driver.MongoDBException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 /**
- *  Collection of Mongo documents in a Mongo database.
+ *  Collection of Mongo documents in a Mongo database.  This is the
+ *  non-typesafe interface.  Maps and lists and strings, oh my!
  */
-public interface DBCollection {
+public interface Collection {
 
     /**
      *  Finds all objects in the collection
      *
      * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
+     * @throws org.mongodb.driver.MongoDBException if somethign goes wrong
      */
-    public DBCursor find() throws MongoDBException;
+    public Iterator<Map> find() throws MongoDBException;
 
     /**
      *  Finds all objects in the collection
@@ -41,17 +43,8 @@ public interface DBCollection {
      * @return cursor to get objects from the result set
      * @throws MongoDBException if somethign goes wrong
      */
-    public DBCursor find(Map selectorMap) throws MongoDBException;
+    public Iterator find(Map selectorMap) throws MongoDBException;
 
-    /**
-     *  Finds objects in the collection that match the specified query selector
-     *
-     * @param selector Selector to use to select objects 
-     * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
-     */
-    public DBCursor find(MongoSelector selector) throws MongoDBException;
-    
     /**
      *  Finds objects in the collection that match the specified query
      *
@@ -59,7 +52,7 @@ public interface DBCollection {
      * @return cursor to get objects from the result set
      * @throws MongoDBException if somethign goes wrong
      */
-    public DBCursor find(DBQuery query) throws MongoDBException;
+    public Iterator find(String query) throws MongoDBException;
 
     /**
      * Inserts (saves) a single object to this collection.
@@ -71,22 +64,13 @@ public interface DBCollection {
     public boolean insert(Map object) throws MongoDBException;
 
     /**
-     * Inserts (saves) a single object to this collection.
-     *
-     * @param object the object to save
-     * @return true always for now
-     * @throws MongoDBException if something goes wrong
-     */
-    public boolean insert(MongoDoc object) throws MongoDBException;
-
-    /**
      * Inserts (saves) multiple objects to this collection.
      *
      * @param objects the objects to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(MongoDoc[] objects) throws MongoDBException;
+    public boolean insert(Map[] objects) throws MongoDBException;
 
     /**
      * Removes all objects from the collection
@@ -103,7 +87,7 @@ public interface DBCollection {
      *  @return true if successful
      *  @throws MongoDBException on error
       */
-     public boolean remove(MongoSelector selector) throws MongoDBException;
+     public boolean remove(Map selector) throws MongoDBException;
 
     /**
      * Performs an replace operation if the object is found, an insert otherwise.
@@ -115,18 +99,18 @@ public interface DBCollection {
      * @return modified doc (will have new PK if injector present)
      * @throws MongoDBException if problem
      */
-    public MongoDoc repsert(MongoSelector selector, MongoDoc obj) throws MongoDBException;
+    public Map repsert(Map selector, Map obj) throws MongoDBException;
 
     /**
      *   Replaces objects found with the supplied object.  If a PK injector
      *   is present, a PK will be added to the new object
      *
-     * @param sel Selector to select objects to be replaced
+     * @param selector Selector to select objects to be replaced
      * @param obj object to replace found objects with
      * @return true always
      * @throws MongoDBException on error
      */
-    public boolean replace(MongoSelector sel , MongoDoc obj) throws MongoDBException;
+    public boolean replace(Map selector, Map obj) throws MongoDBException;
 
     /**
      *   Modifies objects found with the modifiers in the supplied object.
@@ -136,16 +120,25 @@ public interface DBCollection {
      * @return true always
      * @throws MongoDBException if problem
      */
-    public boolean modify(MongoSelector selector , MongoModifier modifierObj) throws MongoDBException;
+    public boolean modify(Map selector , Map modifierObj) throws MongoDBException;
 
     /**
+     * <p>
      * Creates an index on a set of fields, if one does not already exist.
-     * 
+     * </p>
+     *
+     * <p>The passed in map must have two fields :</p>
+     *
+     * <ul>
+     *   <li>indexname : name of the index.  E.g.  a_1</li>
+     *   <li>fields : a single field name or a java.util.List of field names for the index</li>
+     * </ul>
+     *
      * @param indexInfo an object with a key set of the fields desired for the index and the name
      * @return true always for now
      * @throws MongoDBException if error
      */
-    public boolean createIndex(IndexInfo indexInfo) throws MongoDBException;
+    public boolean createIndex(Map indexInfo) throws MongoDBException;
 
     /**
      * Drops an index.
@@ -159,6 +152,7 @@ public interface DBCollection {
     /**
      * Drops all indexes for the collection.
      *
+     * @return true if the operations succeeded
      * @throws MongoDBException on error
      */
     public boolean dropIndexes() throws MongoDBException;
@@ -174,11 +168,11 @@ public interface DBCollection {
      * @return list of mongodocs
      * @throws MongoDBException if problem
      */
-    public List<IndexInfo> getIndexInformation() throws MongoDBException;
+    public List<Map> getIndexInformation() throws MongoDBException;
 
     /**
      * Returns the number of objects in the collection
-     * 
+     *
      * @return number of objects
      * @throws MongoDBException in case of problem
      */
@@ -192,21 +186,21 @@ public interface DBCollection {
      * @return number of objects
      * @throws MongoDBException in case of problem
      */
-    public int getCount(MongoSelector selector) throws MongoDBException;
+    public int getCount(Map selector) throws MongoDBException;
 
     /**
      * Returns the database this collection is a member of.
-     * 
+     *
      * @return this collection's database
      */
     public DB getDB();
 
     /**
      * Returns the name of this collection.
-     * 
+     *
      * @return  the name of this collection
      */
     public String getName();
 
-    public DBCollectionOptions getOptions() throws MongoDBException ;
+    public Map getOptions() throws MongoDBException ;
 }

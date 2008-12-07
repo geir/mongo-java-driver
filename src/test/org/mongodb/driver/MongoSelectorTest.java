@@ -19,7 +19,7 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.fail;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.MongoDoc;
 
 /**
  * Tests for MongoModifier class

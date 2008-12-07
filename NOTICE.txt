@@ -1,0 +1,6 @@
+The following copyright notices apply to this software : 
+
+Copyright (c) 2008 Geir Magnusson Jr.
+Copyright (c) 2008 Jim Menard
+Copyright (c) 2008 Michael Dirolf
+

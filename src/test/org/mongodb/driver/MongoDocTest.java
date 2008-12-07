@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import static org.testng.AssertJUnit.*;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.MongoDoc;
 
 public class MongoDocTest {
 

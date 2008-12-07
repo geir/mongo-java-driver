@@ -14,7 +14,11 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.ts;
+
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.MongoDBException;
 
 import java.util.Map;
 

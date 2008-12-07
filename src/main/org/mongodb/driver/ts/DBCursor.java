@@ -14,7 +14,10 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.ts;
+
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.MongoDBException;
 
 import java.util.Enumeration;
 
@@ -37,7 +40,7 @@ public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
      *  Returns the next object in the cursor.
      * 
      * @return next object on this cursor
-     * @throws MongoDBException on error
+     * @throws org.mongodb.driver.MongoDBException on error
      */
     public MongoDoc getNextObject() throws MongoDBException;
 

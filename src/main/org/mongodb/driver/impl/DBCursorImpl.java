@@ -16,8 +16,8 @@
 
 package org.mongodb.driver.impl;
 
-import org.mongodb.driver.MongoDoc;
-import org.mongodb.driver.DBCursor;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.impl.msg.DBMessageHeader;

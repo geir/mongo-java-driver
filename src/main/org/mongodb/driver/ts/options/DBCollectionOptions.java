@@ -1,7 +1,7 @@
-package org.mongodb.driver.options;
+package org.mongodb.driver.ts.options;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoSelector;
+import org.mongodb.driver.ts.MongoSelector;
 
 /**
  *   Representation of options for a DB collection.  Note that options cannot

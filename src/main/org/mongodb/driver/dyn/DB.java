@@ -1,12 +1,12 @@
 /**
 *      Copyright (C) 2008 Geir Magnusson Jr
-*  
+*
 *    Licensed under the Apache License, Version 2.0 (the "License");
 *    you may not use this file except in compliance with the License.
 *    You may obtain a copy of the License at
-*  
+*
 *       http://www.apache.org/licenses/LICENSE-2.0
-*  
+*
 *    Unless required by applicable law or agreed to in writing, software
 *    distributed under the License is distributed on an "AS IS" BASIS,
 *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,17 +14,18 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.dyn;
 
 import org.mongodb.driver.admin.DBAdmin;
-import org.mongodb.driver.options.DBOptions;
-import org.mongodb.driver.options.DBCollectionOptions;
+import org.mongodb.driver.ts.options.DBOptions;
+import org.mongodb.driver.MongoDBException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *  A Mongo database instance.
- * 
+ *
  */
 public interface DB {
 
@@ -32,7 +33,7 @@ public interface DB {
      *  Returns a list of the names of the collections  in this database
      *
      * @return List of collection names
-     * @throws MongoDBException on error
+     * @throws org.mongodb.driver.MongoDBException on error
      */
     public List<String> getCollectionNames() throws MongoDBException;
 
@@ -45,18 +46,29 @@ public interface DB {
      * @throws MongoDBException if collection doesn't exist and in strict mode, or if
      *         there's a problem creating the collection
      */
-    public DBCollection createCollection(String name) throws MongoDBException;
+    public Collection createCollection(String name) throws MongoDBException;
 
     /**
      *  Creates a collection with optional options.  Note that if options are passed in and not in strict
      *  mode, driver doesn't currently guarantee the options will be respected.
      *
+     *  You can :
+     *
+     * 1) Set the collection as "capped", putting 'sizeLimit' and  optionally 'maxObjects' in the map :
+     *
+     *     sizeLimit - int size in bytes
+     *     maxObjects - int number of objects max to keep in the collection
+     *
+     * 2) Set the collection initial extent, putting 'initialExtent' into the map
+     *
+     *     initialExtent - int size in bytes
+     * 
      * @param name name of collection to create
      * @param options optinoal options for creation (e.g. CappedCollection)
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
-     */    
-    public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException;
+     */
+    public Collection createCollection(String name, Map options) throws MongoDBException;
 
     /**
      *  Gets a DBCollection object representing the specified collection in the database.
@@ -69,7 +81,7 @@ public interface DB {
      * @return collection object for subsequent operations, or null if it doesn't exist.
      * @throws MongoDBException on error
      */
-    public DBCollection getCollection(String name) throws MongoDBException;
+    public Collection getCollection(String name) throws MongoDBException;
 
 
     /**

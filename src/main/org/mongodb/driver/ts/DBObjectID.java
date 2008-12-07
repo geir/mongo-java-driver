@@ -14,7 +14,7 @@
 *    limitations under the License.
 */
 
-package org.mongodb.driver;
+package org.mongodb.driver.ts;
 
 import java.util.UUID;
 import java.nio.ByteBuffer;

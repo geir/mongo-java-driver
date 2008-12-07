@@ -16,8 +16,8 @@
 
 package org.mongodb.driver;
 
-import org.mongodb.driver.DBCursor;
-import org.mongodb.driver.MongoDoc;
+import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.MongoDoc;
 
 public class TestBase {
 

@@ -1,8 +1,14 @@
 package org.mongodb.driver;
 
-import org.mongodb.driver.impl.Mongo;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.IndexInfo;
 
-import javax.management.Query;
 import java.util.Random;
 
 /**

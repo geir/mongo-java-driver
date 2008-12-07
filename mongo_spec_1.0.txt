@@ -130,3 +130,4 @@ TODO :
 
 1) describe object id
 2) describe namespaces
+3) Operations : INSERT, UPDATE, QUERY, DELETE

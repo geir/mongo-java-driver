@@ -19,8 +19,9 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
 
-import org.mongodb.driver.impl.Mongo;
-import org.mongodb.driver.options.DBOptions;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.options.DBOptions;
+import org.mongodb.driver.ts.DB;
 
 import static org.testng.AssertJUnit.*;
 
