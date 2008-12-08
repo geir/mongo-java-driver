@@ -24,7 +24,7 @@
 ; user=> (load-file "mongo.clj")
 ;
 
-(def mongo (org.mongodb.driver.impl.Mongo.))
+(def mongo (org.mongodb.driver.ts.Mongo.))
 (def db (.getDB mongo "clojure"))
 (def coll (.getCollection db "test"))
 
@@ -34,7 +34,7 @@
 (dorun (map #(do (.insert coll {"a" (+ % 1)})) (range 0 3)))
 
 ; print the number of records in the collection.
-(println "There are" (.getCount coll (org.mongodb.driver.MongoSelector.)) "records in the collection 'test'")
+(println "There are" (.getCount coll (org.mongodb.driver.ts.MongoSelector.)) "records in the collection 'test'")
 
 ; one way to do a query
 (loop [i (.find coll)]
