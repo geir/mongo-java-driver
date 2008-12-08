@@ -28,7 +28,7 @@ coll.insert(doc);
 doc.put("a", 2);
 coll.insert(doc);
 
-coll.find().forEach(function(x) { print("10gen JS : " + x);});
+coll.find().forEach(function(x) { print("10gen JS : " + tojson(x));});
 
 // and w/ native hashes
 
@@ -37,4 +37,19 @@ coll.clear();
 coll.insert({"b":1});
 coll.insert({"b":2});
 
-coll.find().forEach(function(x) { print("10gen JS : " + x);});
+coll.find().forEach(function(x) { print("10gen JS : " + tojson(x));});
+
+
+// and again w/ dyn driver
+
+mongo = javaCreate("org.mongodb.driver.dyn.Mongo");
+
+db = mongo.getDB("edshell");
+coll = db.getCollection("test1");
+
+coll.clear();
+
+coll.insert({"a": 3});
+coll.insert({"a": 4});
+
+coll.find().forEach(function(x) { print("10gen JS : " + tojson(x));});
