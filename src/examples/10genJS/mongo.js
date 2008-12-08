@@ -14,14 +14,14 @@
 *    limitations under the License.
 */
 
-mongo = javaCreate("org.mongo.driver.Mongo");
+mongo = javaCreate("org.mongodb.driver.ts.Mongo");
 
 db = mongo.getDB("edshell");
-coll = db.getCollection("test1", true);
+coll = db.getCollection("test1");
 
 coll.clear();
 
-doc = javaCreate("org.mongo.driver.MongoDoc");
+doc = javaCreate("org.mongodb.driver.ts.MongoDoc");
 doc.put("a", 1);
 coll.insert(doc);
 
@@ -32,7 +32,7 @@ coll.find().forEach(function(x) { print("10gen JS : " + x);});
 
 // and w/ native hashes
 
-coll = db.getCollection("test2", true);
+coll = db.getCollection("test2");
 coll.clear();
 coll.insert({"b":1});
 coll.insert({"b":2});
