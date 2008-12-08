@@ -17,9 +17,24 @@
 package org.mongodb.driver;
 
 import org.testng.annotations.Test;
+import org.testng.annotations.BeforeClass;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.DBCollection;
+
+import java.util.List;
 
 public class IndexInfoTest {
+
+    DB _db;
+
+    @BeforeClass
+    public void setUp() throws Exception{
+        _db = new Mongo().getDB("org_mongo_driver_ts_IndexInfoTest");
+        _db.getCollection("test").clear();
+        assert(_db.getCollection("test").getCount() == 0);
+    }
 
     @Test
     public void testBasic() throws Exception {
@@ -32,5 +47,15 @@ public class IndexInfoTest {
 
         ii.addField("c");
         assert(ii.getFields().size() == 3);
+    }
+
+    @Test
+    public void testNone() throws Exception {
+
+        DBCollection c = _db.getCollection("test");
+
+        List<IndexInfo> ii = c.getIndexInformation();
+
+        assert(ii.size() == 0);
     }
 }
