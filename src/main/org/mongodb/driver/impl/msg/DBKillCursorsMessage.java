@@ -19,6 +19,8 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.util.DBStaticData;
 
+import java.util.Arrays;
+
 
 /**
  *   KillCursor message for MongoDB.  Message format is :
@@ -33,7 +35,11 @@ public class DBKillCursorsMessage extends DBMessage {
     
     public DBKillCursorsMessage(long[] cursors) throws MongoDBException {
         super(DBStaticData.OP_KILL_CURSORS);
-        _cursors = cursors;
+
+        _cursors = new long[cursors.length];
+        for (int i = 0; i < cursors.length; i++) {
+            _cursors[i] = cursors[i];
+        }
         init();
     }
 

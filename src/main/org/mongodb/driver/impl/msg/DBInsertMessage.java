@@ -47,8 +47,10 @@ public class DBInsertMessage extends DBMessage {
     public DBInsertMessage(String dbName, String collection, MongoDoc[] objs) throws MongoDBException {
         super(DBStaticData.OP_INSERT);
         _dbName = dbName;
-        _collection = collection;
-        _objs = objs;
+        _collection =   collection;
+
+        _objs = new MongoDoc[objs.length];
+        System.arraycopy(objs, 0, _objs, 0, objs.length);
 
         init();
     }

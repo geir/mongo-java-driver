@@ -14,7 +14,7 @@ public class ProfileInfo {
     public ProfileInfo(String q, long time, Date ts) {
         _query = q;
         _timeInMillis = time;
-        _timestamp = ts;
+        _timestamp = new Date(ts.getTime());
     }
 
     public String getQuery() {
@@ -26,6 +26,6 @@ public class ProfileInfo {
     }
 
     public Date getTimestamp() {
-        return _timestamp;
+        return new Date(_timestamp.getTime());
     }
 }

@@ -55,7 +55,11 @@ public class DBObjectID {
     }
 
     public byte[] getArray() {
-        return arr;
+
+        byte[] copy = new byte[SIZE];
+        System.arraycopy(arr, 0, copy, 0, SIZE);
+
+        return copy;
     }
 
     public String toString() {
