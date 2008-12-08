@@ -19,15 +19,16 @@
 
 require 'java'
 
-mongo = org.mongodb.driver.impl.Mongo.new
-db = org.mongodb.driver.impl.DBImpl.new(mongo, "jruby")
+mongo = org.mongodb.driver.ts.Mongo.new
+
+db = mongo.get_db "jruby"
 
 coll = db.get_collection "test"
 
 coll.clear
 
 10.times { |i|
-  coll.insert org.mongodb.driver.MongoDoc.new("a", i + 1)
+  coll.insert 'a' => i + 1
 }
 
 coll.find.each { |row| puts row.to_s }
