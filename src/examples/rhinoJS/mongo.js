@@ -14,12 +14,12 @@
 *    limitations under the License.
 */
 
-importPackage(org.mongo.driver.impl);
-importPackage(org.mongo.driver);
+importPackage(org.mongodb.driver.ts);
 
-db = new DBImpl("rhino");
+mongo = new Mongo();
+db = mongo.getDB("rhino");
 
-coll = db.getCollection("test1", true);
+coll = db.getCollection("test1");
 coll.clear();
 
 doc = new MongoDoc();

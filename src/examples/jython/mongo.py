@@ -14,27 +14,14 @@
 #    limitations under the License.
 #
 
-from org.mongo.driver.impl import DBImpl
-from org.mongo.driver import MongoDoc
+from org.mongodb.driver.dyn import Mongo
 
-db = DBImpl("jython");
+mongo = Mongo()
 
-coll = db.getCollection("test1", 1);
-coll.clear();
+db = mongo.getDB("jython")
 
-doc = MongoDoc();
-doc.put("a", 1);
-coll.insert(doc);
-
-doc.put("a", 2);
-coll.insert(doc);
-
-cur = coll.find();
-
-for i in cur:
-    print i
-
-# go native!  this only works in jython 2.5++
+coll = db.getCollection("test1")
+coll.clear()
 
 coll = db.getCollection("test2", 1);
 coll.clear();

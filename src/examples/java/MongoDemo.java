@@ -14,11 +14,10 @@
 *    limitations under the License.
 */
 
-import org.mongo.driver.DBCollection;
-import org.mongo.driver.DBCursor;
-import org.mongo.driver.MongoDoc;
-import org.mongo.driver.DB;
-import org.mongo.driver.impl.Mongo;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DB;
 
 /**
  *  Simple example on how to use mongo driver from java

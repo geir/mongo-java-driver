@@ -14,15 +14,16 @@
 *    limitations under the License.
 */
 
-import org.mongo.driver.impl.DBImpl;
-import org.mongo.driver.MongoDoc;
+import org.mongodb.driver.dyn.Mongo;
 
-val db = new DBImpl("scala");
+val mongo = new Mongo();
 
-val coll = db.getCollection("test", true);
+val db = mongo.getDB("scala");
+
+val coll = db.getCollection("test");
 coll.clear();
 
-val doc = new MongoDoc();
+val doc = new HashMap();
 doc.put("a", 1);
 coll.insert(doc);
 
@@ -31,6 +32,6 @@ coll.insert(doc);
 
 val cur = coll.find();
 
-while ( cur.hasMoreElements() ) {
-   println(cur.nextElement());
+while ( cur.hasNext() ) {
+   println(cur.next());
 }
