@@ -8,7 +8,7 @@ import java.util.Iterator;
 /**
  *
  */
-public class MapIterator implements Iterator<Map> {
+public class MapIterator implements Iterator<Map>, Iterable<Map> {
 
     protected final Iterator<MongoDoc> _mdi;
 
@@ -33,5 +33,9 @@ public class MapIterator implements Iterator<Map> {
 
     public void remove() {
         // TODO - intentional NOOP?
+    }
+
+    public Iterator<Map> iterator() {
+        return this;
     }
 }
