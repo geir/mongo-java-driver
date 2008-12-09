@@ -3,6 +3,7 @@ package org.mongodb.driver.dyn.impl;
 import org.mongodb.driver.dyn.Collection;
 import org.mongodb.driver.dyn.DB;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.util.PKInjector;
 import org.mongodb.driver.impl.DBImpl;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.ts.DBCollection;
@@ -199,4 +200,9 @@ public class CollectionImpl implements Collection {
 
         return new MapIterator(cur.iterator());
     }
+
+    public void setPKInjector(PKInjector pki) {
+        _coll.setPKInjector(pki);
+    }
+
 }

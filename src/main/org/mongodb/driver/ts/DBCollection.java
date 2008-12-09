@@ -18,11 +18,7 @@ package org.mongodb.driver.ts;
 
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.DBQuery;
-import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.MongoModifier;
-import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.util.PKInjector;
 
 import java.util.List;
 import java.util.Map;
@@ -165,6 +161,7 @@ public interface DBCollection {
     /**
      * Drops all indexes for the collection.
      *
+     * @return true if successful
      * @throws MongoDBException on error
      */
     public boolean dropIndexes() throws MongoDBException;
@@ -214,5 +211,11 @@ public interface DBCollection {
      */
     public String getName();
 
-    public DBCollectionOptions getOptions() throws MongoDBException ;
+    public DBCollectionOptions getOptions() throws MongoDBException;
+
+    /**
+     *  Sets the 'primary key' injector for this collection
+     *  @param pki injector to use for each insert
+     */
+    public void setPKInjector(PKInjector pki);
 }

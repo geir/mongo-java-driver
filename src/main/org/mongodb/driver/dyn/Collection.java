@@ -17,6 +17,7 @@
 package org.mongodb.driver.dyn;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.util.PKInjector;
 
 import java.util.List;
 import java.util.Map;
@@ -202,5 +203,11 @@ public interface Collection {
      */
     public String getName();
 
-    public Map getOptions() throws MongoDBException ;
+    public Map getOptions() throws MongoDBException;
+
+    /**
+     *  Sets the 'primary key' injector for this collection
+     *  @param pki injector to use for each insert
+     */
+    public void setPKInjector(PKInjector pki);    
 }
