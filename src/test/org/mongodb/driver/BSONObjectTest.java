@@ -254,10 +254,12 @@ public class BSONObjectTest {
 
         MongoDoc md2 = bo.deserialize();
 
-        Object[] arr2 = (Object[]) md2.get("array");
+        List l = (List) md2.get("array");
 
+        assert(l.size() == arr.length);
+        
         for (int i = 0; i < arr.length; i++) {
-            assert (arr2[i].equals(arr[i]));
+            assert (l.get(i).equals(arr[i]));
         }
     }
 
@@ -280,10 +282,12 @@ public class BSONObjectTest {
 
         MongoDoc md2 = bo.deserialize();
 
-        Object[] arr = (Object[]) md2.get("list");
+        List ll= (List) md2.get("list");
 
-        for (int i = 0; i < arr.length; i++) {
-            assert (l.get(i).equals(arr[i]));
+        assert(ll.size() == l.size());
+        
+        for (int i = 0; i < ll.size(); i++) {
+            assert (l.get(i).equals(ll.get(i)));
         }
     }
 

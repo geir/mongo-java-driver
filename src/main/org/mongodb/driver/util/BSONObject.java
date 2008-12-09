@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -382,7 +383,7 @@ public class BSONObject {
      * @return deserialized String
      * @throws MongoDBException on error
      */
-    protected Object[] deserializeArrayData(ByteBuffer buf) throws MongoDBException {
+    protected List deserializeArrayData(ByteBuffer buf) throws MongoDBException {
 
         MongoDoc doc = deserializeObjectData(buf);
 
@@ -401,7 +402,12 @@ public class BSONObject {
             arr[loc] = e.getValue();
         }
 
-        return arr;
+        List l = new ArrayList();
+
+        for (Object o : arr) {
+            l.add(o);
+        }
+        return l;
     }
 
 
