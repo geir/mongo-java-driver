@@ -18,6 +18,7 @@ import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.Mongo;
 
 /**
  *  Simple example on how to use mongo driver from java

@@ -504,12 +504,6 @@ public class DBImpl implements DB {
             try {
                 OutputStream os = _sock.getOutputStream();
                 os.write(msg.toByteArray());
-
-//                ByteBuffer buf = msg.getInternalByteBuffer();
-//
-//                buf.flip();
-//
-//                os.write(buf.array(), 0, buf.limit());
             } catch (IOException e) {
                 throw new MongoDBException("IO Error : ", e);
             }
