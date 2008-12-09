@@ -40,6 +40,7 @@ class DBCollectionImpl implements DBCollection {
 
     protected final DBImpl _db;
     protected final String _collection;
+    protected PKInjector _pkInjector;
 
     protected DBCollectionImpl(DBImpl db, String collection) {
         _db = db;
@@ -65,14 +66,27 @@ class DBCollectionImpl implements DBCollection {
     }
 
     public boolean insert(Map docMap) throws MongoDBException {
+
         return insert(new MongoDoc(docMap));
     }
 
     public boolean insert(MongoDoc doc) throws MongoDBException {
+
+        if (_pkInjector != null) {
+            _pkInjector.injectPK(doc);
+        }
+        
         return _db.insertIntoDB(_collection, doc);
     }
 
     public boolean insert(MongoDoc[] docs) throws MongoDBException {
+
+        if (_pkInjector != null) {
+            for (MongoDoc doc : docs) {
+                _pkInjector.injectPK(doc);
+            }
+        }
+
         return _db.insertIntoDB(_collection, docs);
     }
 
@@ -196,9 +210,11 @@ class DBCollectionImpl implements DBCollection {
     }
 
     /**
-     *  PKInjector
+     *  Allows a PKInjector to be set for this collection
+     * 
      *  @param pki injector
      */
     public void setPKInjector(PKInjector pki) {
+        _pkInjector = pki;
     }
 }

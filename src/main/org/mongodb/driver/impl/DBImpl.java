@@ -22,7 +22,6 @@ import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.ts.IndexInfo;
@@ -485,12 +484,6 @@ public class DBImpl implements DB {
 
     protected boolean insertIntoDB(String collection, MongoDoc object) throws MongoDBException {
 
-        //  TODO - get this moved into the database.  This shouldn't be a client requirement.
-
-//        if (object.get("_id") == null) {
-//            object.put("_id", new BabbleOID());
-//        }
-
         synchronized(_dbMonitor) {
             sendToDB(new DBInsertMessage(_dbName, collection, object));
             return true;
@@ -498,15 +491,6 @@ public class DBImpl implements DB {
     }
 
     protected boolean insertIntoDB(String collection, MongoDoc[] objects) throws MongoDBException {
-
-        //  TODO - get this moved into the database.  This shouldn't be a client requirement.
-
-        for (MongoDoc doc : objects) {
-
-            if (doc.get("_id") == null) {
-                doc.put("_id", new BabbleOID());
-            }
-        }
 
         synchronized(_dbMonitor) {
             sendToDB(new DBInsertMessage(_dbName, collection, objects));

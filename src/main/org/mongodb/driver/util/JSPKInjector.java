@@ -20,6 +20,8 @@ import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.MongoDBException;
 
+import java.util.Map;
+
 /**
  * Primary Key injector that uses the conventions of
  * the 10gen Babble appserver
@@ -30,6 +32,10 @@ public class JSPKInjector implements PKInjector {
 
     public String getKey() {
         return KEY;
+    }
+
+    public boolean injectPK(Map doc) throws MongoDBException {
+        return injectPK(new MongoDoc(doc));
     }
 
     public boolean injectPK(MongoDoc doc) throws MongoDBException {

@@ -19,6 +19,8 @@ package org.mongodb.driver.util;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
+import java.util.Map;
+
 /**
  * Interface for injecting primary keys into new objects
  */
@@ -38,4 +40,7 @@ public interface PKInjector {
      * @throws org.mongodb.driver.MongoDBException if a problem with key
      */
     public boolean injectPK(MongoDoc doc) throws MongoDBException;
+
+    public boolean injectPK(Map doc) throws MongoDBException;
+
 }
