@@ -17,7 +17,7 @@
 package org.mongodb.driver.ts;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.DBObjectID;
+import org.mongodb.driver.ts.BabbleOID;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -153,7 +153,7 @@ public class MongoDoc implements Iterable<String> {
         _size += val.getSize();
     }
 
-    public void put(String key, DBObjectID val) throws MongoDBException {
+    public void put(String key, BabbleOID val) throws MongoDBException {
         _put(key, val);
         _size += 12;
     }

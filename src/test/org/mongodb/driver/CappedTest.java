@@ -114,5 +114,4 @@ public class CappedTest extends TestBase {
         assert(options.getCappedSizeLimit() == DBCollectionOptions.DB_DEFAULT);
         assert(options.getCappedObjectMax() == DBCollectionOptions.DB_DEFAULT);
     }
-
 }

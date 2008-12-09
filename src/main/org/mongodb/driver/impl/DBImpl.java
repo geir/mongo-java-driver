@@ -22,7 +22,7 @@ import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.DBObjectID;
+import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.ts.IndexInfo;
@@ -39,7 +39,6 @@ import org.mongodb.driver.impl.msg.DBUpdateMessage;
 import java.util.List;
 import java.util.ArrayList;
 import java.net.Socket;
-import java.net.InetSocketAddress;
 import java.io.OutputStream;
 import java.io.IOException;
 
@@ -489,7 +488,7 @@ public class DBImpl implements DB {
         //  TODO - get this moved into the database.  This shouldn't be a client requirement.
 
 //        if (object.get("_id") == null) {
-//            object.put("_id", new DBObjectID());
+//            object.put("_id", new BabbleOID());
 //        }
 
         synchronized(_dbMonitor) {
@@ -505,7 +504,7 @@ public class DBImpl implements DB {
         for (MongoDoc doc : objects) {
 
             if (doc.get("_id") == null) {
-                doc.put("_id", new DBObjectID());
+                doc.put("_id", new BabbleOID());
             }
         }
 

@@ -17,7 +17,7 @@
 package org.mongodb.driver.util;
 
 import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.DBObjectID;
+import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.MongoDBException;
 
 /**
@@ -35,7 +35,7 @@ public class JSPKInjector implements PKInjector {
     public boolean injectPK(MongoDoc doc) throws MongoDBException {
 
         if (doc.get(KEY) == null) {
-            doc.put(KEY, new DBObjectID());
+            doc.put(KEY, new BabbleOID());
             return true;
         }
         return false;

@@ -17,7 +17,7 @@
 package org.mongodb.driver.util;
 
 import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.DBObjectID;
+import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.MongoDBException;
 
 import java.lang.StringBuilder;
@@ -128,7 +128,7 @@ public class BSONObject {
                     break;
 
                 case OID :
-                    messageSize += serializeOIDElement(_buf, key, (DBObjectID) v);
+                    messageSize += serializeOIDElement(_buf, key, (BabbleOID) v);
                     break;
 
                 case BOOLEAN :
@@ -380,11 +380,11 @@ public class BSONObject {
      * @return deserialized String
      * @throws MongoDBException if an encoding problem
      */
-    protected DBObjectID deserializeOIDData(ByteBuffer buf) throws MongoDBException {
+    protected BabbleOID deserializeOIDData(ByteBuffer buf) throws MongoDBException {
 
         buf.get(_privateBuff, 0, 12);
 
-        return new DBObjectID(_privateBuff);
+        return new BabbleOID(_privateBuff);
     }
 
     /**
@@ -582,7 +582,7 @@ public class BSONObject {
      * @return number of bytes used in buffer
      * @throws MongoDBException on error
      */
-    protected int serializeOIDElement(ByteBuffer buf, String key, DBObjectID val) throws MongoDBException {
+    protected int serializeOIDElement(ByteBuffer buf, String key, BabbleOID val) throws MongoDBException {
 
         /*
          * set the type byte
@@ -741,7 +741,7 @@ public class BSONObject {
 //        if ( o instanceof JSBinaryData )
 //            return BINARY;
 
-        if ( o instanceof DBObjectID)
+        if ( o instanceof BabbleOID)
             return OID;
 
         if ( o instanceof Boolean )
