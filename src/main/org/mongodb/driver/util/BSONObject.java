@@ -712,6 +712,10 @@ public class BSONObject {
 
         List l;
 
+        /*
+         *   I guess we should be nice and take Lists as well
+         */
+
         if (v.getClass().isArray()) {
             l = Arrays.asList((Object[]) v);
         }
@@ -828,6 +832,9 @@ public class BSONObject {
         }
 
         if ( o.getClass().isArray())
+            return ARRAY;
+
+        if ( o instanceof List)
             return ARRAY;
 
 //        if ( o instanceof JSBinaryData )

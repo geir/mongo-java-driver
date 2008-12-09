@@ -23,6 +23,8 @@ import org.mongodb.driver.ts.BabbleOID;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: geir
@@ -255,6 +257,32 @@ public class BSONObjectTest {
 
         for (int i = 0; i < arr.length; i++) {
             assert (arr2[i].equals(arr[i]));
+        }
+    }
+
+
+    @Test
+    public void testListAsArray() throws Exception {
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        List<String> l = new ArrayList<String>();
+
+        l.add("x");
+        l.add("y");
+        l.add("z");
+
+        md.put("list", l);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        Object[] arr = (Object[]) md2.get("list");
+
+        for (int i = 0; i < arr.length; i++) {
+            assert (l.get(i).equals(arr[i]));
         }
     }
 

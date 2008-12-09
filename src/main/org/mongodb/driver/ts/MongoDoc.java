@@ -17,7 +17,6 @@
 package org.mongodb.driver.ts;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.BabbleOID;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -177,7 +176,7 @@ public class MongoDoc implements Iterable<String> {
             md._put(String.valueOf(i++), o);
         }
 
-        _put(key, md);
+        _put(key, value);
         _size += md.getSize();
     }
 
@@ -308,19 +307,4 @@ public class MongoDoc implements Iterable<String> {
         }
         return o.toString();
     }
-
-    
-//    static final byte ARRAY = 4;
-//    static final byte BINARY = 5;
-//    static final byte UNDEFINED = 6;
-//    static final byte OID = 7;
-//    static final byte BOOLEAN = 8;
-//    static final byte DATE = 9;
-//    static final byte NULL = 10;
-//    static final byte REGEX = 11;
-//    static final byte REF = 12;
-//    static final byte CODE = 13;
-//    static final byte SYMBOL = 14;
-//    static final byte CODE_W_SCOPE = 15;
-
 }
