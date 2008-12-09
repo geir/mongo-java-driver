@@ -14,11 +14,12 @@
 #    limitations under the License.
 #
 
-# To run:
+# To run from the driver top-level directory:
 # CLASSPATH=mongo-driver.jar jruby src/examples/jruby/mongo.rb
 
 require 'java'
 
+# "ts" == "type safe". See also the use of "dyn" (dynamic) below.
 mongo = org.mongodb.driver.ts.Mongo.new
 
 db = mongo.get_db "jruby"
@@ -34,7 +35,7 @@ coll.clear
 coll.find.each { |row| puts row.to_s }
 
 
-# now use native dictionariies for objects and selectors
+# now use Hash for objects and selectors
 
 coll = db.get_collection "test2"
 coll.clear
@@ -44,3 +45,24 @@ coll.insert 'b' => 2
 
 coll.find.each { |row| puts row.to_s }
 
+# Try arrays, first with the existing "ts" (type safe) Mongo object, then with
+# a "dyn" (dynamic) version.
+
+coll.clear
+coll.insert 'a' => [42, 7]
+rows = coll.find.collect
+# We need to call .get('a') becase rows[0] is a MongoDoc object
+a = rows[0].get('a')
+a.each { |val| puts val.to_s }
+
+# Here we go with "dyn" (dynamic)
+mongo = org.mongodb.driver.dyn.Mongo.new
+db = mongo.get_db "jruby"
+coll = db.get_collection "test"
+
+coll.clear
+coll.insert 'a' => [42, 7]
+rows = coll.find.collect
+# This time, rows[0] is a HashMap, which means we can use ['a']
+a = rows[0]['a']
+a.each { |val| puts val.to_s }
