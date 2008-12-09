@@ -53,7 +53,7 @@ public class BSONObject {
     static final byte BOOLEAN = 8;  // x t
     static final byte DATE = 9;     // x t
     static final byte NULL = 10;    // x t
-    static final byte REGEX = 11;   
+    static final byte REGEX = 11;   // x t
     static final byte REF = 12;
     static final byte CODE = 13;
     static final byte SYMBOL = 14;

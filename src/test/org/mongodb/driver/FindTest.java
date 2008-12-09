@@ -24,7 +24,6 @@ import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
-import org.mongodb.driver.ts.DBCursor;
 
 import java.util.HashMap;
 import java.util.Map;
