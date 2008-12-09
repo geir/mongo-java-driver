@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * User: geir
@@ -304,4 +305,42 @@ public class BSONObjectTest {
 
         assert(oid2.toString().equals(oid.toString()));
     }
+
+    @Test
+    public void testRegex() throws Exception {
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        Pattern p = Pattern.compile("foo*", Pattern.CASE_INSENSITIVE);
+
+        md.put("pattern", p);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        p = (Pattern) md2.get("pattern");
+
+        assert(p.pattern().equals("foo*"));
+        assert(p.flags() == Pattern.CASE_INSENSITIVE);
+
+        p = Pattern.compile("bar*", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+        md.put("pattern", p);
+
+        bo = new BSONObject();  // huh?
+        
+        bo.serialize(md);
+
+        md2 = bo.deserialize();
+
+        p = (Pattern) md2.get("pattern");
+
+        assert(p.pattern().equals("bar*"));
+        assert(p.flags() == (Pattern.CASE_INSENSITIVE | Pattern.MULTILINE));
+
+    }
+
+
 }

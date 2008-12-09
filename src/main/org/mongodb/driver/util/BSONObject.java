@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
@@ -147,7 +148,11 @@ public class BSONObject {
                     break;
 
                 case ARRAY:
-                    messageSize += serializeArrayAelement(_buf, key, v);
+                    messageSize += serializeArrayElement(_buf, key, v);
+                    break;
+
+                case REGEX:
+                    messageSize += serializeRegexElement(_buf, key, (Pattern) v);
                     break;
 
                 default :
@@ -192,7 +197,7 @@ public class BSONObject {
         /*
          *  eat the message size
          */
-        _buf.getInt();
+        int totalSize = _buf.getInt();
 
         MongoDoc doc = new MongoDoc();
 
@@ -249,6 +254,11 @@ public class BSONObject {
                 case ARRAY :
                     key = deserializeElementName(_buf);
                     doc.put(key, deserializeArrayData(_buf));
+                    break;
+
+                case REGEX :
+                    key = deserializeElementName(_buf);
+                    doc.put(key, deserializeRegexData(_buf, totalSize));
                     break;
 
                 case EOO:
@@ -428,6 +438,76 @@ public class BSONObject {
 
         return new BabbleOID(_privateBuff);
     }
+
+    /**
+     *  Deserializes the data for a REGEX element type.
+     *
+     * @param buf buffer in which next sequence of bytes is an REGEX element
+     * @param totalSize - total size of message just to have a safety
+     * @return deserialized String
+     * @throws MongoDBException if an encoding problem
+     */
+    protected Pattern deserializeRegexData(ByteBuffer buf, int totalSize) throws MongoDBException {
+
+        /*
+         * there is no sizing info - need to just search for nulls
+         */
+
+        try {
+
+            String pattern = "";
+            String flagString;
+            int i = 0;
+            int loc = 0;
+
+            /*
+             *   first go find the null for the pattern and save that string
+             */
+            for (; i < totalSize; i++, loc++) {
+                _privateBuff[loc] = buf.get();
+
+                if (_privateBuff[loc] == 0) {
+                    pattern =  new String(_privateBuff, 0, loc, "UTF-8");
+                    break;
+                }
+            }
+
+            if ( i == totalSize) {
+                throw new MongoDBException("ERROR - can't find null boundaries in a regex object");
+            }
+
+            /*
+             *  next go find the null for the options and save *that* string
+             */
+            i++;
+
+            for (loc = 0; i < totalSize; i++, loc++) {
+                _privateBuff[loc] = buf.get();
+
+                if (_privateBuff[loc] == 0) {
+                    flagString =  new String(_privateBuff, 0, loc, "UTF-8");
+
+                    int flags = 0;
+
+                    if (flagString.contains("i")) {
+                        flags |= Pattern.CASE_INSENSITIVE;
+                    }
+
+                    if (flagString.contains("m")) {
+                        flags |= Pattern.MULTILINE;
+                    }
+
+                    return Pattern.compile(pattern, flags);
+                }
+            }
+
+            throw new MongoDBException("ERROR - can't find null boundaries in a regex object");
+            
+        } catch (UnsupportedEncodingException e) {
+            throw new MongoDBException("Encoding exception", e);
+        }
+    }
+
 
     /**
      *
@@ -693,7 +773,7 @@ public class BSONObject {
         return bufSizeDelta;
     }
 
-    protected int serializeArrayAelement(ByteBuffer buf, String key, Object v) throws MongoDBException {
+    protected int serializeArrayElement(ByteBuffer buf, String key, Object v) throws MongoDBException {
         /*
          * set the type byte
          */
@@ -745,6 +825,48 @@ public class BSONObject {
 
         return bufSizeDelta;
     }
+
+    protected int serializeRegexElement(ByteBuffer buf, String key, Pattern v) throws MongoDBException {
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(REGEX);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        /*
+         * set the pattern
+         */
+        bufSizeDelta += serializeCSTR(buf, v.pattern());
+
+        /*
+         * now get the flags and translate into what JS would do  (WWJSD)
+         */
+
+        int flags = v.flags();
+
+        StringBuffer sb = new StringBuffer("g");  // always throw in global since that's what Java's regex does
+
+        if ((flags & Pattern.CASE_INSENSITIVE) != 0) { 
+            sb.append("i");
+        }
+        if ((flags & Pattern.MULTILINE) != 0) {
+            sb.append("m");
+        }
+
+        /*
+         * set the regex options
+         */
+        bufSizeDelta += serializeCSTR(buf, sb.toString());
+        
+        return bufSizeDelta;
+    }
+
 
     /**
      *   Reads the element name.  Unlike a STRING, this isn't prefixed with a size so we have to do
@@ -849,8 +971,8 @@ public class BSONObject {
         if ( o instanceof Date)
             return DATE;
 
-//        if ( o instanceof JSRegex )
-//            return REGEX;
+        if ( o instanceof Pattern )
+            return REGEX;
 
         if ( o instanceof MongoDoc )
             return OBJECT;

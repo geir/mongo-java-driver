@@ -24,9 +24,11 @@ import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.DBCursor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class FindTest extends TestBase {
 
@@ -104,6 +106,26 @@ public class FindTest extends TestBase {
 
         assert(cursorCount(testColl.find(sel)) == 4);
         assert(cursorCount(testColl.find(new DBQuery(sel))) == 4);
+    }
+
+    @Test
+    public void testRegexpFind() throws MongoDBException {
+
+        DBCollection testColl = _db.getCollection("test");
+
+        testColl.clear();
+
+        testColl.insert(new MongoDoc("name", "geir"));
+        testColl.insert(new MongoDoc("name", "neir"));
+        testColl.insert(new MongoDoc("name", "ged"));
+
+        assert(testColl.getCount() == 3);
+
+        assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("eir")))) == 2);
+        assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("g")))) == 2);
+        assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("n")))) == 1);
+        assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("ed")))) == 1);
+
     }
 
 }
