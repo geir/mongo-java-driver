@@ -16,10 +16,56 @@
 
 package org.mongodb.driver;
 
-/**
- * User: geir
- * Date: Oct 15, 2008
- * Time: 8:45:07 PM
- */
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.DBCursor;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 public class OrderTest {
+
+    DB _db;
+
+    @BeforeClass
+    public void setUp() throws Exception{
+        _db = new Mongo().getDB("org_mongo_driver_ts_OrderTest");
+        _db.getCollection("test").clear();
+        assert(_db.getCollection("test").getCount() == 0);
+    }
+
+    @Test
+    public void testFind() throws MongoDBException {
+        DBCollection testColl = _db.getCollection("test");
+        testColl.clear();
+
+        MongoDoc[] objs = new MongoDoc[10];
+
+        for (int i = 0; i < 10; i++) {
+            objs[i] = new MongoDoc("a", i);
+        }
+
+        testColl.insert(objs);
+
+        assert(testColl.getCount() == 10);
+
+        DBQuery q = new DBQuery();
+
+        q.setOrderBy(new MongoSelector("a", 1));
+
+        DBCursor c = testColl.find(q);
+
+        assert(c.getNextObject().getInt("a") == 0);
+
+        c.close();
+
+        q.setOrderBy(new MongoSelector("a", -1));
+
+        c = testColl.find(q);
+
+        assert(c.getNextObject().getInt("a") == 9);
+    }
 }

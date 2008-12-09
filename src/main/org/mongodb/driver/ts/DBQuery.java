@@ -16,8 +16,6 @@
 
 package org.mongodb.driver.ts;
 
-import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
 import java.util.Map;
@@ -74,6 +72,25 @@ public class DBQuery  {
         _numberToReturn = nReturn;
     }
 
+    public MongoDoc getCompleteQuery() throws MongoDBException {
+
+        /*
+         * quirk in how things work - only if there's an orderby do we structure the query object
+         * this way
+         */
+
+        if (_orderBy != null) {
+            MongoDoc m = new MongoDoc();
+
+            m.put("query", _querySelector);
+            m.put("orderby", _orderBy );
+            return m;
+        }
+        else {
+            return _querySelector;
+        }
+    }
+    
     public MongoDoc getQuerySelector() {
         return _querySelector;
     }

@@ -58,7 +58,7 @@ public class DBQueryMessage extends DBMessage {
         writeString(_dbName + "." + _collection);
         writeInt(_query.getNumberToSkip());
         writeInt(_query.getNumberToReturn());
-        writeMongoDoc(_query.getQuerySelector());
+        writeMongoDoc(_query.getCompleteQuery());
 
         if(_query.getReturnFieldsSelector() != null) {
             writeMongoDoc(_query.getReturnFieldsSelector());
