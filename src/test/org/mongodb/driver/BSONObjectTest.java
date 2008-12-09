@@ -19,6 +19,7 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.BabbleOID;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
@@ -186,8 +187,6 @@ public class BSONObjectTest {
 
         MongoDoc md = new MongoDoc();
 
-        Date now = new Date();
-
         md.put("date", true);
 
         bo.serialize(md);
@@ -220,8 +219,6 @@ public class BSONObjectTest {
         BSONObject bo = new BSONObject();
 
         MongoDoc md = new MongoDoc();
-
-        Date now = new Date();
 
         md.put("date", (String) null);
 
@@ -259,5 +256,24 @@ public class BSONObjectTest {
         for (int i = 0; i < arr.length; i++) {
             assert (arr2[i].equals(arr[i]));
         }
+    }
+
+    @Test
+    public void testOID() throws Exception {
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        BabbleOID oid = new BabbleOID();
+
+        md.put("oid", oid);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        BabbleOID oid2 = (BabbleOID) md2.get("oid");
+
+        assert(oid2.toString().equals(oid.toString()));
     }
 }

@@ -45,14 +45,14 @@ public class BSONObject {
     static final byte NUMBER = 1;   // x t
     static final byte STRING = 2;   // x t
     static final byte OBJECT = 3;   // x t
-    static final byte ARRAY = 4;
+    static final byte ARRAY = 4;    // x t
     static final byte BINARY = 5;
     static final byte UNDEFINED = 6;
-    static final byte OID = 7;       // x
-    static final byte BOOLEAN = 8;   // x t
-    static final byte DATE = 9;      // x t
-    static final byte NULL = 10;     // x t
-    static final byte REGEX = 11;
+    static final byte OID = 7;      // x t
+    static final byte BOOLEAN = 8;  // x t
+    static final byte DATE = 9;     // x t
+    static final byte NULL = 10;    // x t
+    static final byte REGEX = 11;   
     static final byte REF = 12;
     static final byte CODE = 13;
     static final byte SYMBOL = 14;
@@ -541,7 +541,7 @@ public class BSONObject {
      * @param buf buffer to write into
      * @param key key
      * @param val val
-     * @type type either NUMBER or NUMBER_INT
+     * @param type either NUMBER or NUMBER_INT
      * @return number of bytes used in buffer
      * @throws MongoDBException on error
      */
@@ -654,6 +654,7 @@ public class BSONObject {
      * @param buf buffer to write into
      * @param key key
      * @param val val
+     * @param type either STRING or CODE (they are the same...)
      * @return number of bytes used in buffer
      */
     protected int serializeStringElement(ByteBuffer buf, String key, String val, byte type) {
@@ -709,7 +710,7 @@ public class BSONObject {
          *   now, what is this thing?
          */
 
-        List l = null;
+        List l;
 
         if (v.getClass().isArray()) {
             l = Arrays.asList((Object[]) v);
