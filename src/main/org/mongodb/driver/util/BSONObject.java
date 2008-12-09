@@ -23,6 +23,9 @@ import org.mongodb.driver.MongoDBException;
 import java.lang.StringBuilder;
 import java.util.Formatter;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
@@ -143,6 +146,10 @@ public class BSONObject {
                     messageSize += serializeNullElement(_buf, key);
                     break;
 
+                case ARRAY:
+                    messageSize += serializeArrayAelement(_buf, key, v);
+                    break;
+
                 default :
                     throw new MongoDBException("Unhandled type " + getType(v, key));
             }
@@ -239,6 +246,11 @@ public class BSONObject {
                     doc.put(key, (String) null);
                     break;
 
+                case ARRAY :
+                    key = deserializeElementName(_buf);
+                    doc.put(key, deserializeArrayData(_buf));
+                    break;
+
                 case EOO:
                     break;
 
@@ -319,7 +331,7 @@ public class BSONObject {
     }
 
     /**
-     *  Deserializes the data for a STRING element type.
+     *  Deserializes the data for a OBJECT element type.
      *
      * @param buf buffer in which next sequence of bytes is an STRING element
      * @return deserialized String
@@ -352,6 +364,36 @@ public class BSONObject {
 
         return o.deserialize(arr);
     }
+
+    /**
+     *  Deserializes the data for a OBJECT element type.
+     *
+     * @param buf buffer in which next sequence of bytes is an STRING element
+     * @return deserialized String
+     * @throws MongoDBException on error
+     */
+    protected Object[] deserializeArrayData(ByteBuffer buf) throws MongoDBException {
+
+        MongoDoc doc = deserializeObjectData(buf);
+
+        Object[] arr = new Object[doc.size()];
+
+        for (Object o : doc.getMap().entrySet()) {
+
+            Map.Entry e = (Map.Entry) o;
+
+            int loc = Integer.valueOf(e.getKey().toString());
+
+            if (loc > doc.size() - 1) {
+                throw new MongoDBException ("ERROR - key value out of range of index for array" + loc);
+            }
+
+            arr[loc] = e.getValue();
+        }
+
+        return arr;
+    }
+
 
     /**
      *  Deserializes the data for a STRING element type.
@@ -646,6 +688,55 @@ public class BSONObject {
          *  now that we know the size, patch it in the front.
          */
         buf.putInt(pos, strSize);
+
+        return bufSizeDelta;
+    }
+
+    protected int serializeArrayAelement(ByteBuffer buf, String key, Object v) throws MongoDBException {
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(ARRAY);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        /*
+         *   now, what is this thing?
+         */
+
+        List l = null;
+
+        if (v.getClass().isArray()) {
+            l = Arrays.asList((Object[]) v);
+        }
+        else if (v instanceof List) {
+            l = (List) v;
+        }
+        else {
+            throw new MongoDBException("I don't know how to handle " + v.getClass());
+        }
+
+        MongoDoc m = new MongoDoc();
+
+        int i = 0;
+        for (Object o : l) {
+            m.put(String.valueOf(i++), o);
+        }
+
+        BSONObject o = new BSONObject();
+
+        o.serialize(m);
+
+        byte[] arr = o.toArray();
+
+        buf.put(arr);
+
+        bufSizeDelta += arr.length;
 
         return bufSizeDelta;
     }

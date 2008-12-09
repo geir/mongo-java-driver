@@ -238,9 +238,26 @@ public class BSONObjectTest {
         md2 = bo2.deserialize(barr);
 
         assert(md2.get("date") == null);
-
     }
 
+    @Test
+    public void testArray() throws Exception {
+        BSONObject bo = new BSONObject();
 
+        MongoDoc md = new MongoDoc();
 
+        String[] arr = new String[] { "a", "b", "c"};
+
+        md.put("array", arr);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        Object[] arr2 = (Object[]) md2.get("array");
+
+        for (int i = 0; i < arr.length; i++) {
+            assert (arr2[i].equals(arr[i]));
+        }
+    }
 }
