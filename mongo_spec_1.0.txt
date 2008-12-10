@@ -108,18 +108,23 @@ The mongo wire protocol uses BSON documents for three things
 
    The database expects that drivers will prevent users from creating documents that violate these constraints.
     
-2) "Selector" Docuements : Selector documents (or selectors) are BSON documents that are used in QUERY, DELETE and
+2) "Selector" Documents : Selector documents (or selectors) are BSON documents that are used in QUERY, DELETE and
     UPDATE operations.  They are used by these operations to match against documents.  Selector objects have no
     limitations on the "element name" space, as they must be able to supply special "marker" elements, like
     "$where" and the special "command" operations.
 
-3) "Modifier" objects that contain 'modifier actions' that modify user documents (in the case of an update (see XXXX)
+3) "Modifier" Documents : Documents that contain 'modifier actions' that modify user documents (in the case of an update (see XXXX)
 
 4) Return error messages : TODO
 
 
 3) Mongo Wire Protocol
 =======================
+
+Clients communicate with the database server through a regular TCP/IP socket.  The default port is 27017,
+but this is configurable and will vary.
+
+
 
 
 

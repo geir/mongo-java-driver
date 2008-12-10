@@ -19,6 +19,7 @@ package org.mongodb.driver.impl;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.impl.msg.DBMessageHeader;
 import org.mongodb.driver.impl.msg.DBKillCursorsMessage;
@@ -285,7 +286,7 @@ class DBCursorImpl implements DBCursor {
             BSONObject o = new BSONObject();
             return o.deserialize(buffer);
         } catch (IOException e) {
-            throw new MongoDBException("IO Exception : ", e);
+            throw new MongoDBIOException("IO Exception : ", e);
         }
     }
 

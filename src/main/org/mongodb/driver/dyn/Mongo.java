@@ -20,6 +20,7 @@
 package org.mongodb.driver.dyn;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.dyn.impl.DynDBImpl;
 import org.mongodb.driver.impl.MongoImpl;
 
@@ -43,7 +44,7 @@ public class Mongo extends MongoImpl {
         super(host, port);
     }
 
-    public DB getDB(String dbName) throws MongoDBException {
+    public DB getDB(String dbName) throws MongoDBException, MongoDBIOException {
 
         return new DynDBImpl(this, dbName);
     }

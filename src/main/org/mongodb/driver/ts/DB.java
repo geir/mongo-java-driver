@@ -20,6 +20,7 @@ import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public interface DB {
      * @return List of collection names
      * @throws org.mongodb.driver.MongoDBException on error
      */
-    public List<String> getCollectionNames() throws MongoDBException;
+    public List<String> getCollectionNames() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Creates a new collection collection.  Like getCollection() relies upon the
@@ -46,7 +47,7 @@ public interface DB {
      * @throws MongoDBException if collection doesn't exist and in strict mode, or if
      *         there's a problem creating the collection
      */
-    public DBCollection createCollection(String name) throws MongoDBException;
+    public DBCollection createCollection(String name) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Creates a collection with optional options.  Note that if options are passed in and not in strict
@@ -57,7 +58,7 @@ public interface DB {
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
      */    
-    public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException;
+    public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Gets a DBCollection object representing the specified collection in the database.
@@ -70,7 +71,7 @@ public interface DB {
      * @return collection object for subsequent operations, or null if it doesn't exist.
      * @throws MongoDBException on error
      */
-    public DBCollection getCollection(String name) throws MongoDBException;
+    public DBCollection getCollection(String name) throws MongoDBException, MongoDBIOException;
 
 
     /**
@@ -80,7 +81,7 @@ public interface DB {
      * @return true if successful, false otherwise
      * @throws MongoDBException if error
      */
-    public boolean dropCollection(String name) throws MongoDBException;
+    public boolean dropCollection(String name) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Returns the name of this database

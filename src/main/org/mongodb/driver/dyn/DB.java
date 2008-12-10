@@ -19,6 +19,7 @@ package org.mongodb.driver.dyn;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,9 @@ public interface DB {
      *
      * @return List of collection names
      * @throws org.mongodb.driver.MongoDBException on error
+     * @throws MongoDBIOException if communications error
      */
-    public List<String> getCollectionNames() throws MongoDBException;
+    public List<String> getCollectionNames() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Creates a new collection collection.  Like getCollection() relies upon the
@@ -45,8 +47,9 @@ public interface DB {
      * @return collection
      * @throws MongoDBException if collection doesn't exist and in strict mode, or if
      *         there's a problem creating the collection
+     * @throws MongoDBIOException if communications error
      */
-    public Collection createCollection(String name) throws MongoDBException;
+    public Collection createCollection(String name) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Creates a collection with optional options.  Note that if options are passed in and not in strict
@@ -67,8 +70,9 @@ public interface DB {
      * @param options optinoal options for creation (e.g. CappedCollection)
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
+     * @throws MongoDBIOException if communications error
      */
-    public Collection createCollection(String name, Map options) throws MongoDBException;
+    public Collection createCollection(String name, Map options) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Gets a DBCollection object representing the specified collection in the database.
@@ -80,8 +84,9 @@ public interface DB {
      * @param name the name of collection to get
      * @return collection object for subsequent operations, or null if it doesn't exist.
      * @throws MongoDBException on error
+     * @throws MongoDBIOException if communications error
      */
-    public Collection getCollection(String name) throws MongoDBException;
+    public Collection getCollection(String name) throws MongoDBException, MongoDBIOException;
 
 
     /**
@@ -90,8 +95,9 @@ public interface DB {
      * @param name Name of collection to drop
      * @return true if successful, false otherwise
      * @throws MongoDBException if error
+     * @throws MongoDBIOException if communications error
      */
-    public boolean dropCollection(String name) throws MongoDBException;
+    public boolean dropCollection(String name) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Returns the name of this database
@@ -115,7 +121,7 @@ public interface DB {
     /**
      * Sets the options for this database
      *
-     * @param dbOptions
+     * @param dbOptions options for database
      */
     public void setDBOptions(DBOptions dbOptions);
 

@@ -19,6 +19,7 @@ package org.mongodb.driver.impl;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoSelector;
@@ -281,7 +282,7 @@ public class DBImpl implements DB {
      *  Sends a message to the database
      *
      * @param m message to send
-     * @throws MongoDBException if a problem
+     * @throws MongoDBException if a general problem
      */
     public void sendMessage(String m) throws MongoDBException {
         DBMsgMessage msg = new DBMsgMessage(m);
@@ -498,14 +499,14 @@ public class DBImpl implements DB {
         }
     }
 
-    protected void sendToDB(DBMessage msg) throws MongoDBException {
+    protected void sendToDB(DBMessage msg) throws MongoDBIOException {
 
         synchronized(_dbMonitor) {
             try {
                 OutputStream os = _sock.getOutputStream();
                 os.write(msg.toByteArray());
             } catch (IOException e) {
-                throw new MongoDBException("IO Error : ", e);
+                throw new MongoDBIOException("IO Error : ", e);
             }
         }
     }

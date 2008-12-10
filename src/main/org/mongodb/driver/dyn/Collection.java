@@ -17,6 +17,7 @@
 package org.mongodb.driver.dyn;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.util.PKInjector;
 
 import java.util.List;
@@ -30,30 +31,45 @@ import java.util.Iterator;
 public interface Collection {
 
     /**
-     *  Finds all objects in the collection
+     *  Finds all objects in the collection.
+     *
+     *  Note that using the iterator
+     *  can result in a MongoDBIOException because the iterator does active
+     *  IO with the database to return the objects.
      *
      * @return cursor to get objects from the result set
-     * @throws org.mongodb.driver.MongoDBException if somethign goes wrong
+     * @throws MongoDBException if somethign goes wrong
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public Iterator<Map> find() throws MongoDBException;
+    public Iterator<Map> find() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Finds all objects in the collection
+     *
+     *  Note that using the iterator
+     *  can result in a MongoDBIOException because the iterator does active
+     *  IO with the database to return the objects.
      *
      * @param selectorMap  selector expressed as a regular <code>java.util.Map</code>
      * @return cursor to get objects from the result set
      * @throws MongoDBException if somethign goes wrong
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public Iterator find(Map selectorMap) throws MongoDBException;
+    public Iterator find(Map selectorMap) throws MongoDBException, MongoDBIOException;
 
     /**
      *  Finds objects in the collection that match the specified query
      *
+     *  Note that using the iterator
+     *  can result in a MongoDBIOException because the iterator does active
+     *  IO with the database to return the objects.
+     *
      * @param query query to use to select objects
      * @return cursor to get objects from the result set
      * @throws MongoDBException if somethign goes wrong
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public Iterator find(String query) throws MongoDBException;
+    public Iterator find(String query) throws MongoDBException, MongoDBIOException;
 
     /**
      * Inserts (saves) a single object to this collection.
@@ -61,8 +77,9 @@ public interface Collection {
      * @param object the object to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean insert(Map object) throws MongoDBException;
+    public boolean insert(Map object) throws MongoDBException, MongoDBIOException;
 
     /**
      * Inserts (saves) multiple objects to this collection.
@@ -70,16 +87,18 @@ public interface Collection {
      * @param objects the objects to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean insert(Map[] objects) throws MongoDBException;
+    public boolean insert(Map[] objects) throws MongoDBException, MongoDBIOException;
 
     /**
      * Removes all objects from the collection
      *
      *  @return true if successful
      *  @throws MongoDBException on error
-      */
-     public boolean clear() throws MongoDBException;
+     * @throws MongoDBIOException in case of  comms problem
+     */
+    public boolean clear() throws MongoDBException, MongoDBIOException;
 
     /**
      * Removes objects from the database collection that match a specified selector.
@@ -87,8 +106,9 @@ public interface Collection {
      *  @param selector Selector for objects to remove.  Cannot be null
      *  @return true if successful
      *  @throws MongoDBException on error
-      */
-     public boolean remove(Map selector) throws MongoDBException;
+     * @throws MongoDBIOException in case of  comms problem
+     */
+    public boolean remove(Map selector) throws MongoDBException, MongoDBIOException;
 
     /**
      * Performs an replace operation if the object is found, an insert otherwise.
@@ -99,8 +119,9 @@ public interface Collection {
      * @param obj object with which to replace or insert
      * @return modified doc (will have new PK if injector present)
      * @throws MongoDBException if problem
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public Map repsert(Map selector, Map obj) throws MongoDBException;
+    public Map repsert(Map selector, Map obj) throws MongoDBException, MongoDBIOException;
 
     /**
      *   Replaces objects found with the supplied object.  If a PK injector
@@ -110,8 +131,9 @@ public interface Collection {
      * @param obj object to replace found objects with
      * @return true always
      * @throws MongoDBException on error
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean replace(Map selector, Map obj) throws MongoDBException;
+    public boolean replace(Map selector, Map obj) throws MongoDBException, MongoDBIOException;
 
     /**
      *   Modifies objects found with the modifiers in the supplied object.
@@ -120,8 +142,9 @@ public interface Collection {
      * @param modifierObj object that has modifier elements
      * @return true always
      * @throws MongoDBException if problem
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean modify(Map selector , Map modifierObj) throws MongoDBException;
+    public boolean modify(Map selector , Map modifierObj) throws MongoDBException, MongoDBIOException;
 
     /**
      * <p>
@@ -138,8 +161,9 @@ public interface Collection {
      * @param indexInfo an object with a key set of the fields desired for the index and the name
      * @return true always for now
      * @throws MongoDBException if error
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean createIndex(Map indexInfo) throws MongoDBException;
+    public boolean createIndex(Map indexInfo) throws MongoDBException, MongoDBIOException;
 
     /**
      * Drops an index.
@@ -147,16 +171,18 @@ public interface Collection {
      * @param name name of index
      * @return true if index exists before drop, false if not
      * @throws MongoDBException on error
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean dropIndex(String name) throws MongoDBException;
+    public boolean dropIndex(String name) throws MongoDBException, MongoDBIOException;
 
     /**
      * Drops all indexes for the collection.
      *
      * @return true if the operations succeeded
      * @throws MongoDBException on error
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public boolean dropIndexes() throws MongoDBException;
+    public boolean dropIndexes() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Returns a list of MongoDocs, each containing the information
@@ -168,16 +194,18 @@ public interface Collection {
      *
      * @return list of mongodocs
      * @throws MongoDBException if problem
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public List<Map> getIndexInformation() throws MongoDBException;
+    public List<Map> getIndexInformation() throws MongoDBException, MongoDBIOException;
 
     /**
      * Returns the number of objects in the collection
      *
      * @return number of objects
      * @throws MongoDBException in case of problem
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public int getCount() throws MongoDBException;
+    public int getCount() throws MongoDBException, MongoDBIOException;
 
     /**
      * Returns the number of objects in the collection
@@ -186,8 +214,9 @@ public interface Collection {
      * @param selector selector to match objects for counting
      * @return number of objects
      * @throws MongoDBException in case of problem
+     * @throws MongoDBIOException in case of  comms problem
      */
-    public int getCount(Map selector) throws MongoDBException;
+    public int getCount(Map selector) throws MongoDBException, MongoDBIOException;
 
     /**
      * Returns the database this collection is a member of.

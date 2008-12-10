@@ -17,7 +17,6 @@
 package org.mongodb.driver.impl;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.options.DBOptions;
 
 import java.net.InetSocketAddress;

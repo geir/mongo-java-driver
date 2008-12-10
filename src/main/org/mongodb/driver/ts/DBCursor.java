@@ -18,6 +18,7 @@ package org.mongodb.driver.ts;
 
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 
 import java.util.Enumeration;
 
@@ -42,12 +43,12 @@ public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
      * @return next object on this cursor
      * @throws org.mongodb.driver.MongoDBException on error
      */
-    public MongoDoc getNextObject() throws MongoDBException;
+    public MongoDoc getNextObject() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Closes the cursor, closing any server-side resources being used.
      *
      *  @throws MongoDBException in case of error
      */
-    public void close() throws MongoDBException;
+    public void close() throws MongoDBException, MongoDBIOException;
 }
