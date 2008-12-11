@@ -63,6 +63,21 @@ public class BabbleOIDTest {
     }
 
     @Test
+    public void testFormat() throws Exception  {
+
+        byte[] data = new byte[12];
+
+        for (int i=0; i < 12; i++) {
+            data[i] = (byte) i;
+        }
+
+        BabbleOID boid = new BabbleOID(data);
+
+        assert(boid.toString().equals("000102030405060708090A0B"));
+
+    }
+
+    @Test
     public void generationTime() throws Exception {
 
         int count = 1000000;
