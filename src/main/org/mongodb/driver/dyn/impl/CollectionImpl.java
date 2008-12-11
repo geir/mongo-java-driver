@@ -8,7 +8,6 @@ import org.mongodb.driver.impl.DBImpl;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoModifier;
@@ -43,7 +42,7 @@ public class CollectionImpl implements Collection {
 
     public Iterator find(String query) throws MongoDBException {
 
-        return iteratorFromCursor(_coll.find(new DBQuery(query)));
+        return iteratorFromCursor(_coll.find(query));
     }
 
     public boolean insert(Map object) throws MongoDBException {

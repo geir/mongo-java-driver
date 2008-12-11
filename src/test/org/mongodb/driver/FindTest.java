@@ -124,7 +124,29 @@ public class FindTest extends TestBase {
         assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("g")))) == 2);
         assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("n")))) == 1);
         assert(cursorCount(testColl.find(new MongoSelector("name", Pattern.compile("ed")))) == 1);
+    }
 
+    @Test
+    public void testStringFind() throws MongoDBException {
+        DBCollection testColl = _db.getCollection("test");
+        testColl.clear();
+
+        MongoDoc[] objs = new MongoDoc[10];
+
+        for (int i = 0; i < 10; i++) {
+            objs[i] = new MongoDoc("a", i);
+        }
+
+        testColl.insert(objs);
+
+        assert(testColl.getCount() == 10);
+
+        assert(cursorCount(testColl.find()) == 10);
+
+        assert(cursorCount(testColl.find("this.a == 2")) == 1);
+        assert(cursorCount(testColl.find("this.a == 3")) == 1);
+
+        assert(cursorCount(testColl.find("this.a > 5")) == 4);
     }
 
 }

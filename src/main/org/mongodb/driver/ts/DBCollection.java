@@ -64,6 +64,15 @@ public interface DBCollection {
     public DBCursor find(DBQuery query) throws MongoDBException;
 
     /**
+     *  Finds objects in the collection that match the specified query
+     *
+     * @param whereClause query to use to select objects
+     * @return cursor to get objects from the result set
+     * @throws MongoDBException if somethign goes wrong
+     */
+    public DBCursor find(String whereClause) throws MongoDBException;
+
+    /**
      * Inserts (saves) a single object to this collection.
      *
      * @param object the object to save

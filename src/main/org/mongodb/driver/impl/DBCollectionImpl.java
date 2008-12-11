@@ -47,6 +47,10 @@ class DBCollectionImpl implements DBCollection {
         _collection = collection;
     }
 
+    public DBCursor find(String query) throws MongoDBException {
+        return _db.queryDB(_collection, new DBQuery(query));
+    }
+
     public DBCursor find(DBQuery query) throws MongoDBException {
         return _db.queryDB(_collection, query);
     }

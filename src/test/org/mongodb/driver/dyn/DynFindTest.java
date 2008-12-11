@@ -55,5 +55,7 @@ public class DynFindTest extends TestBase{
         assert(cursorCount(testColl.find(newMap("a", 2))) == 1);
 
         assert(cursorCount(testColl.find(newMap("a", newMap("$gt", 5)))) == 4);
+
+        assert(cursorCount(testColl.find("this.a > 5")) == 4);
     }
 }
