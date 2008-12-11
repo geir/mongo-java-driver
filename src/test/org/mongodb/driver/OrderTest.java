@@ -43,7 +43,7 @@ public class OrderTest {
         testColl.clear();
 
         MongoDoc[] objs = new MongoDoc[10];
-
+    
         for (int i = 0; i < 10; i++) {
             objs[i] = new MongoDoc("a", i);
         }
