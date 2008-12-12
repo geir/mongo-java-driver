@@ -18,7 +18,6 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
 
 /**
  * Representas a Mongo Delete operation
@@ -30,7 +29,7 @@ public class DBRemoveMessage extends DBMessage {
     protected final MongoSelector _selector;
 
     public DBRemoveMessage(String dbName, String collection, MongoSelector sel) throws MongoDBException {
-        super(DBStaticData.OP_DELETE);
+        super(DBMessage.OP_DELETE);
         _dbName = dbName;
         _collection = collection;
 
@@ -45,7 +44,7 @@ public class DBRemoveMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException {
 

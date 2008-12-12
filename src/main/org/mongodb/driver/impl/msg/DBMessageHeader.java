@@ -22,9 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * User: geir
- * Date: Oct 14, 2008
- * Time: 8:43:45 AM
+ *  Header for Mongo wire messages
  */
 public class DBMessageHeader {
 

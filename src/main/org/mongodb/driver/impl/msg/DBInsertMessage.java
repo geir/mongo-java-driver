@@ -18,8 +18,6 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
-import org.mongodb.driver.impl.msg.DBMessage;
 
 /**
 string collection;
@@ -32,7 +30,7 @@ public class DBInsertMessage extends DBMessage {
     protected final MongoDoc[] _objs;
 
     public DBInsertMessage(String dbName, String collection, MongoDoc obj) throws MongoDBException {
-        super(DBStaticData.OP_INSERT);
+        super(DBMessage.OP_INSERT);
         _dbName = dbName;
         _collection = collection;
 
@@ -45,7 +43,7 @@ public class DBInsertMessage extends DBMessage {
     }
 
     public DBInsertMessage(String dbName, String collection, MongoDoc[] objs) throws MongoDBException {
-        super(DBStaticData.OP_INSERT);
+        super(DBMessage.OP_INSERT);
         _dbName = dbName;
         _collection =   collection;
 
@@ -58,7 +56,7 @@ public class DBInsertMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException {
 

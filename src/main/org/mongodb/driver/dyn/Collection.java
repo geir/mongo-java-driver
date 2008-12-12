@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 /**
  *  Collection of Mongo documents in a Mongo database.  This is the
- *  non-typesafe interface.  Maps and lists and strings, oh my!
+ *  non-typesafe interface.  Maps and lists and strings, oh my!!
  */
 public interface Collection {
 

@@ -17,12 +17,10 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
 
 /**
- * User: geir
- * Date: Oct 21, 2008
- * Time: 6:43:01 PM
+ *  Message class representing a "get more" message, a message used by a cursor
+ *  to fetch another batch of data from a query
  */
 public class DBGetMoreMessage extends DBMessage {
 
@@ -32,7 +30,7 @@ public class DBGetMoreMessage extends DBMessage {
     
     public DBGetMoreMessage(String dbName, String collection, long cursor) throws MongoDBException
     {
-        super(DBStaticData.OP_GET_MORE);
+        super(DBMessage.OP_GET_MORE);
         _dbName = dbName;
         _collection = collection;
         _cursor = cursor;
@@ -42,11 +40,10 @@ public class DBGetMoreMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException
     {
-
         writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
         writeString(_dbName + "." + _collection);
         writeInt(0); // n toreturn - leave it up to db for now

@@ -18,8 +18,6 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
-import org.mongodb.driver.impl.msg.DBMessage;
 
 /**
  *   Query message for MongoDB.  Message format is :
@@ -39,7 +37,7 @@ public class DBQueryMessage extends DBMessage {
     protected final String _collection;
 
     public DBQueryMessage(String dbName, String collection, DBQuery q) throws MongoDBException {
-        super(DBStaticData.OP_QUERY);
+        super(DBMessage.OP_QUERY);
         _query = q;
         _dbName = dbName;
         _collection = collection;
@@ -50,7 +48,7 @@ public class DBQueryMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException {
 

@@ -19,7 +19,6 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
 
 /**
  * Represents a dbUpdate mongo operation
@@ -34,7 +33,7 @@ public class DBUpdateMessage extends DBMessage {
 
     public DBUpdateMessage(String dbName, String collection, MongoSelector sel, MongoDoc obj, boolean repsert)
             throws MongoDBException {
-        super(DBStaticData.OP_UPDATE);
+        super(DBMessage.OP_UPDATE);
         _dbName = dbName;
         _collection = collection;
 
@@ -48,7 +47,7 @@ public class DBUpdateMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException {
 

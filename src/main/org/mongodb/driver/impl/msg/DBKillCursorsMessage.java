@@ -17,9 +17,6 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.util.DBStaticData;
-
-import java.util.Arrays;
 
 
 /**
@@ -34,17 +31,15 @@ public class DBKillCursorsMessage extends DBMessage {
     protected final long[] _cursors;
     
     public DBKillCursorsMessage(long[] cursors) throws MongoDBException {
-        super(DBStaticData.OP_KILL_CURSORS);
+        super(DBMessage.OP_KILL_CURSORS);
 
         _cursors = new long[cursors.length];
-        for (int i = 0; i < cursors.length; i++) {
-            _cursors[i] = cursors[i];
-        }
+        System.arraycopy(cursors, 0, _cursors, 0, cursors.length);
         init();
     }
 
     public DBKillCursorsMessage(long cursor) throws MongoDBException {
-        super(DBStaticData.OP_KILL_CURSORS);
+        super(DBMessage.OP_KILL_CURSORS);
 
         _cursors = new long[1];
         _cursors[0] = cursor;
@@ -55,15 +50,15 @@ public class DBKillCursorsMessage extends DBMessage {
     /**
      *   Writes the query out to the underlying message byte buffer
      *
-     * @throws Exception if something wrong w/ mongoDoc
+     * @throws MongoDBException if something wrong w/ mongoDoc
      */
     protected void init() throws MongoDBException {
 
         writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
         writeInt(_cursors.length);
 
-        for (int i=0; i < _cursors.length; i++) {
-            writeLong(_cursors[i]);
+        for (long _cursor : _cursors) {
+            writeLong(_cursor);
         }
     }
 }
