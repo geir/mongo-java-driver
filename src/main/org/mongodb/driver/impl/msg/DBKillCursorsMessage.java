@@ -18,6 +18,9 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 
 /**
  *   KillCursor message for MongoDB.  Message format is :
@@ -61,4 +64,12 @@ public class DBKillCursorsMessage extends DBMessage {
             writeLong(_cursor);
         }
     }
+    
+    /**
+     *  Read this kind of message object out of an input stream
+     *
+     * @param is stream to read from
+     */
+    public void read(InputStream is ) throws IOException {
+    }    
 }

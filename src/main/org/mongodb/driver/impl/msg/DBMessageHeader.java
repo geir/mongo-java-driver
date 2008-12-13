@@ -56,4 +56,25 @@ public class DBMessageHeader {
         _responseTo = _headerBuf.getInt();
         _op = _headerBuf.getInt();
     }
+
+    public int getOperation() {
+        return _op;
+    }
+    
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("MessageHeader : op/requestID/responseTo/size : ");
+        sb.append(_op);
+        sb.append("/");
+        sb.append(_requestID);
+        sb.append("/");
+        sb.append(_responseTo);
+        sb.append("/");
+        sb.append(_size);
+        sb.append("/");
+
+        return sb.toString();
+    }
+
+
 }

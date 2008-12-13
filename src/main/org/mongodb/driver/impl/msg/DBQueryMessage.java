@@ -19,6 +19,9 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.MongoDBException;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 /**
  *   Query message for MongoDB.  Message format is :
  *
@@ -61,5 +64,13 @@ public class DBQueryMessage extends DBMessage {
         if(_query.getReturnFieldsSelector() != null) {
             writeMongoDoc(_query.getReturnFieldsSelector());
         }
+    }
+
+    /**
+     *  Read this kind of message object out of an input stream
+     *
+     * @param is stream to read from
+     */
+    public void read(InputStream is ) throws IOException {
     }
 }

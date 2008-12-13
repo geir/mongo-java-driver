@@ -18,6 +18,9 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 /**
  *  Message class representing a "get more" message, a message used by a cursor
  *  to fetch another batch of data from a query
@@ -49,4 +52,12 @@ public class DBGetMoreMessage extends DBMessage {
         writeInt(0); // n toreturn - leave it up to db for now
         writeLong(_cursor);
     }
+
+    /**
+     *  Read this kind of message object out of an input stream
+     *
+     * @param is stream to read from
+     */
+    public void read(InputStream is ) throws IOException {
+    }    
 }

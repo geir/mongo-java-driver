@@ -23,11 +23,13 @@ import org.mongodb.driver.util.BSONObject;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * Base message class for mongo communications
  */
-public class DBMessage {
+public abstract class DBMessage {
 
     /**
      *  Database operations
@@ -141,4 +143,6 @@ public class DBMessage {
 
         return msg;
     }
+
+    public abstract void read(InputStream is) throws IOException;
 }

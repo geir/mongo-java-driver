@@ -19,6 +19,9 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
+import java.io.InputStream;
+import java.io.IOException;
+
 /**
 string collection;
       a series of JSObjects terminated with a null object (i.e., just EOO)
@@ -67,4 +70,12 @@ public class DBInsertMessage extends DBMessage {
             writeMongoDoc(doc);
         }
     }
+
+    /**
+     *  Read this kind of message object out of an input stream
+     *
+     * @param is stream to read from
+     */
+    public void read(InputStream is ) throws IOException {
+    }    
 }
