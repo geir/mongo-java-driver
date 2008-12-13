@@ -67,6 +67,6 @@ public class DBUpdateMessage extends DBMessage {
      *
      * @param is stream to read from
      */
-    public void read(InputStream is ) throws IOException {
+    protected void read(InputStream is ) throws IOException {
     }    
 }

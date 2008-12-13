@@ -21,6 +21,7 @@ import org.mongodb.driver.MongoDBException;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  *   Query message for MongoDB.  Message format is :
@@ -39,6 +40,43 @@ public class DBQueryMessage extends DBMessage {
     protected final String _dbName;
     protected final String _collection;
 
+    protected DBQueryMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        // now the heard
+        int remainingSize = _messageLength;
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+        remainingSize -= 4;
+
+        String s = readString();
+        remainingSize -= s.length() + 1;
+
+        // we get in format if <dbname>.<collectionname> so split
+        
+        String[] ss = s.split(".");
+
+        assert(ss.length == 2);
+        _dbName = ss[0];
+        _collection = ss[1];
+
+        _query = new DBQuery();
+        
+        _query.setNumberToSkip(readInt());
+        remainingSize -= 4;
+
+        _query.setNumberToReturn(readInt());
+        remainingSize -= 4;
+
+        writeMongoDoc(_query.getCompleteQuery());
+//
+//        if(_query.getReturnFieldsSelector() != null) {
+//            writeMongoDoc(_query.getReturnFieldsSelector());
+//        }
+//
+
+    }
+    
     public DBQueryMessage(String dbName, String collection, DBQuery q) throws MongoDBException {
         super(MessageType.OP_QUERY);
         _query = q;

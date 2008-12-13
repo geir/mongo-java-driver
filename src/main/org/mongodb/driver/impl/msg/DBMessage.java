@@ -18,6 +18,7 @@ package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.util.BSONObject;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,27 +33,26 @@ import java.io.IOException;
 public abstract class DBMessage {
 
     protected final static int DEFAULT_BUF_SIZE = 1024*100;
-    protected final static int HEADER_SIZE = 16;      // size, id, responseto, opcode
-    
+
     private static AtomicInteger _classReqID = new AtomicInteger(1);
 
+    protected int _messageLength = DBMessageHeader.HEADER_SIZE;    // overall message length - header size to start
     
-    protected int _messageLength = HEADER_SIZE;    // overall message length - header size to start
-    
-    protected int _dataLength;
     protected int _requestID = getNextRequestID();
     protected int _responseTo = 0;
     protected MessageType _op;
 
-    protected ByteBuffer _buf = ByteBuffer.allocate(DEFAULT_BUF_SIZE);
-
+    protected ByteBuffer _buf;
+        
     /**
-     *   Creates a DBMessage with correct header written
+     *  Creates a DBMessage with correct header written
      * 
      * @param op opcode for db operation
      */
     protected DBMessage(MessageType op) {
 
+        // TODO - we need to be able to allocate dynmically more accurately, or pool
+        _buf = ByteBuffer.allocate(DEFAULT_BUF_SIZE);
         _buf.order(ByteOrder.LITTLE_ENDIAN);
 
 
@@ -66,7 +66,19 @@ public abstract class DBMessage {
         _buf.putInt(_responseTo);
         _buf.putInt(_op.getOpCode());
         
-        assert(_buf.position() == HEADER_SIZE);
+        assert(_buf.position() == DBMessageHeader.HEADER_SIZE);
+    }
+
+    protected DBMessage(ByteBuffer buf) {
+        
+        DBMessageHeader header = DBMessageHeader.readHeader(buf);
+
+        _messageLength = header.getMessageLength();
+        _requestID = header._requestID;
+        _responseTo = header._responseTo;
+        _op = header._op;
+
+        _buf = buf;
     }
 
     /**
@@ -75,9 +87,12 @@ public abstract class DBMessage {
      * @param s string to write
      */
     protected void writeString(String s) {
-
         int i = BSONObject.serializeCSTR(_buf, s);
         updateMessageLength(i);
+    }
+
+    protected String readString() throws MongoDBException {
+        return BSONObject.deserializeCSTR(_buf);
     }
 
     protected void writeLong(long i) {
@@ -90,6 +105,10 @@ public abstract class DBMessage {
 
         _buf.putInt(i);
         updateMessageLength(4);
+    }    
+
+    protected int readInt() {
+        return _buf.getInt();
     }
 
     protected void writeByte(byte b) {
@@ -109,7 +128,13 @@ public abstract class DBMessage {
 
         updateMessageLength(arr.length);
     }
-    
+
+    protected MongoDoc readMongoDoc() throws MongoDBException {
+
+        return null;
+    }
+
+
     protected void updateMessageLength(int delta) {
         _messageLength += delta;
 
@@ -133,5 +158,46 @@ public abstract class DBMessage {
         return msg;
     }
 
-    public abstract void read(InputStream is) throws IOException;
+    protected abstract void read(InputStream is ) throws IOException;
+
+    public static DBMessage readFromStream(InputStream is) throws MongoDBIOException, MongoDBException{
+
+        try {
+            /*
+             *  read the header, and then construct a bytebuffer w/ full message
+             */
+
+            DBMessageHeader msgHeader = DBMessageHeader.readHeader(is);
+
+            ByteBuffer buf = ByteBuffer.allocate(msgHeader.getMessageLength());
+            buf.order(ByteOrder.LITTLE_ENDIAN);
+
+            buf.position(0);
+            msgHeader.writeHeader(buf);
+            assert(buf.position() == DBMessageHeader.HEADER_SIZE);
+
+            int remaining = msgHeader.getMessageLength() - DBMessageHeader.HEADER_SIZE;
+
+            for (int i=0; i < remaining; i++) {
+                int b = is.read();
+                buf.put((byte) b);
+            }
+
+            DBMessage message;
+
+            switch(msgHeader.getOperation()) {
+                case OP_QUERY:
+                    message = new DBQueryMessage(buf);
+                    break;
+            }
+
+        }
+        catch (IOException ioe) {
+            throw new MongoDBIOException("error reading message", ioe);
+        }
+
+        return null;
+
+
+    }
 }

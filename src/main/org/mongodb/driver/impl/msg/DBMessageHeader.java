@@ -26,7 +26,7 @@ import java.nio.ByteOrder;
  */
 public class DBMessageHeader {
 
-    protected final static int HEADER_SIZE = 16;      // size, id, responseto, opcode
+    public final static int HEADER_SIZE = 16;      // size, id, responseto, opcode
 
     protected int _messageLength = HEADER_SIZE;    // overall message length - header size to start
 
@@ -35,32 +35,52 @@ public class DBMessageHeader {
     protected int _responseTo;
     protected MessageType _op;
 
-    ByteBuffer _headerBuf = ByteBuffer.allocate(HEADER_SIZE);
-
     public DBMessageHeader(){
-        _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
     }
 
-    public void readHeader(InputStream is ) throws IOException {
+    public void writeHeader(ByteBuffer buf) {
+        buf.putInt(_messageLength);             // holder for the length
+        buf.putInt(_requestID);
+        buf.putInt(_responseTo);
+        buf.putInt(_op.getOpCode());
+    }
 
-        _headerBuf.position(0);
+    public static DBMessageHeader readHeader(InputStream is ) throws IOException {
 
-        int i = is.read(_headerBuf.array(), 0, HEADER_SIZE);
+        ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
+        headerBuf.order(ByteOrder.LITTLE_ENDIAN);
+
+        headerBuf.position(0);
+
+        int i = is.read(headerBuf.array(), 0, HEADER_SIZE);
 
         if (i != HEADER_SIZE) {
             throw new IOException("Short read for DB response header");
         }
 
-        _size = _headerBuf.getInt();
-        _requestID = _headerBuf.getInt();
-        _responseTo = _headerBuf.getInt();
-        int opVal = _headerBuf.getInt();
+        return readHeader(headerBuf);
+    }
 
-        _op = MessageType.get(opVal);
+    public static DBMessageHeader readHeader(ByteBuffer buf) {
+
+        DBMessageHeader header = new DBMessageHeader();
+
+        header._size = buf.getInt();
+        header._requestID = buf.getInt();
+        header._responseTo = buf.getInt();
+
+        int opVal = buf.getInt();
+        header._op = MessageType.get(opVal);
+
+        return header;
     }
 
     public MessageType getOperation() {
         return _op;
+    }
+
+    public int getMessageLength() {
+        return _messageLength;
     }
     
     public String toString() {
