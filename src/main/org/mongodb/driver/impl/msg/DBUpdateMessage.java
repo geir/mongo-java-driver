@@ -36,7 +36,7 @@ public class DBUpdateMessage extends DBMessage {
 
     public DBUpdateMessage(String dbName, String collection, MongoSelector sel, MongoDoc obj, boolean repsert)
             throws MongoDBException {
-        super(DBMessage.OP_UPDATE);
+        super(MessageType.OP_UPDATE);
         _dbName = dbName;
         _collection = collection;
 

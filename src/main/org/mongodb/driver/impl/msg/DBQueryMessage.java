@@ -40,7 +40,7 @@ public class DBQueryMessage extends DBMessage {
     protected final String _collection;
 
     public DBQueryMessage(String dbName, String collection, DBQuery q) throws MongoDBException {
-        super(DBMessage.OP_QUERY);
+        super(MessageType.OP_QUERY);
         _query = q;
         _dbName = dbName;
         _collection = collection;

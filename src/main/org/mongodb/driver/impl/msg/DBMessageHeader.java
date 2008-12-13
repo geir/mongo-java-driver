@@ -33,7 +33,7 @@ public class DBMessageHeader {
     protected int _size;
     protected int _requestID;
     protected int _responseTo;
-    protected int _op;
+    protected MessageType _op;
 
     ByteBuffer _headerBuf = ByteBuffer.allocate(HEADER_SIZE);
 
@@ -54,10 +54,12 @@ public class DBMessageHeader {
         _size = _headerBuf.getInt();
         _requestID = _headerBuf.getInt();
         _responseTo = _headerBuf.getInt();
-        _op = _headerBuf.getInt();
+        int opVal = _headerBuf.getInt();
+
+        _op = MessageType.get(opVal);
     }
 
-    public int getOperation() {
+    public MessageType getOperation() {
         return _op;
     }
     

@@ -33,7 +33,7 @@ public class DBGetMoreMessage extends DBMessage {
     
     public DBGetMoreMessage(String dbName, String collection, long cursor) throws MongoDBException
     {
-        super(DBMessage.OP_GET_MORE);
+        super(MessageType.OP_GET_MORE);
         _dbName = dbName;
         _collection = collection;
         _cursor = cursor;

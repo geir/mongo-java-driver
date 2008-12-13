@@ -34,7 +34,7 @@ public class DBKillCursorsMessage extends DBMessage {
     protected final long[] _cursors;
     
     public DBKillCursorsMessage(long[] cursors) throws MongoDBException {
-        super(DBMessage.OP_KILL_CURSORS);
+        super(MessageType.OP_KILL_CURSORS);
 
         _cursors = new long[cursors.length];
         System.arraycopy(cursors, 0, _cursors, 0, cursors.length);
@@ -42,7 +42,7 @@ public class DBKillCursorsMessage extends DBMessage {
     }
 
     public DBKillCursorsMessage(long cursor) throws MongoDBException {
-        super(DBMessage.OP_KILL_CURSORS);
+        super(MessageType.OP_KILL_CURSORS);
 
         _cursors = new long[1];
         _cursors[0] = cursor;

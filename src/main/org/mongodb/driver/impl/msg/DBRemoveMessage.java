@@ -32,7 +32,7 @@ public class DBRemoveMessage extends DBMessage {
     protected final MongoSelector _selector;
 
     public DBRemoveMessage(String dbName, String collection, MongoSelector sel) throws MongoDBException {
-        super(DBMessage.OP_DELETE);
+        super(MessageType.OP_DELETE);
         _dbName = dbName;
         _collection = collection;
 

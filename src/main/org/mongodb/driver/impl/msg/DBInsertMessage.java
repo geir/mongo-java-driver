@@ -33,7 +33,7 @@ public class DBInsertMessage extends DBMessage {
     protected final MongoDoc[] _objs;
 
     public DBInsertMessage(String dbName, String collection, MongoDoc obj) throws MongoDBException {
-        super(DBMessage.OP_INSERT);
+        super(MessageType.OP_INSERT);
         _dbName = dbName;
         _collection = collection;
 
@@ -46,7 +46,7 @@ public class DBInsertMessage extends DBMessage {
     }
 
     public DBInsertMessage(String dbName, String collection, MongoDoc[] objs) throws MongoDBException {
-        super(DBMessage.OP_INSERT);
+        super(MessageType.OP_INSERT);
         _dbName = dbName;
         _collection =   collection;
 

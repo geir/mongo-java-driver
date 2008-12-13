@@ -29,7 +29,7 @@ public class DBMsgMessage extends DBMessage {
     protected String _msg;
 
     public DBMsgMessage(String msg) throws MongoDBException {
-        super(DBMessage.OP_MSG);
+        super(MessageType.OP_MSG);
         _msg = msg;
 
         this.writeString(_msg);

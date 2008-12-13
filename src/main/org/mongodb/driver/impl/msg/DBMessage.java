@@ -31,20 +31,6 @@ import java.io.IOException;
  */
 public abstract class DBMessage {
 
-    /**
-     *  Database operations
-     */
-    public static final int OP_REPLY = 1;     /* reply. responseTo is set. */
-    public static final int OP_MSG = 1000;    /* generic msg command followed by a string */
-    public static final int OP_UPDATE = 2001;    /* update object */
-    public static final int OP_INSERT = 2002;
-    // public static final int GET_BY_OID = 2003;
-    public static final int OP_QUERY = 2004;
-    public static final int OP_GET_MORE = 2005;
-    public static final int OP_DELETE = 2006;
-    public static final int OP_KILL_CURSORS = 2007;
-
-
     protected final static int DEFAULT_BUF_SIZE = 1024*100;
     protected final static int HEADER_SIZE = 16;      // size, id, responseto, opcode
     
@@ -56,7 +42,7 @@ public abstract class DBMessage {
     protected int _dataLength;
     protected int _requestID = getNextRequestID();
     protected int _responseTo = 0;
-    protected int _op;
+    protected MessageType _op;
 
     protected ByteBuffer _buf = ByteBuffer.allocate(DEFAULT_BUF_SIZE);
 
@@ -65,9 +51,12 @@ public abstract class DBMessage {
      * 
      * @param op opcode for db operation
      */
-    protected DBMessage(int op) {
+    protected DBMessage(MessageType op) {
 
         _buf.order(ByteOrder.LITTLE_ENDIAN);
+
+
+        //  TODO - fix this - this is too idiotic - use the DBMessageHeader object here...
         
         _op = op;
 
@@ -75,7 +64,7 @@ public abstract class DBMessage {
         _buf.putInt(_messageLength);             // holder for the length
         _buf.putInt(_requestID);
         _buf.putInt(_responseTo);
-        _buf.putInt(_op);
+        _buf.putInt(_op.getOpCode());
         
         assert(_buf.position() == HEADER_SIZE);
     }
