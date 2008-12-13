@@ -183,21 +183,20 @@ public abstract class DBMessage {
                 buf.put((byte) b);
             }
 
-            DBMessage message;
-
             switch(msgHeader.getOperation()) {
                 case OP_QUERY:
-                    message = new DBQueryMessage(buf);
-                    break;
+                    return new DBQueryMessage(buf);
+                default :
+                    throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
             }
 
         }
         catch (IOException ioe) {
             throw new MongoDBIOException("error reading message", ioe);
         }
+    }
 
-        return null;
-
-
+    public MessageType getMessageType() {
+        return _op;
     }
 }

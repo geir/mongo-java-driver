@@ -396,17 +396,14 @@ public class DBImpl implements DB {
 
         sel.put("deleteIndexes", collection);
         sel.put("index", name);
-
+       
         return dbCommand(sel) != null;
     }
 
     protected MongoDoc dbCommand(MongoSelector selector) throws MongoDBException {
-
-        DBQuery q = new DBQuery(selector);
-        q.setNumberToReturn(1); // tis required to be only 1 return, technally -1?
-
+        
         synchronized(_dbMonitor) {
-            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, q);
+            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommand(selector));
             return cursor.getNextObject();
         }
     }

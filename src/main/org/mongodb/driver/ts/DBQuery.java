@@ -38,7 +38,6 @@ public class DBQuery  {
 
     public DBQuery(String s) throws MongoDBException {
         this(new MongoSelector("$where", "function() { return " + s + ";}"), null, 0, 0);
-
     }
 
     public DBQuery(MongoSelector query) {
@@ -72,23 +71,45 @@ public class DBQuery  {
         _numberToReturn = nReturn;
     }
 
-    public MongoDoc getCompleteQuery() throws MongoDBException {
+    public void setCompleteQuery(MongoDoc doc) throws MongoDBException {
 
-        /*
-         * quirk in how things work - only if there's an orderby do we structure the query object
-         * this way
-         */
+        if (doc.get("query") != null) {
 
-        if (_orderBy != null) {
-            MongoDoc m = new MongoDoc();
+            // must be a layered query object
 
-            m.put("query", _querySelector);
-            m.put("orderby", _orderBy );
-            return m;
+            _querySelector = new MongoSelector(((MongoDoc) doc.get("query")).getMap());
+
+            MongoDoc d = (MongoDoc) doc.get("orderby");
+
+            if (d != null) {
+                _orderBy = new MongoSelector(d.getMap());
+            }
         }
         else {
-            return _querySelector;
+            _querySelector = new MongoSelector(doc.getMap());
         }
+    }
+
+    /**
+     *  A "complete query" is the query that will be sent to the
+     *  db server.  For a non-command object query, this can either
+     *  be a selector that is the query, or a selector that contains
+     *  'query' an 'orderby'
+     * 
+     * @return mongodoc with complete query
+     * @throws MongoDBException in case of problem
+     */
+    public MongoDoc getCompleteQuery() throws MongoDBException {
+
+        MongoDoc m = new MongoDoc();
+
+        m.put("query", _querySelector);
+
+        if (_orderBy != null) {
+            m.put("orderby", _orderBy );
+        }
+
+        return m;
     }
     
     public MongoDoc getQuerySelector() {

@@ -17,6 +17,8 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
 import java.io.InputStream;
@@ -43,14 +45,9 @@ public class DBQueryMessage extends DBMessage {
     protected DBQueryMessage(ByteBuffer buf) throws MongoDBException {
         super(buf);
 
-        // now the heard
-        int remainingSize = _messageLength;
-
         readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
-        remainingSize -= 4;
 
         String s = readString();
-        remainingSize -= s.length() + 1;
 
         // we get in format if <dbname>.<collectionname> so split
         
@@ -63,18 +60,19 @@ public class DBQueryMessage extends DBMessage {
         _query = new DBQuery();
         
         _query.setNumberToSkip(readInt());
-        remainingSize -= 4;
 
         _query.setNumberToReturn(readInt());
-        remainingSize -= 4;
 
-        writeMongoDoc(_query.getCompleteQuery());
-//
-//        if(_query.getReturnFieldsSelector() != null) {
-//            writeMongoDoc(_query.getReturnFieldsSelector());
-//        }
-//
+        _query.setCompleteQuery(readMongoDoc());
 
+        if (_buf.position() < _buf.limit()) {
+
+            MongoDoc m = readMongoDoc();
+
+            if (m != null) {
+                _query.setReturnFieldsSelector(new MongoSelector(m.getMap()));
+            }
+        }
     }
     
     public DBQueryMessage(String dbName, String collection, DBQuery q) throws MongoDBException {
