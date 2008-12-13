@@ -148,13 +148,25 @@ public class BSONObjectTest {
     public void testSerializeCSTR() throws Exception {
 
         ByteBuffer buff = ByteBuffer.allocate(1024);
-        BSONObject bo = new BSONObject();
 
-        assert(bo.serializeCSTR(buff, "name") == 5);
+        assert(BSONObject.serializeCSTR(buff, "name") == 5);
 
         buff.position(0);
 
-        assert(bo.serializeCSTR(buff, "b") == 2);
+        assert(BSONObject.serializeCSTR(buff, "b") == 2);
+    }
+
+
+    @Test
+    public void testDeSerializeCSTR() throws Exception {
+
+        ByteBuffer buff = ByteBuffer.allocate(1024);
+
+        assert(BSONObject.serializeCSTR(buff, "name") == 5);
+
+        buff.position(0);
+
+        assert(BSONObject.deserializeCSTR(buff).equals("name"));
     }
 
     @Test

@@ -213,52 +213,52 @@ public class BSONObject {
 
             switch (type) {
                 case STRING :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeSTRINGData(_buf));
                     break;
 
                 case NUMBER :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeNumberData(_buf));
                     break;
 
                 case NUMBER_INT :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeNumberIntData(_buf));
                     break;
 
                 case OID :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeOIDData(_buf));
                     break;
 
                 case OBJECT :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeObjectData(_buf));
                     break;
 
                 case BOOLEAN :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeBooleanData(_buf));
                     break;
 
                 case DATE :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeDateData(_buf));
                     break;
 
                 case NULL :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, (String) null);
                     break;
 
                 case ARRAY :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeArrayData(_buf));
                     break;
 
                 case REGEX :
-                    key = deserializeElementName(_buf);
+                    key = deserializeCSTR(_buf);
                     doc.put(key, deserializeRegexData(_buf, totalSize));
                     break;
 
@@ -422,10 +422,12 @@ public class BSONObject {
 
         int len = buf.getInt();  // the buffers size includes the null terminator
 
-        buf.get(_privateBuff, 0, len);
+        byte[] bytes = new byte[len];
+
+        buf.get(bytes, 0, len);
 
         try {
-            return new String(_privateBuff, 0, len-1, "UTF-8");
+            return new String(bytes, 0, len-1, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new MongoDBException("Encoding exception", e);
         }
@@ -440,9 +442,11 @@ public class BSONObject {
      */
     protected BabbleOID deserializeOIDData(ByteBuffer buf) throws MongoDBException {
 
-        buf.get(_privateBuff, 0, 12);
+        byte[] bytes = new byte[12];
 
-        return new BabbleOID(_privateBuff);
+        buf.get(bytes, 0, 12);
+
+        return new BabbleOID(bytes);
     }
 
     /**
@@ -882,26 +886,38 @@ public class BSONObject {
      * @return element name
      * @throws MongoDBException if an encoding problem
      */
-    protected String deserializeElementName(ByteBuffer buf) throws MongoDBException {
+    public static String deserializeCSTR(ByteBuffer buf) throws MongoDBException {
 
         int i = 0;
 
-        while(true) {
-            byte b = buf.get();
-
-            /*
-             *  cstrings are terminated by a 0 byte
-             */
-            if (b == 0) {
-                break;
-            }
-
-            this._privateBuff[i++] = b;
-         }
+        StringBuffer sb = new StringBuffer();
+        byte[] arr = new byte[256];
 
         try {
-            return new String(_privateBuff, 0, i, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
+
+            while(true) {
+                byte b = buf.get();
+
+                /*
+                 *  cstrings are terminated by a 0 byte
+                 */
+                if (b == 0) {
+                    break;
+                }
+
+                arr[i++] = b;
+                
+                if (i == arr.length) {
+                    sb.append(new String(arr, 0, i, "UTF-8"));
+                    i = 0;
+                }
+             }
+
+            sb.append(new String(arr, 0, i, "UTF-8"));
+
+            return sb.toString();
+        }
+        catch (UnsupportedEncodingException e) {
             throw new MongoDBException("Encoding exception : ", e);
         }
     }
