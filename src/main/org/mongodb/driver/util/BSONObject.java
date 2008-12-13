@@ -348,7 +348,7 @@ public class BSONObject {
      * @return deserialized String
      * @throws MongoDBException on error
      */
-    protected MongoDoc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
+    public static MongoDoc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
 
         /*
          * read the first 4 bytes (size) into a ByteBuf, and get that
