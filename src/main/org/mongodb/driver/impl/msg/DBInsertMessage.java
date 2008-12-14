@@ -19,8 +19,9 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
-import java.io.InputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
 string collection;
@@ -32,6 +33,26 @@ public class DBInsertMessage extends DBMessage {
     protected final String _collection;
     protected final MongoDoc[] _objs;
 
+    public DBInsertMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+
+        String s = readString();
+        String[] ss = s.split("\\.");
+        assert(ss.length == 2);
+        _dbName = ss[0];
+        _collection = ss[1];
+
+        List<MongoDoc> objs = new ArrayList<MongoDoc>();
+
+        while(buf.position() < buf.limit()) {
+            objs.add(readMongoDoc());
+        }
+
+        _objs = objs.toArray(new MongoDoc[objs.size()]);        
+    }
+    
     public DBInsertMessage(String dbName, String collection, MongoDoc obj) throws MongoDBException {
         super(MessageType.OP_INSERT);
         _dbName = dbName;
@@ -70,4 +91,19 @@ public class DBInsertMessage extends DBMessage {
             writeMongoDoc(doc);
         }
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[OP_INSERT(");
+        sb.append(_dbName);
+        sb.append(".");
+        sb.append(_collection);
+        sb.append("):");
+
+        sb.append(" number[");
+        sb.append(_objs.length);
+        sb.append("]");
+        
+        return sb.toString();
+    }
+
 }

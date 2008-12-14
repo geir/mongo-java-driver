@@ -21,8 +21,6 @@ import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
-import java.io.InputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**

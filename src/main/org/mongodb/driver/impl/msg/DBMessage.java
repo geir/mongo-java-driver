@@ -22,10 +22,13 @@ import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.util.BSONObject;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Formatter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * Base message class for mongo communications
@@ -99,6 +102,10 @@ public abstract class DBMessage {
 
         _buf.putLong(i);
         updateMessageLength(8);
+    }
+
+    protected long readLong() {
+        return _buf.getLong();
     }
 
     protected void writeInt(int i) {
@@ -183,6 +190,10 @@ public abstract class DBMessage {
             switch(msgHeader.getOperation()) {
                 case OP_QUERY:
                     return new DBQueryMessage(buf);
+                case OP_REPLY:
+                    return new DBQueryReplyMessage(buf);
+                case OP_INSERT:
+                    return new DBInsertMessage(buf);
                 default :
                     throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
             }
@@ -191,6 +202,28 @@ public abstract class DBMessage {
         catch (IOException ioe) {
             throw new MongoDBIOException("error reading message", ioe);
         }
+    }
+
+    public void dumpHex(OutputStream os) throws IOException {
+
+        OutputStreamWriter w = new OutputStreamWriter(os);
+        Formatter formatter = new Formatter(w);
+
+        _buf.flip();
+
+        for (int i = 0; i < _buf.limit(); i++) {
+            if (i % 8 == 0) {
+                if (i != 0) {
+                    w.append("\n");
+                }
+                formatter.format("%4d:  ", i);
+            } else {
+                w.append(" ");
+            }
+            formatter.format("%02X", _buf.get());
+        }
+
+        w.flush();
     }
 
     public MessageType getMessageType() {
