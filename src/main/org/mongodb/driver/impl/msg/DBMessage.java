@@ -119,19 +119,16 @@ public abstract class DBMessage {
     protected void writeMongoDoc(MongoDoc doc) throws MongoDBException {
 
         BSONObject bson = new BSONObject();
-
         bson.serialize(doc);
 
         byte[] arr = bson.toArray();
-
         _buf.put(arr);
 
         updateMessageLength(arr.length);
     }
 
     protected MongoDoc readMongoDoc() throws MongoDBException {
-
-        return null;
+        return BSONObject.deserializeObjectData(_buf);
     }
 
 
@@ -158,8 +155,6 @@ public abstract class DBMessage {
         return msg;
     }
 
-    protected abstract void read(InputStream is ) throws IOException;
-
     public static DBMessage readFromStream(InputStream is) throws MongoDBIOException, MongoDBException{
 
         try {
@@ -183,6 +178,8 @@ public abstract class DBMessage {
                 buf.put((byte) b);
             }
 
+            buf.flip();
+            
             switch(msgHeader.getOperation()) {
                 case OP_QUERY:
                     return new DBQueryMessage(buf);

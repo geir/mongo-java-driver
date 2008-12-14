@@ -20,9 +20,6 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
-import java.io.InputStream;
-import java.io.IOException;
-
 /**
  * Represents a dbUpdate mongo operation
  */
@@ -61,12 +58,4 @@ public class DBUpdateMessage extends DBMessage {
         writeMongoDoc(_selector);
         writeMongoDoc(_obj);
     }
-
-    /**
-     *  Read this kind of message object out of an input stream
-     *
-     * @param is stream to read from
-     */
-    protected void read(InputStream is ) throws IOException {
-    }    
 }

@@ -30,7 +30,6 @@ public class DBMessageHeader {
 
     protected int _messageLength = HEADER_SIZE;    // overall message length - header size to start
 
-    protected int _size;
     protected int _requestID;
     protected int _responseTo;
     protected MessageType _op;
@@ -55,7 +54,7 @@ public class DBMessageHeader {
         int i = is.read(headerBuf.array(), 0, HEADER_SIZE);
 
         if (i != HEADER_SIZE) {
-            throw new IOException("Short read for DB response header");
+            throw new IOException("Short read for DB response header. read=" + i);
         }
 
         return readHeader(headerBuf);
@@ -65,7 +64,7 @@ public class DBMessageHeader {
 
         DBMessageHeader header = new DBMessageHeader();
 
-        header._size = buf.getInt();
+        header._messageLength = buf.getInt();
         header._requestID = buf.getInt();
         header._responseTo = buf.getInt();
 
@@ -92,11 +91,9 @@ public class DBMessageHeader {
         sb.append("/");
         sb.append(_responseTo);
         sb.append("/");
-        sb.append(_size);
+        sb.append(_messageLength);
         sb.append("/");
 
         return sb.toString();
     }
-
-
 }

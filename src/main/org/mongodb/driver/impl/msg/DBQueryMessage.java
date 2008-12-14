@@ -51,18 +51,15 @@ public class DBQueryMessage extends DBMessage {
 
         // we get in format if <dbname>.<collectionname> so split
         
-        String[] ss = s.split(".");
+        String[] ss = s.split("\\.");
 
         assert(ss.length == 2);
         _dbName = ss[0];
         _collection = ss[1];
 
         _query = new DBQuery();
-        
         _query.setNumberToSkip(readInt());
-
         _query.setNumberToReturn(readInt());
-
         _query.setCompleteQuery(readMongoDoc());
 
         if (_buf.position() < _buf.limit()) {
@@ -102,11 +99,15 @@ public class DBQueryMessage extends DBMessage {
         }
     }
 
-    /**
-     *  Read this kind of message object out of an input stream
-     *
-     * @param is stream to read from
-     */
-    public void read(InputStream is ) throws IOException {
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[OP_QUERY(");
+        sb.append(_dbName);
+        sb.append(".");
+        sb.append(_collection);
+        sb.append("):");
+        sb.append(_query);
+        sb.append("]");
+
+        return sb.toString();
     }
 }

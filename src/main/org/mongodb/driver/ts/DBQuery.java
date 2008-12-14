@@ -135,4 +135,20 @@ public class DBQuery  {
     public void setOrderBy(MongoSelector selector) {
         _orderBy = selector;
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("skip[");
+        sb.append(_numberToSkip);
+        sb.append("] return[");
+        sb.append(_numberToReturn);
+        sb.append("] query[");
+        sb.append(_querySelector);
+        sb.append("] fields[");
+        sb.append(_retFieldsDoc);
+        sb.append("] orderby[");
+        sb.append(_orderBy);
+        sb.append("]");
+
+        return sb.toString();
+    }
 }

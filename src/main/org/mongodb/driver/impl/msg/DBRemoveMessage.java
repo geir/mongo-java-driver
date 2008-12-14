@@ -19,9 +19,6 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
-import java.io.InputStream;
-import java.io.IOException;
-
 /**
  * Representas a Mongo Delete operation
  */
@@ -57,12 +54,4 @@ public class DBRemoveMessage extends DBMessage {
         writeInt(0);   // flags ?
         writeMongoDoc(_selector);
     }
-
-    /**
-     *  Read this kind of message object out of an input stream
-     *
-     * @param is stream to read from
-     */
-    public void read(InputStream is ) throws IOException {
-    }    
 }

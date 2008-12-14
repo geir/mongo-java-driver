@@ -70,12 +70,4 @@ public class DBInsertMessage extends DBMessage {
             writeMongoDoc(doc);
         }
     }
-
-    /**
-     *  Read this kind of message object out of an input stream
-     *
-     * @param is stream to read from
-     */
-    public void read(InputStream is ) throws IOException {
-    }    
 }
