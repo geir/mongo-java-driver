@@ -58,7 +58,7 @@ public class DBQueryMessage extends DBMessage {
         _query = new DBQuery();
         _query.setNumberToSkip(readInt());
         _query.setNumberToReturn(readInt());
-        _query.setCompleteQuery(readMongoDoc());
+        _query.setCompleteQuery(readMongoSelector());
 
         if (_buf.position() < _buf.limit()) {
 

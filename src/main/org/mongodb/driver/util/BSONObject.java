@@ -196,12 +196,12 @@ public class BSONObject {
         assert(messageSize == byteBuff.length);
         _buf.position(0);
 
-        MongoDoc md = (keySafety ? new MongoDoc() : new MongoDoc() {
-            protected void checkKey(String key) throws MongoDBException {
-                return;
-            }
-        });
-        _deserializeInto(md);
+        MongoDoc md = keySafety ? new MongoDoc() : new MongoDoc() {
+                protected void checkKey(String key) throws MongoDBException {
+                    return;
+                }
+            };
+        _deserializeInto(md, keySafety);
         return md;
     }
 
@@ -209,10 +209,10 @@ public class BSONObject {
 
         MongoDoc md = new MongoDoc();
 
-        return _deserializeInto(md);
+        return _deserializeInto(md, true);
     }
 
-    private MongoDoc _deserializeInto(MongoDoc doc) throws MongoDBException {
+    private MongoDoc _deserializeInto(MongoDoc doc, boolean keySafety) throws MongoDBException {
 
         _buf.position(0);
 
@@ -253,7 +253,7 @@ public class BSONObject {
 
                 case OBJECT :
                     key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeObjectData(_buf));
+                    doc.put(key, _deserializeObjectData(_buf, keySafety));
                     break;
 
                 case BOOLEAN :
