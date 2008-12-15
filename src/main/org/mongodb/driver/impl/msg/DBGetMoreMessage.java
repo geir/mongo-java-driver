@@ -17,9 +17,7 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
-
-import java.io.InputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  *  Message class representing a "get more" message, a message used by a cursor
@@ -30,13 +28,32 @@ public class DBGetMoreMessage extends DBMessage {
     protected final long _cursor;
     protected final String _dbName;
     protected final String _collection;
-    
+    protected final int _numberToReturn;
+
+
+    public DBGetMoreMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+
+        String s = readString();
+        String[] ss = s.split("\\.");
+        assert(ss.length == 2);
+        _dbName = ss[0];
+        _collection = ss[1];
+
+        _numberToReturn = readInt();
+
+        _cursor = readLong();
+    }
+
     public DBGetMoreMessage(String dbName, String collection, long cursor) throws MongoDBException
     {
         super(MessageType.OP_GET_MORE);
         _dbName = dbName;
         _collection = collection;
         _cursor = cursor;
+        _numberToReturn = 0;  // for now, set to 0 to leave it up to the DB
         init();
     }
 
@@ -49,7 +66,23 @@ public class DBGetMoreMessage extends DBMessage {
     {
         writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
         writeString(_dbName + "." + _collection);
-        writeInt(0); // n toreturn - leave it up to db for now
+        writeInt(_numberToReturn); // n toreturn - leave it up to db for now
         writeLong(_cursor);
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[GETMORE(");
+        sb.append(_dbName);
+        sb.append(".");
+        sb.append(_collection);
+        sb.append("):");
+        sb.append(headerString());
+        sb.append(":");
+        sb.append("nReturn[").append(_numberToReturn).append("]");
+        sb.append(" cursor[").append(_cursor).append("]");
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }
