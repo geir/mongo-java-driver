@@ -57,7 +57,7 @@ public class BSONObject {
     static final byte NULL = 10;    // x t
     static final byte REGEX = 11;   // x t
     static final byte REF = 12;
-    static final byte CODE = 13;
+    static final byte CODE = 13;    // x t
     static final byte SYMBOL = 14;
     static final byte CODE_W_SCOPE = 15;
     static final byte NUMBER_INT = 16;
@@ -231,7 +231,8 @@ public class BSONObject {
             String key;
 
             switch (type) {
-                case STRING :
+                case STRING:
+                case CODE:
                     key = deserializeCSTR(_buf);
                     doc.put(key, deserializeSTRINGData(_buf));
                     break;

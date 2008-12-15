@@ -118,6 +118,32 @@ public class BSONObjectTest {
         assert(((Integer) md2.get("age")) == 40);
     }
 
+    @Test
+    public void testCodeEncoding() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        String code = "function() { return this.a;}";
+
+        md.put("where", code);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        assert(md2.get("where").equals(code));
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        assert(md2.get("where").equals(code));
+    }
+
 
     @Test
     public void testStringEncoding() throws Exception {
