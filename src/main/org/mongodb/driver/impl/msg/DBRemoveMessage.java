@@ -19,6 +19,8 @@ package org.mongodb.driver.impl.msg;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
+import java.nio.ByteBuffer;
+
 /**
  * Representas a Mongo Delete operation
  */
@@ -27,6 +29,27 @@ public class DBRemoveMessage extends DBMessage {
     protected final String _dbName;
     protected final String _collection;
     protected final MongoSelector _selector;
+
+
+    protected DBRemoveMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+
+        String s = readString();
+
+        // we get in format if <dbname>.<collectionname> so split
+
+        String[] ss = s.split("\\.");
+
+        assert(ss.length == 2);
+        _dbName = ss[0];
+        _collection = ss[1];
+
+        readInt();  // flags?
+
+        _selector = new MongoSelector(readMongoDoc().getMap());
+    }
 
     public DBRemoveMessage(String dbName, String collection, MongoSelector sel) throws MongoDBException {
         super(MessageType.OP_DELETE);
@@ -54,4 +77,19 @@ public class DBRemoveMessage extends DBMessage {
         writeInt(0);   // flags ?
         writeMongoDoc(_selector);
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[DELETE(");
+        sb.append(_dbName);
+        sb.append(".");
+        sb.append(_collection);
+        sb.append("):");
+        sb.append(headerString());
+        sb.append(":");
+        sb.append(_selector);
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }

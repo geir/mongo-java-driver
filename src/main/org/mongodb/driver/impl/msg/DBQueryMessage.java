@@ -98,11 +98,13 @@ public class DBQueryMessage extends DBMessage {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[OP_QUERY(");
+        StringBuffer sb = new StringBuffer("[QUERY(");
         sb.append(_dbName);
         sb.append(".");
         sb.append(_collection);
         sb.append("):");
+        sb.append(headerString());
+        sb.append(":");
         sb.append(_query);
         sb.append("]");
 

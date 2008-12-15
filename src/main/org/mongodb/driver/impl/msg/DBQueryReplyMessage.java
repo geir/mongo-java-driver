@@ -16,9 +16,7 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
@@ -69,7 +67,7 @@ public class DBQueryReplyMessage extends DBMessage {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[OP_REPLY(): flags[");
+        StringBuffer sb = new StringBuffer("[REPLY:").append(headerString()).append(":").append(" flags[");
         sb.append(_flags);
         sb.append("] cursorID=[");
         sb.append(_cursorID);

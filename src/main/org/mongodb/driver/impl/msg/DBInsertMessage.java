@@ -93,7 +93,7 @@ public class DBInsertMessage extends DBMessage {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("[OP_INSERT(");
+        StringBuffer sb = new StringBuffer("[INSERT(");
         sb.append(_dbName);
         sb.append(".");
         sb.append(_collection);

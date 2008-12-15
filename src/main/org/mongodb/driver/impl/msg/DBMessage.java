@@ -17,6 +17,7 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.util.BSONObject;
@@ -134,6 +135,11 @@ public abstract class DBMessage {
         updateMessageLength(arr.length);
     }
 
+    protected MongoSelector readMongoSelector() throws MongoDBException {
+        return BSONObject.deserializeSelector(_buf);
+
+    }
+
     protected MongoDoc readMongoDoc() throws MongoDBException {
         return BSONObject.deserializeObjectData(_buf);
     }
@@ -194,6 +200,8 @@ public abstract class DBMessage {
                     return new DBQueryReplyMessage(buf);
                 case OP_INSERT:
                     return new DBInsertMessage(buf);
+                case OP_DELETE:
+                    return new DBRemoveMessage(buf);
                 default :
                     throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
             }
@@ -208,19 +216,32 @@ public abstract class DBMessage {
 
         OutputStreamWriter w = new OutputStreamWriter(os);
         Formatter formatter = new Formatter(w);
+        StringBuffer sb = new StringBuffer();
 
         _buf.flip();
 
         for (int i = 0; i < _buf.limit(); i++) {
             if (i % 8 == 0) {
                 if (i != 0) {
+                    w.append("    ");
+                    w.append(sb.toString());
+                    sb = new StringBuffer();
                     w.append("\n");
                 }
                 formatter.format("%4d:  ", i);
             } else {
                 w.append(" ");
             }
-            formatter.format("%02X", _buf.get());
+            byte b = _buf.get();
+            formatter.format("%02X", b);
+            char c = (char) b;
+
+            if (Character.isLetterOrDigit(c)) {
+                sb.append(c);
+            }
+            else {
+                sb.append(".");
+            }
         }
 
         w.flush();
@@ -229,4 +250,12 @@ public abstract class DBMessage {
     public MessageType getMessageType() {
         return _op;
     }
+
+
+    public String headerString() {
+        StringBuffer sb = new StringBuffer("(len=[").append(_messageLength).append("]");
+        sb.append(" id=[").append(_requestID).append("]");
+        sb.append(" rspTo=[").append(_responseTo).append("])");
+        return sb.toString();
+    }    
 }
