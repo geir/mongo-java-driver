@@ -18,6 +18,7 @@ package org.mongodb.driver.util;
 
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.BabbleOID;
+import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
 import java.lang.StringBuilder;
@@ -169,14 +170,21 @@ public class BSONObject {
         _buf.flip();
     }
 
+
+    public MongoDoc deserialize(byte[] byteBuff) throws MongoDBException {
+
+        return deserialize(byteBuff, true);
+    }
+
     /**
      *  Deserializes a BSON document into a MongoDoc object
      *
      * @param byteBuff buffer of BSON to deserialize
+     * @param keySafety true if you want keys checked, false if not (for de-serializing MongoSelectors and MongoModifiers)
      * @return new mongo doc
      * @throws MongoDBException if a problem
      */
-    public MongoDoc deserialize(byte[] byteBuff) throws MongoDBException {
+    public MongoDoc deserialize(byte[] byteBuff, boolean keySafety) throws MongoDBException {
         _buf = ByteBuffer.wrap(byteBuff);
         _buf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -188,10 +196,23 @@ public class BSONObject {
         assert(messageSize == byteBuff.length);
         _buf.position(0);
 
-        return deserialize();
+        MongoDoc md = (keySafety ? new MongoDoc() : new MongoDoc() {
+            protected void checkKey(String key) throws MongoDBException {
+                return;
+            }
+        });
+        _deserializeInto(md);
+        return md;
     }
 
     public MongoDoc deserialize() throws MongoDBException {
+
+        MongoDoc md = new MongoDoc();
+
+        return _deserializeInto(md);
+    }
+
+    private MongoDoc _deserializeInto(MongoDoc doc) throws MongoDBException {
 
         _buf.position(0);
 
@@ -199,8 +220,6 @@ public class BSONObject {
          *  eat the message size
          */
         int totalSize = _buf.getInt();
-
-        MongoDoc doc = new MongoDoc();
 
         /*
          * now process the elements elements :   <element> -> <element_type> <element_name> <element_data>
@@ -350,6 +369,11 @@ public class BSONObject {
      */
     public static MongoDoc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
 
+        return _deserializeObjectData(buf, true);
+    }
+
+    private static MongoDoc _deserializeObjectData(ByteBuffer buf, boolean keySafety) throws MongoDBException{
+
         /*
          * read the first 4 bytes (size) into a ByteBuf, and get that
          */
@@ -373,7 +397,24 @@ public class BSONObject {
 
         BSONObject o = new BSONObject();
 
-        return o.deserialize(arr);
+        return o.deserialize(arr, keySafety);
+    }
+
+
+    /**
+     *  Deserializes the data for a OBJECT element type that is known to
+     *  be a selector.  This has the effect of relazing the key constraints on the
+     *  object (so that magic values like "$foo" are allowed)
+     *
+     * @param buf buffer in which next sequence of bytes is an STRING element
+     * @return deserialized String
+     * @throws MongoDBException on error
+     */
+    public static MongoSelector deserializeSelector(ByteBuffer buf) throws MongoDBException {
+
+        MongoDoc md = _deserializeObjectData(buf, false);
+
+        return new MongoSelector(md.getMap());
     }
 
     /**
