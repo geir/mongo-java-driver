@@ -28,21 +28,33 @@
 (def db (.getDB mongo "clojure"))
 (def coll (.getCollection db "test"))
 
-(. coll clear)                          ; erase all records in the collection
+; Erase all records in the collection.
+(. coll clear)
 
-; insert three records
-(dorun (map #(do (.insert coll {"a" (+ % 1)})) (range 0 3)))
+; Insert five records.
+(dorun (map #(do (.insert coll {"a" (+ % 1)})) (range 0 5)))
 
-; print the number of records in the collection.
-(println "There are" (.getCount coll ) "records in the collection 'test'")
+; Print the number of records in the collection.
+(println "There are" (.getCount coll) "records in the collection 'test'")
 
-; one way to do a query
-(loop [i (.find coll)]
+; One way to do a query. Note that we turn the returned results into a seq. If
+; you don't do that, you won't see all the records because of the way Clojure
+; treats iterable objects in Java.
+(loop [i (seq (.find coll))]
   (when i
     (do (println (first i))
         (recur (rest i)))))
 
-; and another
-(dorun (map println (.find coll)))
+; Another way to perform a query. Again, we turn the results into a seq.
+(dorun (map println (seq (.find coll))))
 
+; Yet another way. We don't have to turn the results into a seq manually;
+; doseq seems to do that already.
+(doseq [i (.find coll)] (println i))
 
+; And yet another. This time you don't have to turn the results into a seq
+; manually because we are calling the cursor object's hasNext and next methods
+; directly.
+(let [cursor (.find coll)]
+  (while (.hasNext cursor)
+         (println (.next cursor))))
