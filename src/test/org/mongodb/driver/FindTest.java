@@ -1,18 +1,21 @@
 /**
-*      Copyright (C) 2008 Geir Magnusson Jr
-*  
-*    Licensed under the Apache License, Version 2.0 (the "License");
-*    you may not use this file except in compliance with the License.
-*    You may obtain a copy of the License at
-*  
-*       http://www.apache.org/licenses/LICENSE-2.0
-*  
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS,
-*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*    See the License for the specific language governing permissions and
-*    limitations under the License.
-*/
+ *  See the NOTICE.txt file distributed with this work for
+ *  information regarding copyright ownership.
+ *
+ *  The authors license this file to you under the
+ *  Apache License, Version 2.0 (the "License"); you may not use
+ *  this file except in compliance with the License.  You may
+ *  obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.mongodb.driver;
 
@@ -85,7 +88,7 @@ public class FindTest extends TestBase {
         assert(testColl.getCount() == 10);
         assert(cursorCount(testColl.find()) == 10);
 
-        Map sel = new HashMap();
+        Map<String, Object> sel = new HashMap<String, Object>();
 
         sel.put("a", 2);
 
@@ -97,7 +100,7 @@ public class FindTest extends TestBase {
         assert(cursorCount(testColl.find(sel)) == 4);
         assert(cursorCount(testColl.find(new DBQuery(sel))) == 4);
 
-        Map sel2 = new HashMap();
+        Map<String, Object> sel2 = new HashMap<String, Object>();
 
         sel2.put("$gt", 5);
 

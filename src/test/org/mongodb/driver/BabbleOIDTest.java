@@ -1,27 +1,29 @@
 /**
-*      Copyright (C) 2008 Geir Magnusson Jr
-*
-*    Licensed under the Apache License, Version 2.0 (the "License");
-*    you may not use this file except in compliance with the License.
-*    You may obtain a copy of the License at
-*
-*       http://www.apache.org/licenses/LICENSE-2.0
-*
-*    Unless required by applicable law or agreed to in writing, software
-*    distributed under the License is distributed on an "AS IS" BASIS,
-*    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*    See the License for the specific language governing permissions and
-*    limitations under the License.
-*/
+ *  See the NOTICE.txt file distributed with this work for
+ *  information regarding copyright ownership.
+ *
+ *  The authors license this file to you under the
+ *  Apache License, Version 2.0 (the "License"); you may not use
+ *  this file except in compliance with the License.  You may
+ *  obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
 package org.mongodb.driver;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 import org.mongodb.driver.ts.BabbleOID;
 import org.mongodb.driver.dyn.Mongo;
 import org.mongodb.driver.dyn.DB;
-import org.mongodb.driver.ts.DBCollection;
-import org.mongodb.driver.ts.MongoDoc;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -36,16 +38,16 @@ public class BabbleOIDTest {
         BabbleOID oid1 = new BabbleOID();
         oid1 = new BabbleOID();
 
-        Thread.sleep(1000);
+        Thread.sleep(1020);
 
         BabbleOID oid2 = new BabbleOID();
 
         byte[] arr1 = oid1.getArray();
         byte[] arr2 = oid2.getArray();
 
-        assert(arr2[0] - arr1[0] == 1);  // low order byte for seconds
-        assert(arr1[9] == 1);  // reset index
-        assert(arr2[9] == 0);  // reset index
+        assertTrue("time not right", arr2[0] - arr1[0] == 1);  // low order byte for seconds
+        assertTrue("index not right : arr[9]" + arr1[9], arr1[9] == 1);  // reset index
+        assertTrue("index not reset", arr2[9] == 0);  // reset index
     }
 
     @Test
