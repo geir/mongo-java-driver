@@ -32,7 +32,7 @@
 (. coll clear)
 
 ; Insert five records.
-(dorun (map #(do (.insert coll {"a" (+ % 1)})) (range 0 5)))
+(dorun (map #(do (.insert coll {"a" (inc %)})) (range 0 5)))
 
 ; Print the number of records in the collection.
 (println "There are" (.getCount coll) "records in the collection 'test'")
