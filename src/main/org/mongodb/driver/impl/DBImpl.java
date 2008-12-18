@@ -331,7 +331,7 @@ public class DBImpl implements DB {
         synchronized(_dbMonitor) {
             sendToDB(new DBQueryMessage(_dbName, collection, q));
 
-            return new DBCursorImpl(this, collection);
+            return new DBCursorImpl(this, collection, q.getNumberToReturn());
         }
     }
 

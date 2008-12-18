@@ -38,7 +38,7 @@ public class BabbleOIDTest {
         BabbleOID oid1 = new BabbleOID();
         oid1 = new BabbleOID();
 
-        Thread.sleep(1020);
+        Thread.sleep(1100);
 
         BabbleOID oid2 = new BabbleOID();
 

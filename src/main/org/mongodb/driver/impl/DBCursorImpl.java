@@ -62,7 +62,37 @@ class DBCursorImpl implements DBCursor {
 
     protected int _nRemaining;    // number of objects remaining to be read from db connection
 
+    /*
+     *  mongo doesn't support limits - it has to be a client-side feature
+     */
+    protected final int _hardLimitTotal;     // number of objects requested as the limit
+    protected final int _hardLimitReturned;  // number of objects returned to the client app
+
     protected boolean _closed = false;
+
+
+    /**
+     *  Create a new DBCursor with a limit set.
+     *
+     * @param db db this cursor is associated with
+     * @param collection collection this cursor is working over
+     * @param limit max number of objects that this cursor can deliver to a client.  <= 0 means no limit
+     * @throws MongoDBException on network error
+     */
+    public DBCursorImpl(DBImpl db, String collection, int limit) throws MongoDBException {
+        _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
+        _sizeBuf.order(ByteOrder.LITTLE_ENDIAN);
+        _myDB = db;
+        _collection = collection;
+
+        if (limit <= 0) {
+            limit = 0;
+        }
+        _hardLimitTotal = limit;
+        _hardLimitReturned = 0;
+
+        readAll();
+    }
 
 
     /**
@@ -74,14 +104,9 @@ class DBCursorImpl implements DBCursor {
      * @throws MongoDBException on network error
      */
     public DBCursorImpl(DBImpl db, String collection) throws MongoDBException {
-        _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
-        _sizeBuf.order(ByteOrder.LITTLE_ENDIAN);
-        _myDB = db;
-        _collection = collection;
-
-        readAll();
+        this(db,collection, 0);
     }
-
+    
     protected void readAll() throws  MongoDBException {
         readMessageHeader();
         readResponseHeader();

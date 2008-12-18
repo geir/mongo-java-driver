@@ -19,8 +19,59 @@
 
 package org.mongodb.driver;
 
+import org.mongodb.driver.ts.DB;
+import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.DBCollection;
+import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.DBCursor;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 /**
- *   @TODO
+ *  Test the limit feature of queries
  */
-public class LimitTest {
+public class LimitTest extends TestBase {
+
+    DB _db;
+
+    @BeforeClass
+    public void setUp() throws Exception{
+        _db = new Mongo().getDB("org_mongo_driver_LimitTest");
+        _db.getCollection("test").clear();
+        assert(_db.getCollection("test").getCount() == 0);
+    }
+
+    @Test
+    public void testLimit() throws MongoDBException {
+        DBCollection testColl = _db.getCollection("test");
+        testColl.clear();
+
+        MongoDoc[] objs = new MongoDoc[100];
+
+        for (int i = 0; i < 100; i++) {
+            objs[i] = new MongoDoc("a", i);
+        }
+
+        testColl.insert(objs);
+
+        assert(testColl.getCount() == 100);
+
+        assert(cursorCount(testColl.find()) == 100);
+
+        DBCursor cur = testColl.find(new DBQuery(new MongoSelector(), null, 0, 10));
+
+        int count = cursorCount(cur);
+        assert(cursorCount(cur) == 10);
+
+        cur = testColl.find(new DBQuery(new MongoSelector(), null, 0, 10));
+        MongoDoc m = (MongoDoc) cur.nextElement();
+        assert(m.getInt("a") == 0);
+
+        cur = testColl.find(new DBQuery(new MongoSelector(), null, 10, 10));
+        m = (MongoDoc) cur.nextElement();
+        assert(m.getInt("a") == 10);
+
+    }
 }

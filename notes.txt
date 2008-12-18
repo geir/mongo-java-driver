@@ -7,11 +7,15 @@
      order : <array>
  }
 
+ (unless a cmd)
+
 2) Document all wierd things like count being done via a db eval (see JS code)
 
 3) Need full multi-fetch trip support for Cursor. - done
 
-4) implement fixed size fetches
+4) implement fixed size fetches independent of limit!
+
+4a) limit
 
 6) You can create indexes if only the name is different - document that if the keys are the same, it won't be created
    either (https://10gen.fogbugz.com/default.asp?941).  Dwight will fix
@@ -42,6 +46,8 @@ locked so that it can't do harm = no need, now does full wire read in mutex so t
 13) note that there are no $ allowed in document fields (or .) - done (supported in MongoDoc, Selectory, Modifier)
 
 14) ensure support paired mode - defer
+
+14a) master/slave support
 
 15) Capped collections - done
 
