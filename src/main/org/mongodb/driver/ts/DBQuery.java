@@ -40,7 +40,7 @@ public class DBQuery  {
     }
 
     public DBQuery(String s) throws MongoDBException {
-        this(new MongoSelector("$where", "function() { return " + s + ";}"), null, 0, 0);
+        this(selectorFromString(s), null, 0, 0);
     }
 
     public DBQuery(MongoSelector query) {
@@ -58,6 +58,13 @@ public class DBQuery  {
         setNumberToReturn(nReturn);
     }
 
+    public void setQuery(String q) throws MongoDBException{
+        setQuerySelector(selectorFromString(q));
+    }
+
+    protected static MongoSelector selectorFromString(String q) throws MongoDBException {
+        return new MongoSelector("$where", "function() { return " + q + ";}");
+    }
     public int getNumberToSkip() {
         return _numberToSkip;
     }
