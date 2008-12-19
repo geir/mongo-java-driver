@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.admin.ProfileInfo;
@@ -37,6 +38,11 @@ public class ProfilingTest extends TestBase {
     @BeforeClass
     public void setUp() throws Exception{
         _db = new Mongo().getDB("org_mongo_driver_ProfilingTest");
+    }
+
+    @AfterClass
+    public void shutDown() throws Exception {
+        _db.close();
     }
 
     @Test

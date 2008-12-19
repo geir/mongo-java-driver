@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
@@ -37,6 +38,11 @@ public class QueryGetMoreTest extends TestBase{
     @BeforeClass
     public void setUp() throws Exception{
         _db = new Mongo().getDB("org_mongo_driver_QueryGetMoreTest");
+    }
+
+    @AfterClass
+    public void shutDown() throws Exception {
+        _db.close();
     }
 
     @Test

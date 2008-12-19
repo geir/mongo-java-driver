@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.ts.DB;
@@ -32,6 +33,11 @@ import org.mongodb.driver.ts.IndexInfo;
 public class ValidationTest extends TestBase {
 
     DB _db;
+
+    @AfterClass
+    public void shutDown() throws Exception {
+        _db.close();
+    }
 
     @BeforeClass
     public void setUp() throws Exception{

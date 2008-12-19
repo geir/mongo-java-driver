@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
@@ -38,6 +39,11 @@ public class RemoveTest extends TestBase {
 
         assert(_db.getCollection("test").getCount() == 0);
     }
+
+    @AfterClass
+    public void shutDown() throws Exception {
+        _db.close();
+    }    
 
     @Test
     void testClear() throws MongoDBException {

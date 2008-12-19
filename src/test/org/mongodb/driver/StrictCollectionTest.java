@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.options.DBOptions;
@@ -42,6 +43,11 @@ public class StrictCollectionTest  extends TestBase {
         _db = new Mongo().getDB("org_mongo_driver_StrictCollectionTest");
     }
 
+    @AfterClass
+    public void shutDown() throws Exception {
+        _db.close();
+    }
+    
     @Test
     public void testStrictGet() throws MongoDBException {
 
