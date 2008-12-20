@@ -34,10 +34,21 @@ import java.util.List;
 public interface DB {
 
     /**
+     *  Executes a query on this database.
+     *
+     *  @param query MQL query string
+     *  @return cursor with result set
+     *  @throws MongoDBException if something goes awry
+     *  @throws MongoDBIOException on IO error with database
+     */
+    public DBCursor executeQuery(String query) throws MongoDBException, MongoDBIOException;
+    
+    /**
      *  Returns a list of the names of the collections  in this database
      *
      * @return List of collection names
-     * @throws org.mongodb.driver.MongoDBException on error
+     * @throws MongoDBException on error
+     * @throws MongoDBIOException on IO error with database
      */
     public List<String> getCollectionNames() throws MongoDBException, MongoDBIOException;
 
@@ -49,6 +60,7 @@ public interface DB {
      * @return collection
      * @throws MongoDBException if collection doesn't exist and in strict mode, or if
      *         there's a problem creating the collection
+     * @throws MongoDBIOException on IO error with database
      */
     public DBCollection createCollection(String name) throws MongoDBException, MongoDBIOException;
 
@@ -60,7 +72,8 @@ public interface DB {
      * @param options optinoal options for creation (e.g. CappedCollection)
      * @return collection
      * @throws MongoDBException if collection exists and in strict mode or an error creating collection
-     */    
+     * @throws MongoDBIOException on IO error with database
+     */
     public DBCollection createCollection(String name, DBCollectionOptions options) throws MongoDBException, MongoDBIOException;
 
     /**
@@ -73,6 +86,7 @@ public interface DB {
      * @param name the name of collection to get
      * @return collection object for subsequent operations, or null if it doesn't exist.
      * @throws MongoDBException on error
+     * @throws MongoDBIOException on IO error with database
      */
     public DBCollection getCollection(String name) throws MongoDBException, MongoDBIOException;
 
@@ -83,6 +97,7 @@ public interface DB {
      * @param name Name of collection to drop
      * @return true if successful, false otherwise
      * @throws MongoDBException if error
+     * @throws MongoDBIOException on IO error with database
      */
     public boolean dropCollection(String name) throws MongoDBException, MongoDBIOException;
 
@@ -108,7 +123,7 @@ public interface DB {
     /**
      * Sets the options for this database
      *
-     * @param dbOptions
+     * @param dbOptions options to set for DB
      */
     public void setDBOptions(DBOptions dbOptions);
 

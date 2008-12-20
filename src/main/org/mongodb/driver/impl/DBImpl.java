@@ -38,6 +38,7 @@ import org.mongodb.driver.impl.msg.DBMsgMessage;
 import org.mongodb.driver.impl.msg.DBQueryMessage;
 import org.mongodb.driver.impl.msg.DBRemoveMessage;
 import org.mongodb.driver.impl.msg.DBUpdateMessage;
+import org.mongodb.mql.MQL;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -77,6 +78,21 @@ public class DBImpl implements DB {
             throw new MongoDBException("Error connecting.", e);
         }
     }
+
+    public DBCursor executeQuery(String query) throws MongoDBException, MongoDBIOException {
+
+        if (query == null) {
+            throw new NullPointerException("MQL query is null");
+        }
+
+        MQL mql = new MQL(query);   // TODO - add query cache?
+
+        DriverQueryInfo dqi = new DriverQueryInfo();
+        mql.populateQueryInfo(dqi);
+
+        return dqi.execQuery(this);
+    }
+
 
     /**
      *    Returns a list of all collections for this database, including indices
