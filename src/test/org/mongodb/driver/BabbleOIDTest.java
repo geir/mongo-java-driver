@@ -35,6 +35,7 @@ public class BabbleOIDTest {
 
         Thread.sleep(2000);
 
+        //  call the CTOR twice to move the index value to 1
         BabbleOID oid1 = new BabbleOID();
         oid1 = new BabbleOID();
 
