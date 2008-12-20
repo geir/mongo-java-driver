@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
@@ -41,6 +42,11 @@ public class FindTest extends TestBase {
         _db = new Mongo().getDB("org_mongo_driver_FindTest");
         _db.getCollection("test").clear();
         assert(_db.getCollection("test").getCount() == 0);
+    }
+
+    @AfterClass
+    public void tearDown() throws Exception{
+        _db.close();
     }
 
     @Test
