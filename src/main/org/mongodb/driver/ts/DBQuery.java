@@ -63,7 +63,14 @@ public class DBQuery  {
     }
 
     protected static MongoSelector selectorFromString(String q) throws MongoDBException {
-        return new MongoSelector("$where", "function() { return " + q + ";}");
+
+        /*
+         *  optimization - avoid the where clause if it's empty
+         */
+        if ("".equals(q.trim())) {
+            return new MongoSelector();
+        }
+        return new MongoSelector("$where", "function() { return " + q.trim() + ";}");
     }
     public int getNumberToSkip() {
         return _numberToSkip;
