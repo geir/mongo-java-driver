@@ -23,6 +23,7 @@ import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBIOException;
+import org.mongodb.driver.impl.DirectBufferTLS;
 import org.mongodb.driver.util.BSONObject;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +51,7 @@ public abstract class DBMessage {
     protected MessageType _op;
 
     protected ByteBuffer _buf;
-        
+
     /**
      *  Creates a DBMessage with correct header written
      * 
@@ -58,10 +59,8 @@ public abstract class DBMessage {
      */
     protected DBMessage(MessageType op) {
 
-        // TODO - we need to be able to allocate dynmically more accurately, or pool
-        _buf = ByteBuffer.allocate(DEFAULT_BUF_SIZE);
-        _buf.order(ByteOrder.LITTLE_ENDIAN);
-
+        _buf = DirectBufferTLS.getThreadLocal().getWriteBuffer();
+        _buf.clear();
 
         //  TODO - fix this - this is too idiotic - use the DBMessageHeader object here...
         
