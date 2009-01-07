@@ -20,7 +20,7 @@
     </target>
     
     <target name="compile" depends="clean, init">
-        <javac srcdir="${srcdir}" destdir="${classdir}" />
+        <javac debug="on" srcdir="${srcdir}" destdir="${classdir}" />
     </target>
 
     <target name="compile_tests" depends="compile">
