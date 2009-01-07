@@ -42,9 +42,9 @@ import org.mongodb.mql.MQL;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.net.Socket;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.nio.channels.SocketChannel;
+import java.nio.ByteBuffer;
 
 /**
  *  Implementation of the DB class
@@ -60,7 +60,8 @@ public class DBImpl implements DB {
 
     protected String _dbName;
 
-    protected Socket _sock;
+    protected SocketChannel _socketChannel;
+
     protected final Object _dbMonitor = new Object();
 
     protected final MongoImpl _myMongoServer;
@@ -72,7 +73,13 @@ public class DBImpl implements DB {
         _dbName = dbName;
 
         try {
-            _sock = new Socket(_myMongoServer.getServerAddress().getAddress(), _myMongoServer.getServerAddress().getPort());
+            _socketChannel = SocketChannel.open(_myMongoServer.getServerAddress());
+
+            /*
+             *  set the TLS for our direct ByteBuffers.  Gets us out of needing to pool, since
+             *  each DBImplis *NOT* threadsafe, so this should work just fine.
+             */
+            DirectBufferTLS tls = new DirectBufferTLS();
         }
         catch (IOException e) {
             throw new MongoDBException("Error connecting.", e);
@@ -294,7 +301,7 @@ public class DBImpl implements DB {
      * @throws Exception if a problem
      */
     public void close() throws Exception {
-        _sock.close();
+   // $$$     _sock.close();
     }
 
     /**
@@ -519,8 +526,11 @@ public class DBImpl implements DB {
 
         synchronized(_dbMonitor) {
             try {
-                OutputStream os = _sock.getOutputStream();
-                os.write(msg.toByteArray());
+                ByteBuffer buf = msg.getInternalByteBuffer();
+
+                buf.flip();
+                _socketChannel.write(buf);
+                
             } catch (IOException e) {
                 throw new MongoDBIOException("IO Error : ", e);
             }
