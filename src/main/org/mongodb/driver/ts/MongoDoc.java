@@ -218,7 +218,7 @@ public class MongoDoc implements Iterable<String> {
             sb.append(s);
             sb.append(": ");
             sb.append("[");
-            sb.append(get(s).toString());
+            sb.append(s == null ? "<NULL KEY>" : get(s).toString());
             sb.append("],");
         }
 
