@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.SocketChannel;
 
 /**
  *  Header for Mongo wire messages
@@ -45,6 +46,24 @@ public class DBMessageHeader {
         buf.putInt(_requestID);
         buf.putInt(_responseTo);
         buf.putInt(_op.getOpCode());
+    }
+
+    public static DBMessageHeader readHeader(SocketChannel sc) throws IOException {
+
+        ByteBuffer headerBuf = ByteBuffer.allocate(HEADER_SIZE);
+        headerBuf.order(ByteOrder.LITTLE_ENDIAN);
+
+        headerBuf.position(0);
+
+        long i = sc.read(headerBuf);
+
+        if (i != HEADER_SIZE) {
+            throw new IOException("Short read for DB response header. read=" + i);
+        }
+
+        headerBuf.flip();
+        
+        return readHeader(headerBuf);        
     }
 
     public static DBMessageHeader readHeader(InputStream is ) throws IOException {
