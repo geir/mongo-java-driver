@@ -56,7 +56,7 @@ public class QueryGetMoreTest extends TestBase{
 
         long start = System.currentTimeMillis();
 
-        int num = 100000;
+        int num = 200000;
         for (int i=0; i < num; i++) {
             c.insert(doc);
         }
