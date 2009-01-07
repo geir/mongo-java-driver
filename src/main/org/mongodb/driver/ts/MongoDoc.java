@@ -214,11 +214,14 @@ public class MongoDoc implements Iterable<String> {
         
         StringBuilder sb = new StringBuilder("{");
 
+
+
+
         for (String s : this) {
             sb.append(s);
             sb.append(": ");
             sb.append("[");
-            sb.append(s == null ? "<NULL KEY>" : get(s).toString());
+            sb.append((s == null ? "<NULL KEY>" : get(s)));
             sb.append("],");
         }
 
