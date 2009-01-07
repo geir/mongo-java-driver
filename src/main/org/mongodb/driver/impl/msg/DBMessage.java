@@ -181,13 +181,36 @@ public abstract class DBMessage {
             msgHeader.writeHeader(buf);
             assert(buf.position() == DBMessageHeader.HEADER_SIZE);
 
+            int msgSize = msgHeader.getMessageLength();
+
+            assert(msgSize <= buf.capacity());
+
+            if (msgSize >= buf.capacity()) {
+                throw new MongoDBException("Error : msgsize [" + msgSize + "] larger than buffersize [" + buf.capacity() + "]");
+            }
+
             buf.limit(msgHeader.getMessageLength());
 
-            sc.read(buf);
+            boolean reading = true;
 
+            while (reading) {
+                sc.read(buf);
+
+                if (buf.position() >= msgSize) {
+                    reading = false;
+                }
+            }
+        
             buf.flip();
 
-            return createMessage(msgHeader, buf);
+            try {
+                return createMessage(msgHeader, buf);
+            }
+            catch (java.nio.BufferUnderflowException bue) {
+
+                System.out.println("BOE : msgSize = " + msgSize + " : cap " + buf.capacity() + " pos "  + buf.position() + " limit " + buf.limit());
+                throw bue;
+            }
         }
         catch(IOException ioe) {
             throw new MongoDBIOException("error reading message", ioe);
