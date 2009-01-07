@@ -28,7 +28,6 @@ import org.mongodb.driver.impl.msg.DBMessageHeader;
 import org.mongodb.driver.impl.msg.DBKillCursorsMessage;
 import org.mongodb.driver.impl.msg.DBGetMoreMessage;
 
-import java.io.InputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -47,10 +46,7 @@ class DBCursorImpl implements DBCursor {
 
     private static final int RESPONSE_HEADER_SIZE = 20;
 
-    protected DBMessageHeader msgHeader = new DBMessageHeader();  // TODO - move this to DBMessage
-
     protected ByteBuffer _headerBuf = ByteBuffer.allocate(RESPONSE_HEADER_SIZE);
-    protected ByteBuffer _sizeBuf = ByteBuffer.allocate(4);
 
     protected DBImpl _myDB;
     protected String _collection;
@@ -81,7 +77,7 @@ class DBCursorImpl implements DBCursor {
      */
     public DBCursorImpl(DBImpl db, String collection, int limit) throws MongoDBException {
         _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
-        _sizeBuf.order(ByteOrder.LITTLE_ENDIAN);
+        
         _myDB = db;
         _collection = collection;
 
@@ -125,9 +121,7 @@ class DBCursorImpl implements DBCursor {
     protected void readMessageHeader() throws MongoDBException {
 
         try {
-            InputStream is = _myDB._sock.getInputStream();
-
-            DBMessageHeader.readHeader(is);
+            DBMessageHeader.readHeader(_myDB._socketChannel);
         }
         catch(IOException ioe) {
             throw new MongoDBException(ioe);
@@ -137,15 +131,10 @@ class DBCursorImpl implements DBCursor {
     protected void readResponseHeader() throws MongoDBException  {
 
         try {
-            InputStream is = _myDB._sock.getInputStream();
+            _headerBuf.clear();
 
-            _headerBuf.position(0);
-            
-            int i = is.read(_headerBuf.array(), 0, RESPONSE_HEADER_SIZE);
-
-            if (i != RESPONSE_HEADER_SIZE) {
-                throw new IOException("Short read for DB response header");
-            }
+            _myDB._socketChannel.read(_headerBuf);
+            _headerBuf.flip();
 
             _resultFlags = _headerBuf.getInt();
             _cursorID = _headerBuf.getLong();
@@ -286,52 +275,58 @@ class DBCursorImpl implements DBCursor {
     
     private MongoDoc getObjectFromStream() throws MongoDBException {
 
-        _sizeBuf.rewind();
-        
-        // read the size of the object and keep so we can patch back into the buffer
+        synchronized(_myDB._dbMonitor) {
 
-        try {
-            byte[] bufInternal = _sizeBuf.array();
-            int i = readStream(bufInternal, 0, 4);
+            try {
 
-            if (i != 4) {
-                throw new IOException("Short read for DB object size read");
+                // read the size of the object and keep so we can patch back into the buffer
+                
+                ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
+
+                buf.clear();
+                buf.limit(4);
+
+                long i = readStream(buf);
+
+                assert(i == 4);
+
+                int size = buf.getInt();
+
+                // read the rest of the object, patch the size back in, and then deserialize to a mongodoc
+
+                buf.position(4);
+                buf.limit(size);
+
+                i = readStream(buf);
+
+                assert(i == size-4);
+
+                _nRemaining--;
+
+                BSONObject o = new BSONObject();
+                byte[] buffer = new byte[size];
+                buf.get(buffer);
+                
+                return o.deserialize(buffer);
+            } catch (IOException e) {
+                throw new MongoDBIOException("IO Exception : ", e);
             }
-
-            int size = _sizeBuf.getInt();
-
-            // read the rest of the object, patch the size back in, and then deserialize to a mongodoc
-
-            byte[] buffer = new byte[size];
-            i = readStream(buffer, 4, size - 4);
-
-            assert(i == size-4);
-
-            System.arraycopy(bufInternal, 0, buffer, 0, 4);
-
-            _nRemaining--;
-
-            BSONObject o = new BSONObject();
-            return o.deserialize(buffer);
-        } catch (IOException e) {
-            throw new MongoDBIOException("IO Exception : ", e);
         }
     }
-
+    
     /**
      *  Reads bytes from the database connection
      * 
-     * @param arr  array to write data to
-     * @param start start position in buffer to write to
-     * @param len number of bytes to read
+     * @param buf  buffer to write into.  Buffer must have it's limit set for the expected read
      * @return number of bytes read
      * @throws IOException in case of problem
      */
-    protected int readStream(byte[] arr, int start, int len) throws IOException {
+    protected long readStream(ByteBuffer buf) throws IOException {
 
-        InputStream is = _myDB._sock.getInputStream();
+        long i =  _myDB._socketChannel.read(buf);
+        buf.flip();
 
-        return  is.read(arr, start, len);
+        return i;
     }
 
     public String toString() {
