@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Formatter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.SocketChannel;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -170,6 +171,29 @@ public abstract class DBMessage {
         return msg;
     }
 
+    public static DBMessage readFromChannel(SocketChannel sc, ByteBuffer buf) throws MongoDBIOException, MongoDBException {
+
+        try {
+            DBMessageHeader msgHeader = DBMessageHeader.readHeader(sc);
+
+            buf.clear();
+
+            msgHeader.writeHeader(buf);
+            assert(buf.position() == DBMessageHeader.HEADER_SIZE);
+
+            buf.limit(msgHeader.getMessageLength());
+
+            sc.read(buf);
+
+            buf.flip();
+
+            return createMessage(msgHeader, buf);
+        }
+        catch(IOException ioe) {
+            throw new MongoDBIOException("error reading message", ioe);
+        }
+    }
+
     public static DBMessage readFromStream(InputStream is) throws MongoDBIOException, MongoDBException{
 
         try {
@@ -194,25 +218,29 @@ public abstract class DBMessage {
             }
 
             buf.flip();
-            
-            switch(msgHeader.getOperation()) {
-                case OP_QUERY:
-                    return new DBQueryMessage(buf);
-                case OP_REPLY:
-                    return new DBQueryReplyMessage(buf);
-                case OP_INSERT:
-                    return new DBInsertMessage(buf);
-                case OP_DELETE:
-                    return new DBRemoveMessage(buf);
-                case OP_GET_MORE:
-                    return new DBGetMoreMessage(buf);
-                default :
-                    throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
-            }
 
+            return createMessage(msgHeader, buf);
         }
         catch (IOException ioe) {
             throw new MongoDBIOException("error reading message", ioe);
+        }
+    }
+
+    private static DBMessage createMessage(DBMessageHeader msgHeader, ByteBuffer buf) throws MongoDBException {
+
+        switch(msgHeader.getOperation()) {
+            case OP_QUERY:
+                return new DBQueryMessage(buf);
+            case OP_REPLY:
+                return new DBQueryReplyMessage(buf);
+            case OP_INSERT:
+                return new DBInsertMessage(buf);
+            case OP_DELETE:
+                return new DBRemoveMessage(buf);
+            case OP_GET_MORE:
+                return new DBGetMoreMessage(buf);
+            default :
+                throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
         }
     }
 
