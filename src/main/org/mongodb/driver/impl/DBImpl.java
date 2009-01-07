@@ -301,7 +301,8 @@ public class DBImpl implements DB {
      * @throws Exception if a problem
      */
     public void close() throws Exception {
-   // $$$     _sock.close();
+        _socketChannel.close();
+        DirectBufferTLS.getThreadLocal().unset();        
     }
 
     /**
