@@ -214,9 +214,6 @@ public class MongoDoc implements Iterable<String> {
         
         StringBuilder sb = new StringBuilder("{");
 
-
-
-
         for (String s : this) {
             sb.append(s);
             sb.append(": ");
