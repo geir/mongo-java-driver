@@ -196,7 +196,7 @@ public class BSONObject {
          */
         int messageSize = _buf.getInt();
         _buf.limit(messageSize);
-        assert(messageSize == byteBuff.length);
+        assert(messageSize <= byteBuff.length);  // comeone could pass a buffer bigger than the message
         _buf.position(0);
 
         MongoDoc md = keySafety ? new MongoDoc() : new MongoDoc() {
