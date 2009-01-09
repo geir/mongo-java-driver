@@ -22,15 +22,14 @@ package org.mongodb.driver.impl;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.MongoDBIOException;
-import org.mongodb.driver.util.BSONObject;
-import org.mongodb.driver.impl.msg.DBMessageHeader;
+import org.mongodb.driver.MongoDBQueryException;
 import org.mongodb.driver.impl.msg.DBKillCursorsMessage;
 import org.mongodb.driver.impl.msg.DBGetMoreMessage;
+import org.mongodb.driver.impl.msg.MessageType;
+import org.mongodb.driver.impl.msg.DBQueryReplyMessage;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.LinkedList;
@@ -44,19 +43,12 @@ class DBCursorImpl implements DBCursor {
 
     protected Queue<MongoDoc> _objects = new LinkedList<MongoDoc>();
 
-    private static final int RESPONSE_HEADER_SIZE = 20;
-
-    protected ByteBuffer _headerBuf = ByteBuffer.allocate(RESPONSE_HEADER_SIZE);
-
     protected DBImpl _myDB;
     protected String _collection;
 
-    protected int _resultFlags;   // status of response : ok = 0, problem = 1
-    protected long _cursorID;     // identifier of cursor for GetMore requests
-    protected int _startingFrom;  // starting point in cursor for this response
-    protected int _nReturned;     // number returned. 0 == infinity
+    protected int _nRemaining = 0;    // number of objects remaining to be read from db connection
 
-    protected int _nRemaining;    // number of objects remaining to be read from db connection
+    DBQueryReplyMessage _msg = null;
 
     /*
      *  mongo doesn't support limits - it has to be a client-side feature
@@ -76,7 +68,6 @@ class DBCursorImpl implements DBCursor {
      * @throws MongoDBException on network error
      */
     public DBCursorImpl(DBImpl db, String collection, int limit) throws MongoDBException {
-        _headerBuf.order(ByteOrder.LITTLE_ENDIAN);
         
         _myDB = db;
         _collection = collection;
@@ -103,59 +94,63 @@ class DBCursorImpl implements DBCursor {
         this(db,collection, 0);
     }
     
-    protected void readAll() throws  MongoDBException {
-        readMessageHeader();
-        readResponseHeader();
-        readObjectsOffWire();
+    private void readAll() throws  MongoDBException {
+
+        synchronized(_myDB._dbMonitor) {
+
+            try {
+                ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
+
+                DBQueryReplyMessage.fillBufferWithHeaders(buf, _myDB._socketChannel);
+
+                /*
+                 * digest the message up to the objects... no nibbling..
+                 */
+                 _msg = new DBQueryReplyMessage(buf, false);
+
+                /*
+                 * now check that it really is a reply message, and that there are no errors
+                 */
+
+                if (_msg.getMessageType() != MessageType.OP_REPLY) {
+                    throw new MongoDBException("Error : cursor received a [" + _msg.getMessageType() + "] response from server");
+                }
+
+                if (_msg.getFlags() != 0) {
+
+                    MongoDoc md = DBQueryReplyMessage.readDocument(_myDB._socketChannel, buf, false);
+
+                    throw new MongoDBQueryException("Error : cursor received am error response from server.  Flags = [ " + _msg.getFlags()
+                            + "] Error msg :  " + md);
+                }
+
+                readObjectsOffWire();
+
+                _nRemaining = _msg.getNumberReturned();
+            }
+            catch(IOException ioe) {
+                throw new MongoDBException("Error filling buffer : ", ioe);
+            }
+        }
     }
 
     protected void readObjectsOffWire() throws MongoDBException {
 
-        MongoDoc doc;
+        ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
 
-        while((doc = getNextObjectOnWire()) != null) {
-            _objects.offer(doc);
+        for (int i=0; i < _msg.getNumberReturned(); i++) {
+            _objects.offer(DBQueryReplyMessage.readDocument(_myDB._socketChannel, buf, true));
         }
     }
-
-    protected void readMessageHeader() throws MongoDBException {
-
-        try {
-            DBMessageHeader.readHeader(_myDB._socketChannel);
-        }
-        catch(IOException ioe) {
-            throw new MongoDBException(ioe);
-        }
-    }
-
-    protected void readResponseHeader() throws MongoDBException  {
-
-        try {
-            _headerBuf.clear();
-
-            _myDB._socketChannel.read(_headerBuf);
-            _headerBuf.flip();
-
-            _resultFlags = _headerBuf.getInt();
-            _cursorID = _headerBuf.getLong();
-            _startingFrom = _headerBuf.getInt();
-            _nReturned = _headerBuf.getInt();
-
-            _nRemaining = _nReturned;
-        }
-        catch(IOException ioe) {
-            throw new MongoDBException(ioe);
-        }
-    }
-
+    
     /**
      *  Closes the cursor, releasing any server-side cursors and
      *  dumping objects and buffers
      */
     public void close() throws MongoDBException {
 
-        if (_cursorID != 0) {
-            _myDB.sendToDB(new DBKillCursorsMessage(_cursorID));
+        if (_msg.getCursorID() != 0) {
+            _myDB.sendToDB(new DBKillCursorsMessage(_msg.getCursorID()));
         }
         
         _objects.clear();
@@ -223,7 +218,7 @@ class DBCursorImpl implements DBCursor {
     }
 
     public int getNumReturned() {
-        return _nReturned;
+        return _msg.getNumberReturned();
     }
 
     public int getNumRemaining() {
@@ -239,27 +234,13 @@ class DBCursorImpl implements DBCursor {
         return _objects.size();
     }
 
-    protected MongoDoc getNextObjectOnWire() throws MongoDBException {
-
-        if (_nRemaining == 0) {
-
-            // if we have a non-zero cursor, there are more to fetch, so do a
-            // GetMore operation, but don't do it here - do it when someone pulls an
-            // object out of the cache and it's empty
-
-            return null;
-        }
-        else {
-            return getObjectFromStream();
-        }
-    }
 
     private void refillViaGetMore() throws MongoDBException {
 
         /*
          *  if we don't have a cursor, bail - we're done
          */
-        if (_cursorID == 0) {
+        if (_msg.getCursorID() == 0) {
             return;
         }
 
@@ -267,70 +248,13 @@ class DBCursorImpl implements DBCursor {
         // for a getmore right now.  The first response to a query is limited to not hurt those
         // that don't limit their requests, and the following after that get much bigger.
 
-        _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _cursorID ));
+        _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _msg.getCursorID() ));
 
         readAll();        
     }
 
-    
-    private MongoDoc getObjectFromStream() throws MongoDBException {
-
-        synchronized(_myDB._dbMonitor) {
-
-            try {
-
-                // read the size of the object and keep so we can patch back into the buffer
-                
-                ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
-
-                buf.clear();
-                buf.limit(4);
-
-                long i = readStream(buf);
-
-                assert(i == 4);
-
-                int size = buf.getInt();
-
-                // read the rest of the object, patch the size back in, and then deserialize to a mongodoc
-
-                buf.position(4);
-                buf.limit(size);
-
-                i = readStream(buf);
-
-                assert(i == size-4);
-
-                _nRemaining--;
-
-                BSONObject o = new BSONObject();
-                byte[] buffer = new byte[size];
-                buf.get(buffer);
-                
-                return o.deserialize(buffer);
-            } catch (IOException e) {
-                throw new MongoDBIOException("IO Exception : ", e);
-            }
-        }
-    }
-    
-    /**
-     *  Reads bytes from the database connection
-     * 
-     * @param buf  buffer to write into.  Buffer must have it's limit set for the expected read
-     * @return number of bytes read
-     * @throws IOException in case of problem
-     */
-    protected long readStream(ByteBuffer buf) throws IOException {
-
-        long i =  _myDB._socketChannel.read(buf);
-        buf.flip();
-
-        return i;
-    }
-
     public String toString() {
-        return "DBResponse : flags=[" + _resultFlags + "]  cursorID=["
-                    + _cursorID + "] start=[" + _startingFrom + "] nreturned=[" + _nReturned + "]";
+        return "DBResponse : flags=[" + _msg.getFlags() + "]  cursorID=["
+                    + _msg.getCursorID() + "] start=[" + _msg.getStartingFrom() + "] nreturned=[" + _msg.getNumberReturned() + "]";
     }
 }

@@ -76,6 +76,11 @@ public abstract class DBMessage {
         assert(_buf.position() == DBMessageHeader.HEADER_SIZE);
     }
 
+    /**
+     * Construct a DBMessage from a ByteBuffer.  Reads the header and sets the buffer.
+     * 
+     * @param buf with message data
+     */
     protected DBMessage(ByteBuffer buf) {
         
         DBMessageHeader header = DBMessageHeader.readHeader(buf);
@@ -139,12 +144,24 @@ public abstract class DBMessage {
     }
 
     protected MongoSelector readMongoSelector() throws MongoDBException {
-        return BSONObject.deserializeSelector(_buf);
+        return readMongoSelector(_buf);
+    }
 
+    protected static MongoSelector readMongoSelector(ByteBuffer buf) throws MongoDBException {
+        return BSONObject.deserializeSelector(buf);
+    }
+
+
+    protected static MongoSelector readMongoSelector(SocketChannel sc, ByteBuffer buf) throws MongoDBException {
+        return BSONObject.deserializeSelector(sc, buf);
     }
 
     protected MongoDoc readMongoDoc() throws MongoDBException {
-        return BSONObject.deserializeObjectData(_buf);
+        return readMongoDoc(_buf);
+    }
+
+    protected static MongoDoc readMongoDoc(ByteBuffer buf) throws MongoDBException {
+        return BSONObject.deserializeObjectData(buf);
     }
 
 

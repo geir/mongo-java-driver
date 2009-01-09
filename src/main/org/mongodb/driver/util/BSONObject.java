@@ -35,9 +35,11 @@ import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.Charset;
 import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 
 /**
  * Utility representation of a BSON Document, the binary serialization of a
@@ -201,7 +203,6 @@ public class BSONObject {
 
         MongoDoc md = keySafety ? new MongoDoc() : new MongoDoc() {
                 protected void checkKey(String key) throws MongoDBException {
-                    return;
                 }
             };
         _deserializeInto(md, keySafety);
@@ -404,6 +405,46 @@ public class BSONObject {
         return o.deserialize(arr, keySafety);
     }
 
+    /**
+     *  Gets an OBJECT from a socket channel using the specified ByteBuffer
+     *
+     * @param sc socket channel to read from
+     * @param buf buffer to use
+     * @return new MongoSelector object
+     * @throws MongoDBException in facse something goes wrong
+     */
+    public static MongoSelector deserializeSelector(SocketChannel sc, ByteBuffer buf) throws MongoDBException {
+
+        try {
+            buf.clear();
+
+            int toRead = 4;
+            buf.limit(toRead);
+
+            int read = 0;
+
+            while(read < toRead) {
+                read += sc.read(buf);
+            }
+
+            buf.flip();
+
+            toRead = buf.getInt();
+
+            buf.limit(toRead);
+
+            while (read < toRead ) {
+                read += sc.read(buf);
+            }
+
+            buf.flip();
+            
+            return deserializeSelector(buf);
+        }
+        catch(IOException ioe) {
+            throw new MongoDBException("Error : error reading", ioe);
+        }
+    }
 
     /**
      *  Deserializes the data for a OBJECT element type that is known to
@@ -418,7 +459,7 @@ public class BSONObject {
 
         MongoDoc md = _deserializeObjectData(buf, false);
 
-        return new MongoSelector(md.getMap());
+        return new MongoSelector(md.getMap());  // TODO - clean this mess up
     }
 
     /**

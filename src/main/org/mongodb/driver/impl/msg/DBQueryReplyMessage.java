@@ -23,8 +23,10 @@ import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.IOException;
 
 /**
  *   Query response message from MongoDB.  Message format is :
@@ -36,7 +38,7 @@ import java.util.ArrayList;
  *    int  : responseTo
  *    int  : opcode
  *
- *  Query reponse header :
+ *  Query reply header :
  *
  *    int  : flags
  *    long : cursorID
@@ -50,13 +52,19 @@ import java.util.ArrayList;
  */
 public class DBQueryReplyMessage extends DBMessage {
 
+    public static final int REPLY_HEADER_SIZE = 20;
+
     protected int _flags;
     protected long _cursorID;
     protected int _startingFrom;
     protected int _numberReturned;
     protected List<MongoDoc> _objects = new ArrayList<MongoDoc>();
-
+    
     protected DBQueryReplyMessage(ByteBuffer buf) throws MongoDBException {
+        this(buf, true);
+    }
+
+    public  DBQueryReplyMessage(ByteBuffer buf, boolean nibbleObjects) throws MongoDBException {
         super(buf);
 
         _flags = readInt();
@@ -64,9 +72,69 @@ public class DBQueryReplyMessage extends DBMessage {
         _startingFrom = readInt();
         _numberReturned = readInt();
 
-        for (int i=0; i < _numberReturned; i++) {
-            _objects.add(readMongoDoc());
+        if (nibbleObjects) {
+            for (int i=0; i < _numberReturned; i++) {
+                _objects.add(readMongoDoc());
+            }
         }
+    }
+
+    /**
+     * Reads the next BSON doc off of the wire using the provided bytebuffer.
+     * 
+     * @param sc  channel to read from
+     * @param buf buffer to use
+     * @param validate if you want the keys checked.  Currently ignored
+     * @return a MongoDoc
+     * @throws MongoDBException in case things go wrong
+     */
+    public static MongoDoc readDocument(SocketChannel sc, ByteBuffer buf, boolean validate) throws MongoDBException {
+
+        return DBMessage.readMongoSelector(sc, buf);
+    }
+
+
+    /**
+     *  Reads the full headers from  the wire into the buffer.
+     *
+     * @param buf  buffer to write into
+     * @param sc  channel to read from
+     * @return number of bytes read
+     * @throws IOException on error
+     */
+    public static long fillBufferWithHeaders(ByteBuffer buf, SocketChannel sc) throws IOException {
+
+        int readSize = DBMessageHeader.HEADER_SIZE + REPLY_HEADER_SIZE;
+
+        buf.clear();
+        buf.limit(readSize);
+
+        long bytesRead = 0;
+        while (bytesRead < readSize) {
+            bytesRead += sc.read(buf);
+        }
+
+        assert(bytesRead == readSize);
+
+        buf.flip();
+
+        return bytesRead;
+    }
+
+    public int getFlags() {
+        return _flags;
+    }
+
+    public int getNumberReturned() {
+        return _numberReturned;
+    }
+
+    public long getCursorID() {
+        return _cursorID;
+    }
+
+    public int getStartingFrom() {
+        return _startingFrom;
     }
 
     public String toString() {
