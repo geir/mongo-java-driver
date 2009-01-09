@@ -25,11 +25,12 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.mql.QueryInfo;
+import org.mongodb.mql.MQLTreeConstants;
 
 import java.util.List;
 
 /**
- *  Class that uses mongo-java-driver to execute MQL statements
+ *  Class to provide support for MQL in the mongo-java-driver.
  */
 public class DriverQueryInfo extends QueryInfo {
 
@@ -97,4 +98,66 @@ public class DriverQueryInfo extends QueryInfo {
 
         return coll.find(q);
     }
+
+
+//    /**
+//     * Exceutes the MQL as an update.
+//     *
+//     * @param db db to operate on
+//     * @return number of objects updated
+//     */
+//    public int execUpdate(DB db) throws MongoDBException{
+//
+//        if (getQueryType() != QueryType.UPDATE) {
+//            throw new MongoDBException("Error - not an UPDATE statement.  Cannot execute as query");
+//        }
+//
+//        StringBuilder sb = new StringBuilder();
+//
+//        sb.append(getDBVarName());
+//        sb.append(".eval(  function() { ");
+//
+//        // do the find()
+//
+//        sb.append(" var cur = ");
+//   //     sb.append(this.generateSelectString());
+//        sb.append(";");
+//
+//        // now iterate and create our updater function
+//
+//        sb.append(" cur.forEach( function() {");
+//
+//        for (Field f : _setFieldList) {
+//
+//            // fixme
+//
+//            if (f._nameType == MQLTreeConstants.JJTPATH) {
+//                sb.append("arguments[0].");
+//            }
+//
+//            sb.append(f._name);
+//            sb.append("=");
+//
+//            if (f._valueType == MQLTreeConstants.JJTPATH) {
+//                sb.append("arguments[0].");
+//            }
+//
+//            sb.append(f._value);
+//            sb.append("; ");
+//        }
+//
+//        sb.append(getDBVarName());
+//        sb.append(".");
+//        sb.append(_collection_name);
+//        sb.append(".save(arguments[0]); ");
+//
+//        sb.append("})");
+//
+//        // close the dbeval function
+//
+//        sb.append("})");
+//
+//        return sb.toString();
+//    }
+
 }
