@@ -44,6 +44,9 @@ public class StressTest {
         _db = _mongo.getDB("org_mongo_driver_StressTest");
 
         _coll = _db.getCollection("test");
+
+        _coll.remove(new MongoSelector());
+
     }   
 
     public void reset() throws MongoDBException {
@@ -69,7 +72,7 @@ public class StressTest {
 
         long end = System.currentTimeMillis();
 
-        System.out.println("addObjects : " + 1.0 * num / (end - start) * 1000);
+        System.out.println("addObjects :  " + 1.0 * num / (end - start) * 1000 + " /sec   # sec : " + 1.0 * (end - start) / 1000);
         
     }
 
@@ -164,9 +167,9 @@ public class StressTest {
 //
         st.reset();
 
-        st.addObjects(100000, true);
+        st.addObjects(100000, false);
 //        st.findRandomRanges(5000, 100);
 //        st.deleteLinear(50000);
-        st.deleteEveryOther(5000);
+ //       st.deleteEveryOther(5000);
     }
 }
