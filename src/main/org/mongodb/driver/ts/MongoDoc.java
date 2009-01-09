@@ -233,7 +233,7 @@ public class MongoDoc implements Iterable<String> {
         }
 
         if (key.startsWith("$")) {
-            throw new MongoDBException("Error : key starts with $");
+            throw new MongoDBException("Error : key starts with $ : " + key);
         }
 
         if (key.indexOf(".") != -1) {
