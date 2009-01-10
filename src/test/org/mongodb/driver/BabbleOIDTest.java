@@ -77,7 +77,14 @@ public class BabbleOIDTest {
         BabbleOID boid = new BabbleOID(data);
 
         assert(boid.toString().equals("000102030405060708090A0B"));
+    }
 
+    @Test
+    public void testForma2t() throws Exception  {
+
+        BabbleOID boid = new BabbleOID("000102030405060708090A0B");
+
+        assert(boid.toString().equals("000102030405060708090A0B"));
     }
 
     @Test

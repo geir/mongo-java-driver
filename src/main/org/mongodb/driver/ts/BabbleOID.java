@@ -19,6 +19,8 @@
 
 package org.mongodb.driver.ts;
 
+import org.mongodb.driver.MongoDBException;
+
 import java.util.Random;
 import java.util.Formatter;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,6 +85,18 @@ public class BabbleOID {
         buf.flip();
 
         buf.get(_arr);
+    }
+
+    public BabbleOID(String id) throws MongoDBException{
+
+        if (id.length() != 24) {
+            throw new MongoDBException("Invalid length - must be 24 characters in string");
+        }
+
+        for (int i = 0; i < id.length() / 2; i++) {
+            int x = Integer.parseInt(id.substring(i*2, i*2 + 2), 16);
+            _arr[i] = (byte) x;
+        }
     }
 
     public BabbleOID(byte[] data) {
