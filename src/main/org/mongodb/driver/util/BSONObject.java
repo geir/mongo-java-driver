@@ -21,6 +21,7 @@ package org.mongodb.driver.util;
 
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.util.types.BabbleOID;
+import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
@@ -31,6 +32,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -159,7 +162,7 @@ public class BSONObject {
                     break;
 
                 case REGEX:
-                    messageSize += serializeRegexElement(_buf, key, (Pattern) v);
+                    messageSize += serializeRegexElement(_buf, key, v);
                     break;
 
                 case BINARY:
@@ -967,8 +970,35 @@ public class BSONObject {
 
         return bufSizeDelta;
     }
+    
+    protected int serializeRegexElement(ByteBuffer buf, String key, Object o) throws MongoDBException {
 
-    protected int serializeRegexElement(ByteBuffer buf, String key, Pattern v) throws MongoDBException {
+        BSONRegex bsr = null;
+
+        if (o instanceof Pattern) {
+
+            Pattern v = (Pattern) o;
+
+            int flags = v.flags();
+
+            StringBuffer sb = new StringBuffer("g");  // always throw in global since that's what Java's regex does
+
+            if ((flags & Pattern.CASE_INSENSITIVE) != 0) {
+                sb.append("i");
+            }
+            if ((flags & Pattern.MULTILINE) != 0) {
+                sb.append("m");
+            }
+
+            bsr = new BSONRegex(v.pattern(), sb.toString());
+        }
+        else if (o instanceof BSONRegex) {
+            bsr = (BSONRegex) o;
+        }
+        else {
+            throw new MongoDBException("Error : serializeRegexElement : don't know how to handle type :" + o.getClass());
+        }
+
         /*
          * set the type byte
          */
@@ -984,26 +1014,26 @@ public class BSONObject {
         /*
          * set the pattern
          */
-        bufSizeDelta += serializeCSTR(buf, v.pattern());
+        bufSizeDelta += serializeCSTR(buf, bsr.getPattern());
 
         /*
          * now get the flags and translate into what JS would do  (WWJSD)
          */
 
-        int flags = v.flags();
+        String options = bsr.getOptions();
 
-        StringBuffer sb = new StringBuffer("g");  // always throw in global since that's what Java's regex does
+        TreeMap<Character, Character> sm = new TreeMap<Character, Character>();
 
-        if ((flags & Pattern.CASE_INSENSITIVE) != 0) { 
-            sb.append("i");
-        }
-        if ((flags & Pattern.MULTILINE) != 0) {
-            sb.append("m");
+        for (int i=0; i < options.length(); i++) {
+            sm.put(options.charAt(i), options.charAt(i));
         }
 
-        /*
-         * set the regex options
-         */
+        StringBuffer sb = new StringBuffer();
+
+        for (char c : sm.keySet()) {
+            sb.append(c);
+        }
+
         bufSizeDelta += serializeCSTR(buf, sb.toString());
         
         return bufSizeDelta;
@@ -1129,6 +1159,9 @@ public class BSONObject {
             return DATE;
 
         if ( o instanceof Pattern )
+            return REGEX;
+
+        if ( o instanceof BSONRegex)
             return REGEX;
 
         if ( o instanceof MongoDoc )
