@@ -83,4 +83,22 @@ public class DBUpdateMessage extends DBMessage {
         writeMongoDoc(_selector);
         writeMongoDoc(_obj);
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[UPDATE(");
+        sb.append(_dbName);
+        sb.append(".");
+        sb.append(_collection);
+        sb.append("):");
+
+        sb.append(" repsert[");
+        sb.append(_repsert);
+        sb.append("] sel[");
+        sb.append(_selector);
+        sb.append("] obj[");
+        sb.append(_obj);
+        sb.append("]]");
+
+        return sb.toString();
+    }    
 }

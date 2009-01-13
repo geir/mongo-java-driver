@@ -55,7 +55,11 @@ public class DBMessageHeader {
 
         headerBuf.position(0);
 
-        long i = sc.read(headerBuf);
+        long i = 0;
+
+        while(i < HEADER_SIZE) {
+            i += sc.read(headerBuf);
+        }
 
         if (i != HEADER_SIZE) {
             throw new IOException("Short read for DB response header. read=" + i);
