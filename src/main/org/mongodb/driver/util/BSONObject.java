@@ -57,7 +57,7 @@ public class BSONObject {
     static final byte STRING = 2;   // x t
     static final byte OBJECT = 3;   // x t
     static final byte ARRAY = 4;    // x t
-    static final byte BINARY = 5;   // s
+    static final byte BINARY = 5;   // x t
     static final byte UNDEFINED = 6;
     static final byte OID = 7;      // x t
     static final byte BOOLEAN = 8;  // x t
@@ -297,10 +297,10 @@ public class BSONObject {
                     doc.put(key, deserializeRegexData(_buf, totalSize));
                     break;
 
-//                case BINARY :
-//                    key = deserializeCSTR(_buf);
-//                    doc.put(key, deserializeBinary(_buf));
-//                    break;
+                case BINARY :
+                    key = deserializeCSTR(_buf);
+                    doc.put(key, deserializeBinary(_buf));
+                    break;
 
                 case EOO:
                     break;
@@ -379,6 +379,18 @@ public class BSONObject {
      */
     protected Integer deserializeNumberIntData(ByteBuffer buf) {
         return buf.getInt();
+    }
+
+
+    private static byte[] deserializeBinary(ByteBuffer buf) throws MongoDBException{
+
+        int len = buf.getInt();
+
+        byte[] woogie = new byte[len];
+
+        buf.get(woogie);
+
+        return woogie;
     }
 
     /**

@@ -352,6 +352,29 @@ public class BSONObjectTest {
     }
 
     @Test
+    public void testBinary() throws Exception {
+
+        MongoDoc md = new MongoDoc();
+
+        byte[] arr = {1, 2, 3, 4};
+
+        md.put("binary", arr);
+
+        BSONObject bo = new BSONObject();
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        byte[] arr2 = (byte[]) md2.get("binary");
+
+        assert(arr2[0] == 1);
+        assert(arr2[1] == 2);
+        assert(arr2[2] == 3);
+        assert(arr2[3] == 4);
+    }
+
+    @Test
     public void testRegex() throws Exception {
         BSONObject bo = new BSONObject();
 
