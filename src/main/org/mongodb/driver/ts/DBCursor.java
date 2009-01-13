@@ -43,7 +43,8 @@ public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
      *  Returns the next object in the cursor.
      * 
      * @return next object on this cursor
-     * @throws org.mongodb.driver.MongoDBException on error
+     * @throws MongoDBException on error
+     * @throws MongoDBIOException in case of low-level io error
      */
     public MongoDoc getNextObject() throws MongoDBException, MongoDBIOException;
 
@@ -51,6 +52,7 @@ public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
      *  Closes the cursor, closing any server-side resources being used.
      *
      *  @throws MongoDBException in case of error
+     *  @throws MongoDBIOException in case of low-level io error
      */
     public void close() throws MongoDBException, MongoDBIOException;
 }

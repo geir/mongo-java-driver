@@ -35,8 +35,11 @@ import java.util.Queue;
 import java.util.LinkedList;
 
 /**
- *   Represents a response message from the DB.  Currently these will be sent
- *   only in response to either a Query or a GetMore.
+ *   Client-side implementation of the db-side cursor.  The cursor reads the wire and
+ *   processes the response from a query to the database.  The DBCursorImpl will iteratively
+ *   fetch more data via an OP_GET_MORE if needed.
+ *
+ *   TODO - this would make me happier if the CTOR took a DBQueryReplyMessage to start, rather than presume the wire is ready.
  *
  */
 class DBCursorImpl implements DBCursor {
@@ -53,8 +56,8 @@ class DBCursorImpl implements DBCursor {
     /*
      *  mongo doesn't support limits - it has to be a client-side feature
      */
-    protected final int _hardLimitTotal;     // number of objects requested as the limit
-    protected final int _hardLimitReturned;  // number of objects returned to the client app
+    protected final int _hardLimit;     // number of objects requested as the limit
+    protected int _objectsReturned;     // number of objects returned to the client app
 
     protected boolean _closed = false;
 
@@ -75,8 +78,8 @@ class DBCursorImpl implements DBCursor {
         if (limit <= 0) {
             limit = 0;
         }
-        _hardLimitTotal = limit;
-        _hardLimitReturned = 0;
+        _hardLimit = limit;
+        _objectsReturned = 0;
 
         readAll();
     }
@@ -93,7 +96,12 @@ class DBCursorImpl implements DBCursor {
     public DBCursorImpl(DBImpl db, String collection) throws MongoDBException {
         this(db,collection, 0);
     }
-    
+
+    /**
+     *  Reads and processes a full DBQueryReplyMessage from the wire
+     * 
+     * @throws MongoDBException in case of problem
+     */
     private void readAll() throws  MongoDBException {
 
         synchronized(_myDB._dbMonitor) {
@@ -134,6 +142,12 @@ class DBCursorImpl implements DBCursor {
         }
     }
 
+    /**
+     *  Reads all objects from the wire.  Assumes that the standard message header and the
+     *  OP_REPLY header have already been read.
+     * 
+     * @throws MongoDBException in case of problem
+     */
     protected void readObjectsOffWire() throws MongoDBException {
 
         ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
@@ -142,7 +156,71 @@ class DBCursorImpl implements DBCursor {
             _objects.offer(DBQueryReplyMessage.readDocument(_myDB._socketChannel, buf, true));
         }
     }
-    
+
+    /**
+     *  Returns the next object in the cursor.
+     *
+     * @return next object, or null if there are no more remaining
+     * @throws MongoDBException
+     */
+    public MongoDoc getNextObject() throws MongoDBException {
+
+        if (!isMoreObjects()) {
+            refillViaGetMore();
+        }
+
+        MongoDoc m = _objects.poll();
+
+        if (m != null) {
+            _objectsReturned++;
+        }
+        
+        return m;
+    }
+
+    /**
+     *  Determins if  objects remain to be consumed by client.  This takes into account
+     *  any limit set by the client.  This method can trigger a OP_GET_MORE back to the
+     *  database for more objects.
+     *
+     * @return true if more objects logically remain
+     */
+    protected boolean isMoreObjects() {
+
+        if (_hardLimit > 0 && _objectsReturned >= _hardLimit) {
+            return false;
+        }
+
+        if (_objects.size() == 0) {
+            try {
+                refillViaGetMore();
+            }
+            catch (MongoDBException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return _objects.size() > 0;
+    }
+
+    private void refillViaGetMore() throws MongoDBException {
+
+        /*
+         *  if we don't have a cursor, bail - we're done
+         */
+        if (_msg.getCursorID() == 0) {
+            return;
+        }
+
+        // TODO - this is russian routlette - there's no predicting the size of the return
+        // for a getmore right now.  The first response to a query is limited to not hurt those
+        // that don't limit their requests, and the following after that get much bigger.
+
+        _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _msg.getCursorID() ));
+
+        readAll();        
+    }
+
     /**
      *  Closes the cursor, releasing any server-side cursors and
      *  dumping objects and buffers
@@ -152,15 +230,17 @@ class DBCursorImpl implements DBCursor {
         if (_msg.getCursorID() != 0) {
             _myDB.sendToDB(new DBKillCursorsMessage(_msg.getCursorID()));
         }
-        
+
         _objects.clear();
 
         _closed = true;
     }
 
+    /* --- Enumeration interface --- */
+
     public boolean hasMoreElements() {
 
-        if (getNumRemaining() == 0) {
+        if (!isMoreObjects()) {
             try {
                 refillViaGetMore();
             }
@@ -169,7 +249,7 @@ class DBCursorImpl implements DBCursor {
             }
         }
 
-        return getNumRemaining() > 0;
+        return isMoreObjects();
     }
 
     public Object nextElement() {
@@ -180,11 +260,13 @@ class DBCursorImpl implements DBCursor {
         }
     }
 
+    /* --- Iterable interface --- */
+
     public Iterator<MongoDoc> iterator() {
 
         return new Iterator<MongoDoc>() {
             public boolean hasNext() {
-                return getNumRemaining() != 0;
+                return hasMoreElements();
             }
 
             public MongoDoc next() {
@@ -206,51 +288,6 @@ class DBCursorImpl implements DBCursor {
                 }
             }
         };
-    }
-
-    public MongoDoc getNextObject() throws MongoDBException {
-
-        if (getNumRemaining() == 0) {
-            refillViaGetMore();
-        }
-
-        return _objects.poll();
-    }
-
-    public int getNumReturned() {
-        return _msg.getNumberReturned();
-    }
-
-    public int getNumRemaining() {
-        if (_objects.size() == 0) {
-            try {
-                refillViaGetMore();
-            }
-            catch (MongoDBException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return _objects.size();
-    }
-
-
-    private void refillViaGetMore() throws MongoDBException {
-
-        /*
-         *  if we don't have a cursor, bail - we're done
-         */
-        if (_msg.getCursorID() == 0) {
-            return;
-        }
-
-        // TODO - this is russian routlette - there's no predicting the size of the return
-        // for a getmore right now.  The first response to a query is limited to not hurt those
-        // that don't limit their requests, and the following after that get much bigger.
-
-        _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _msg.getCursorID() ));
-
-        readAll();        
     }
 
     public String toString() {

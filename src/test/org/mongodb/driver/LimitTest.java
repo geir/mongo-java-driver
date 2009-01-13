@@ -63,7 +63,7 @@ public class LimitTest extends TestBase {
         DBCursor cur = testColl.find(new DBQuery(new MongoSelector(), null, 0, 10));
 
         int count = cursorCount(cur);
-        assert(cursorCount(cur) == 10);
+        assert(count == 10);
 
         cur = testColl.find(new DBQuery(new MongoSelector(), null, 0, 10));
         MongoDoc m = (MongoDoc) cur.nextElement();
