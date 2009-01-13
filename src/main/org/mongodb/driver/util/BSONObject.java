@@ -22,6 +22,7 @@ package org.mongodb.driver.util;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
+import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
@@ -32,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
@@ -57,7 +57,7 @@ public class BSONObject {
     static final byte STRING = 2;   // x t
     static final byte OBJECT = 3;   // x t
     static final byte ARRAY = 4;    // x t
-    static final byte BINARY = 5;
+    static final byte BINARY = 5;   // s
     static final byte UNDEFINED = 6;
     static final byte OID = 7;      // x t
     static final byte BOOLEAN = 8;  // x t
@@ -167,6 +167,10 @@ public class BSONObject {
 
                 case BINARY:
                     messageSize += serializeBinaryElement(_buf, key, v);
+                    break;
+
+                case REF:
+                    messageSize += serializeRefElement(_buf, key, (BSONRef) v);
                     break;
 
                 default :
@@ -834,6 +838,38 @@ public class BSONObject {
         return bufSizeDelta;
     }
 
+    protected int serializeRefElement(ByteBuffer buf, String key, BSONRef val) throws MongoDBException {
+
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(REF);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        /*
+         * now the ns
+         */
+
+        bufSizeDelta += serializeCSTR(buf, val.getNamespace());
+
+        /*
+         * and then the OID  - TODO refactor w/ real OID code
+         */
+
+        byte[] arr = val.getOID().getArray();
+
+        buf.put(arr);
+        bufSizeDelta += 12;
+
+        return bufSizeDelta;
+    }
+
     /**
      *   <data_string> -> (int32) length <cstring> where
      *
@@ -1166,6 +1202,10 @@ public class BSONObject {
 
         if ( o instanceof MongoDoc )
             return OBJECT;
+
+        if (o instanceof BSONRef) {
+            return REF;
+        }
 
         throw new MongoDBException("Unknown type of object : " + o.getClass());
     }

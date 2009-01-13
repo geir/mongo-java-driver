@@ -35,6 +35,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
+import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
@@ -64,6 +65,7 @@ public class XSON extends DefaultHandler {
             put("array", ArrayHandler.class);
             put("int", IntHandler.class);
             put("regex", RegexHandler.class);
+            put("ref", RefHandler.class);
             put("null", StringHandler.class);
         }
     };
@@ -159,7 +161,12 @@ public class XSON extends DefaultHandler {
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
-            _value = new String(ch, start, length);
+
+            String nv = new String(ch, start, length);
+
+            if (_value == null || "".equals(_value)) {
+                _value = nv;
+            }
         }
 
         public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
@@ -259,6 +266,50 @@ public class XSON extends DefaultHandler {
         }
     }
 
+
+    public class RefHandler extends Handler {
+
+        String _next = null;
+        Map<String, Object> _data = new HashMap<String,Object>();
+
+        public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
+
+            if ("ref".equals(qName)) {
+                super.startElement(uri, localName, qName, att);
+                return;
+            }
+
+            _next = qName;
+        }
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            _data.put(_next, new String(ch, start, length));
+        }
+
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+
+            if ("ref".equals(qName)) {
+
+                BSONRef br = null;
+                try {
+                    br = new BSONRef((String) _data.get("ns"), (BabbleOID) new BabbleOID((String) _data.get("oid")));
+                } catch (MongoDBException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    _currentDoc.put(cleanName(), br);
+                } catch (MongoDBException e) {
+                    e.printStackTrace();
+                }
+                super.endElement(uri, localName, qName);
+            }
+            else {
+                _next = null;
+            }
+        }
+    }
+
     public class RegexHandler extends Handler {
 
         String _next = null;
@@ -284,7 +335,6 @@ public class XSON extends DefaultHandler {
             if ("regex".equals(qName)) {
 
                 BSONRegex br = new BSONRegex(_data.get("pattern"), _data.get("options"));
-//                Pattern p = Pattern.compile(_data.get("pattern"));   // TODO - options
                 try {
                     _currentDoc.put(cleanName(), br);
                 } catch (MongoDBException e) {
