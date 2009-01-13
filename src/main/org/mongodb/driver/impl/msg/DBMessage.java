@@ -281,6 +281,8 @@ public abstract class DBMessage {
                 return new DBGetMoreMessage(buf);
             case OP_UPDATE:
                 return new DBUpdateMessage(buf);
+            case OP_KILL_CURSORS:
+                return new DBKillCursorsMessage(buf);
             default :
                 throw new MongoDBException("Unknown operation type : " + msgHeader.getOperation());
         }
