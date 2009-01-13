@@ -108,5 +108,4 @@ public class DBInsertMessage extends DBMessage {
         
         return sb.toString();
     }
-
 }
