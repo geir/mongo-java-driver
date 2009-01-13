@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
+import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
@@ -56,6 +57,7 @@ public class XSON extends DefaultHandler {
             put("twonk", TwonkHandler.class);
             put("string", StringHandler.class);
             put("boolean", BooleanHandler.class);
+            put("symbol", SymbolHandler.class);
             put("number", NumberHandler.class);
             put("date", DateHandler.class);
             put("code", CodeHandler.class);
@@ -226,6 +228,17 @@ public class XSON extends DefaultHandler {
     }
 
     public class BinaryHandler extends Handler {
+
+        StringBuffer buff = new StringBuffer();
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+
+            String nv = new String(ch, start, length);
+
+            buff.append(nv);
+        }
+
+
         public void endElement(String uri, String localName, String qName) throws SAXException {
             try {
                 sun.misc.BASE64Decoder decoder =  new sun.misc.BASE64Decoder();
@@ -233,7 +246,7 @@ public class XSON extends DefaultHandler {
                 if (_value == null) {
                     _value = "";
                 }
-                _currentDoc.put(cleanName(), decoder.decodeBuffer(_value));
+                _currentDoc.put(cleanName(), decoder.decodeBuffer(buff.toString()));
             } catch (MongoDBException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -313,7 +326,7 @@ public class XSON extends DefaultHandler {
     public class RegexHandler extends Handler {
 
         String _next = null;
-        Map<String, String> _data = new HashMap<String,String>();
+        Map<String, StringBuffer> _data = new HashMap<String,StringBuffer>();
 
         public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
 
@@ -323,10 +336,17 @@ public class XSON extends DefaultHandler {
             }
 
             _next = qName;
+
+            if (_next != null && _data.get(_next) == null) {
+                _data.put(_next, new StringBuffer());
+            }
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
-            _data.put(_next, new String(ch, start, length));
+             String s = new String(ch, start, length);
+            if (_next != null) {
+                _data.get(_next).append(s);
+            }
         }
 
 
@@ -334,7 +354,7 @@ public class XSON extends DefaultHandler {
 
             if ("regex".equals(qName)) {
 
-                BSONRegex br = new BSONRegex(_data.get("pattern"), _data.get("options"));
+                BSONRegex br = new BSONRegex(_data.get("pattern").toString(), _data.get("options").toString());
                 try {
                     _currentDoc.put(cleanName(), br);
                 } catch (MongoDBException e) {
@@ -350,12 +370,14 @@ public class XSON extends DefaultHandler {
 
     public class ArrayHandler extends Handler {
 
+        boolean first = true;
         MongoSelector _oldDoc = null;
         MongoSelector _myDoc = new MongoSelector();
 
         public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
 
-            if ("array".equals(qName)) {
+            if (first && "array".equals(qName)) {
+                first = false;
                 _oldDoc = _currentDoc;
                 _currentDoc = _myDoc;
                 super.startElement(uri, localName, qName, att);
@@ -383,6 +405,18 @@ public class XSON extends DefaultHandler {
         }
     }
 
+    public class SymbolHandler extends Handler {
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            try {
+                _currentDoc.put(cleanName(), new BSONSymbol(_value));
+            } catch (MongoDBException e) {
+                e.printStackTrace();
+            }
+
+            super.endElement(uri, localName, qName);
+        }
+    }
+
     public class StringHandler extends Handler {
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -398,12 +432,14 @@ public class XSON extends DefaultHandler {
 
     public class DocHandler extends Handler {
 
-        MongoSelector _oldDoc = null;
-        MongoSelector _myDoc = new MongoSelector();
+        boolean first = true;
+        private MongoSelector _oldDoc = null;
+        private MongoSelector _myDoc = new MongoSelector();
 
         public void startElement(String uri, String localName, String qName, Attributes att) throws SAXException {
 
-            if ("doc".equals(qName)) {
+            if (first && "doc".equals(qName)) {
+                first = false;
                 _oldDoc = _currentDoc;
                 _currentDoc = _myDoc;
                 super.startElement(uri, localName, qName, att);

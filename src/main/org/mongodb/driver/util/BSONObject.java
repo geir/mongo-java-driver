@@ -23,6 +23,7 @@ import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
+import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
@@ -64,7 +65,7 @@ public class BSONObject {
     static final byte DATE = 9;     // x t
     static final byte NULL = 10;    // x t
     static final byte REGEX = 11;   // x t
-    static final byte REF = 12;
+    static final byte REF = 12;     // x t
     static final byte CODE = 13;    // x t
     static final byte SYMBOL = 14;
     static final byte CODE_W_SCOPE = 15;
@@ -125,6 +126,10 @@ public class BSONObject {
                     messageSize += serializeStringElement(_buf, key, (String) v, STRING);
                     break;
 
+                case SYMBOL :
+                    messageSize += serializeStringElement(_buf, key, ((BSONSymbol) v).getSymbol(), SYMBOL);
+                    break;
+
                 case CODE :
                     messageSize += serializeStringElement(_buf, key, (String) v, CODE);
                     break;
@@ -154,7 +159,8 @@ public class BSONObject {
                     break;
 
                 case NULL :
-                    messageSize += serializeNullElement(_buf, key);
+                case UNDEFINED :
+                    messageSize += serializeNullElement(_buf, key, getType(v, key));
                     break;
 
                 case ARRAY:
@@ -252,6 +258,11 @@ public class BSONObject {
                     doc.put(key, deserializeSTRINGData(_buf));
                     break;
 
+                case SYMBOL:
+                    key = deserializeCSTR(_buf);
+                    doc.put(key, new BSONSymbol(deserializeSTRINGData(_buf)));
+                    break;
+
                 case NUMBER :
                     key = deserializeCSTR(_buf);
                     doc.put(key, deserializeNumberData(_buf));
@@ -283,6 +294,7 @@ public class BSONObject {
                     break;
 
                 case NULL :
+                case UNDEFINED :
                     key = deserializeCSTR(_buf);
                     doc.put(key, (String) null);
                     break;
@@ -301,7 +313,6 @@ public class BSONObject {
                     key = deserializeCSTR(_buf);
                     doc.put(key, deserializeBinary(_buf));
                     break;
-
 
                 case REF :
                     key = deserializeCSTR(_buf);
@@ -694,13 +705,13 @@ public class BSONObject {
      * @return number of bytes used in buffer
      * @throws MongoDBException on error
      */
-    protected int serializeNullElement(ByteBuffer buf, String key) throws MongoDBException {
+    protected int serializeNullElement(ByteBuffer buf, String key, byte opcode) throws MongoDBException {
 
         /*
          * set the type byte
          */
         int bufSizeDelta = 0;
-        buf.put(NULL);
+        buf.put(opcode);
         bufSizeDelta++;
 
         /*
@@ -1255,6 +1266,10 @@ public class BSONObject {
 
         if (o instanceof BSONRef) {
             return REF;
+        }
+
+        if (o instanceof BSONSymbol) {
+            return SYMBOL;
         }
 
         throw new MongoDBException("Unknown type of object : " + o.getClass());

@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRef;
+import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.ts.MongoDoc;
 
 import java.nio.ByteBuffer;
@@ -146,6 +147,26 @@ public class BSONObjectTest {
         md2 = bo2.deserialize(barr);
 
         assert(md2.get("where").equals(code));
+    }
+
+    @Test
+    public void testSymbolEncoding() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        MongoDoc md = new MongoDoc();
+
+        BSONSymbol bs = new BSONSymbol("this is stupid");
+
+        md.put("bs", bs);
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        BSONSymbol bstoo = (BSONSymbol) md2.get("bs");
+
+        assert(bstoo.getSymbol().equals(bs.getSymbol()));
     }
 
 
