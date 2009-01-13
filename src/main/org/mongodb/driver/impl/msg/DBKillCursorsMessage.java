@@ -20,9 +20,13 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.ts.MongoDoc;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -53,6 +57,21 @@ public class DBKillCursorsMessage extends DBMessage {
         init();
     }
 
+
+    public DBKillCursorsMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+
+        int count = readInt(); // number of cursors
+
+        _cursors = new long[count];
+
+        for (int i=0; i < count; i++) {
+            _cursors[i] = readLong();
+        }
+    }
+
     /**
      *   Writes the query out to the underlying message byte buffer
      *
@@ -67,4 +86,22 @@ public class DBKillCursorsMessage extends DBMessage {
             writeLong(_cursor);
         }
     }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer("[KILL_CURSORS():");
+
+        sb.append(" number[");
+        sb.append(_cursors.length);
+        sb.append("] [");
+
+        for (long c : _cursors) {
+            sb.append(c);
+            sb.append(", ");
+        }
+        
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }
