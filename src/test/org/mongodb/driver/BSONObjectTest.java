@@ -22,6 +22,7 @@ package org.mongodb.driver;
 import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.util.types.BabbleOID;
+import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.ts.MongoDoc;
 
 import java.nio.ByteBuffer;
@@ -349,6 +350,29 @@ public class BSONObjectTest {
         BabbleOID oid2 = (BabbleOID) md2.get("oid");
 
         assert(oid2.toString().equals(oid.toString()));
+    }
+
+    @Test
+    public void testRef() throws Exception {
+
+        MongoDoc md = new MongoDoc();
+
+        BSONRef ref = new BSONRef("mystring", new BabbleOID("000102030405060708090a0b"));
+
+        md.put("ref", ref);
+
+        BSONObject bo = new BSONObject();
+
+        bo.serialize(md);
+
+        MongoDoc md2 = bo.deserialize();
+
+        BSONRef ref2 = (BSONRef) md2.get("ref");
+
+
+        assert(ref2.getNamespace().equals(ref.getNamespace()));
+
+        assert(ref2.getOID().toString().equals(ref.getOID().toString()));
     }
 
     @Test

@@ -302,6 +302,12 @@ public class BSONObject {
                     doc.put(key, deserializeBinary(_buf));
                     break;
 
+
+                case REF :
+                    key = deserializeCSTR(_buf);
+                    doc.put(key, deserializeRef(_buf, totalSize));
+                    break;
+
                 case EOO:
                     break;
 
@@ -391,6 +397,38 @@ public class BSONObject {
         buf.get(woogie);
 
         return woogie;
+    }
+
+    private BSONRef deserializeRef(ByteBuffer buf, int totalSize) throws MongoDBException {
+
+
+        String ns = "";
+        int i = 0;
+        int loc = 0;
+
+        /*
+         *   first go find the null for the namespace and save that string
+         */
+        for (; i < totalSize; i++, loc++) {
+            _privateBuff[loc] = buf.get();
+
+            if (_privateBuff[loc] == 0) {
+                try {
+                    ns =  new String(_privateBuff, 0, loc, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new MongoDBException("Error: decoding deserializeRef ", e);
+                }
+                break;
+            }
+        }
+
+        /*
+         *  now read the 12 byte OID
+         */
+
+        BabbleOID oid = deserializeOIDData(buf);
+
+        return new BSONRef(ns, oid);        
     }
 
     /**
