@@ -29,6 +29,7 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.commands.*;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
@@ -98,6 +99,10 @@ public class DBImpl implements DB {
         mql.populateQueryInfo(dqi);
 
         return dqi.execQuery(this);
+    }
+
+    public MongoDoc executeCommand(org.mongodb.driver.ts.commands.DBCommand command) throws MongoDBException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

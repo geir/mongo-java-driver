@@ -21,8 +21,8 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
+import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.BabbleOID;
 
 import java.nio.ByteBuffer;
 import java.util.Date;

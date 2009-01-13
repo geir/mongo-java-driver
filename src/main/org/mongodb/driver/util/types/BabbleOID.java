@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.mongodb.driver.ts;
+package org.mongodb.driver.util.types;
 
 import org.mongodb.driver.MongoDBException;
 

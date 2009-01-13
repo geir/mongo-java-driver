@@ -20,6 +20,7 @@
 package org.mongodb.driver.ts;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.util.types.BabbleOID;
 
 import java.util.Map;
 import java.util.HashMap;

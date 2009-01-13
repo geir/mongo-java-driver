@@ -21,7 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
-import org.mongodb.driver.ts.BabbleOID;
+import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.dyn.Mongo;
 import org.mongodb.driver.dyn.DB;
 

@@ -22,6 +22,7 @@ package org.mongodb.driver.ts;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
+import org.mongodb.driver.ts.commands.DBCommand;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBIOException;
 
@@ -42,7 +43,19 @@ public interface DB {
      *  @throws MongoDBIOException on IO error with database
      */
     public DBCursor executeQuery(String query) throws MongoDBException, MongoDBIOException;
-    
+
+
+    /**
+     *  Executes a command on the database
+     *
+     *  @param command to execute
+     *  @return MongoDoc with the results
+     *  @throws MongoDBException if something goes awry
+     *  @throws MongoDBIOException on IO error with database
+     */
+    public MongoDoc executeCommand(DBCommand command) throws MongoDBException;
+
+
     /**
      *  Returns a list of the names of the collections  in this database
      *

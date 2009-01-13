@@ -20,7 +20,7 @@
 package org.mongodb.driver.util;
 
 import org.mongodb.driver.ts.MongoDoc;
-import org.mongodb.driver.ts.BabbleOID;
+import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
@@ -162,6 +162,10 @@ public class BSONObject {
                     messageSize += serializeRegexElement(_buf, key, (Pattern) v);
                     break;
 
+                case BINARY:
+                    messageSize += serializeBinaryElement(_buf, key, v);
+                    break;
+
                 default :
                     throw new MongoDBException("Unhandled type " + getType(v, key));
             }
@@ -285,6 +289,11 @@ public class BSONObject {
                     key = deserializeCSTR(_buf);
                     doc.put(key, deserializeRegexData(_buf, totalSize));
                     break;
+
+//                case BINARY :
+//                    key = deserializeCSTR(_buf);
+//                    doc.put(key, deserializeBinary(_buf));
+//                    break;
 
                 case EOO:
                     break;
@@ -922,6 +931,43 @@ public class BSONObject {
         return bufSizeDelta;
     }
 
+    protected int serializeBinaryElement(ByteBuffer buf, String key, Object v) throws MongoDBException {
+
+        if (!(v instanceof byte[])) {
+            throw new MongoDBException("Error : serializeBinaryElement : don't know how to handle " + v.getClass());
+        }
+
+        byte[] arr = (byte[]) v;
+
+        /*
+         * set the type byte
+         */
+        int bufSizeDelta = 0;
+        buf.put(BINARY);
+        bufSizeDelta++;
+
+        /*
+         * set the key string
+         */
+        bufSizeDelta += serializeCSTR(buf, key);
+
+        /*
+         * set the size
+         */
+
+        buf.putInt(arr.length);
+        bufSizeDelta += 4;
+
+        /*
+         * just write the bytes out
+         */
+
+        buf.put(arr);
+        bufSizeDelta += arr.length;
+
+        return bufSizeDelta;
+    }
+
     protected int serializeRegexElement(ByteBuffer buf, String key, Pattern v) throws MongoDBException {
         /*
          * set the type byte
@@ -1061,14 +1107,17 @@ public class BSONObject {
             return STRING;
         }
 
+        // ensure that this is first as a byte[] is not an ARRAY
+        
+        if ( o instanceof byte[] )
+            return BINARY;
+
+
         if ( o.getClass().isArray())
             return ARRAY;
 
         if ( o instanceof List)
             return ARRAY;
-
-//        if ( o instanceof JSBinaryData )
-//            return BINARY;
 
         if ( o instanceof BabbleOID)
             return OID;
