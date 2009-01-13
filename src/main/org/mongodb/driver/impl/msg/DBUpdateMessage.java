@@ -23,6 +23,10 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * Represents a dbUpdate mongo operation
  */
@@ -45,6 +49,24 @@ public class DBUpdateMessage extends DBMessage {
         _repsert = repsert;
 
         init();
+    }
+
+    public DBUpdateMessage(ByteBuffer buf) throws MongoDBException {
+        super(buf);
+
+        readInt(); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
+
+        String s = readString();
+        String[] ss = s.split("\\.");
+        assert(ss.length == 2);
+        _dbName = ss[0];
+        _collection = ss[1];
+
+
+        _repsert = (readInt() == 1);
+
+        _selector = readMongoSelector();
+        _obj = readMongoDoc();
     }
 
     /**
