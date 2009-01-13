@@ -56,6 +56,12 @@ public class BabbleOID {
     protected final static Object _indexLock = new Object();
     protected static int _indexTime = getObjectIDTime();
 
+    /*
+     *  Babble has had a bug, so we're going to simply support the byte-string mapping that it does for
+     *  backwards compatibility
+     */
+    protected final static int[] _flap = {7,6,5,4,3,2,1,0, 11, 10, 9, 8};
+
     static {
         Random r = new Random(System.currentTimeMillis());
         r.nextBytes(MACHINE);
@@ -95,7 +101,7 @@ public class BabbleOID {
 
         for (int i = 0; i < id.length() / 2; i++) {
             int x = Integer.parseInt(id.substring(i*2, i*2 + 2), 16);
-            _arr[i] = (byte) x;
+            _arr[_flap[i]] = (byte) x;
         }
     }
 
@@ -118,7 +124,7 @@ public class BabbleOID {
      * @param time current time to be used in the object ID
      * @return index
      */
-    public int getIndex(int time) {
+    private int getIndex(int time) {
         synchronized(_indexLock) {
             if (time != _indexTime) {
                 _index.set(0);
@@ -149,7 +155,8 @@ public class BabbleOID {
         StringBuilder to_return = new StringBuilder();
         Formatter formatter = new Formatter(to_return);
 
-        for (byte aByte : _arr) {
+        for (int i=0; i < _arr.length; i++) {
+            byte aByte = _arr[_flap[i]];
             formatter.format("%02X", aByte);
         }
         return to_return.toString();

@@ -76,7 +76,7 @@ public class BabbleOIDTest {
 
         BabbleOID boid = new BabbleOID(data);
 
-        assert(boid.toString().equals("000102030405060708090A0B"));
+        assert(boid.toString().equals("07060504030201000B0A0908"));
     }
 
     @Test
