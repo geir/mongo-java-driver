@@ -110,14 +110,16 @@ public class MongoDoc implements Iterable<String> {
         _keyList.addAll(doc._map.keySet());
     }
     
-    public void put(String key, Number val)  throws MongoDBException{
+    public MongoDoc put(String key, Number val)  throws MongoDBException{
 
         if (key == null) {
-            return;
+            return this;
         }
 
         _size += 8;
         _put(key, val);
+
+        return this;
     }
 
     public void clear() {
@@ -129,8 +131,9 @@ public class MongoDoc implements Iterable<String> {
         return _map.get(key);
     }
 
-    public void put(String key, Object val) throws MongoDBException {
+    public MongoDoc put(String key, Object val) throws MongoDBException {
         _put(key, val);
+        return this;
     }
 
     protected void _put(String key, Object val) throws MongoDBException {
@@ -143,22 +146,28 @@ public class MongoDoc implements Iterable<String> {
         _map.put(key, val);
     }
 
-    public void put(String key, String val) throws MongoDBException {
+    public MongoDoc put(String key, String val) throws MongoDBException {
         _put(key, val);
 
         if (val != null) {
             _size += val.length() * 2;
         }
+
+        return this;
     }
 
-    public void put(String key, MongoDoc val) throws MongoDBException {
+    public MongoDoc put(String key, MongoDoc val) throws MongoDBException {
         _put(key, val);
         _size += val.getSize();
+
+        return this;
     }
 
-    public void put(String key, BabbleOID val) throws MongoDBException {
+    public MongoDoc put(String key, BabbleOID val) throws MongoDBException {
         _put(key, val);
         _size += 12;
+
+        return this;
     }
 
     /**
@@ -168,7 +177,7 @@ public class MongoDoc implements Iterable<String> {
      * @param value value to store
      * @throws MongoDBException if a problem with key
      */
-    public void put(String key, List value) throws MongoDBException {
+    public MongoDoc put(String key, List value) throws MongoDBException {
 
         checkKey(key);
 
@@ -182,6 +191,8 @@ public class MongoDoc implements Iterable<String> {
 
         _put(key, value);
         _size += md.getSize();
+
+        return this;
     }
 
     /**
