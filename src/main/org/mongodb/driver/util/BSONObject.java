@@ -24,6 +24,7 @@ import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
+import org.mongodb.driver.util.types.BSONUndefined;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.MongoDBException;
 
@@ -59,7 +60,7 @@ public class BSONObject {
     static final byte OBJECT = 3;   // x t
     static final byte ARRAY = 4;    // x t
     static final byte BINARY = 5;   // x t
-    static final byte UNDEFINED = 6;
+    static final byte UNDEFINED = 6;// s
     static final byte OID = 7;      // x t
     static final byte BOOLEAN = 8;  // x t
     static final byte DATE = 9;     // x t
@@ -1270,6 +1271,10 @@ public class BSONObject {
 
         if (o instanceof BSONSymbol) {
             return SYMBOL;
+        }
+
+        if (o instanceof BSONUndefined) {
+            return UNDEFINED;
         }
 
         throw new MongoDBException("Unknown type of object : " + o.getClass());

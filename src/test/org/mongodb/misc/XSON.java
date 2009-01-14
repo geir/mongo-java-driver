@@ -37,6 +37,7 @@ import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
+import org.mongodb.driver.util.types.BSONUndefined;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
@@ -68,7 +69,8 @@ public class XSON extends DefaultHandler {
             put("int", IntHandler.class);
             put("regex", RegexHandler.class);
             put("ref", RefHandler.class);
-            put("null", StringHandler.class);
+            put("null", NullHandler.class);
+            put("undefined", UndefinedHandler.class);
         }
     };
 
@@ -220,6 +222,29 @@ public class XSON extends DefaultHandler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             try {
                 _currentDoc.put(cleanName(), new Date(Long.parseLong(_value)));
+            } catch (MongoDBException e) {
+                e.printStackTrace();
+            }
+            super.endElement(uri, localName, qName);
+        }
+    }
+
+
+    public class NullHandler extends Handler {
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            try {
+                _currentDoc.put(cleanName(),(Object) null);
+            } catch (MongoDBException e) {
+                e.printStackTrace();
+            }
+            super.endElement(uri, localName, qName);
+        }
+    }
+
+    public class UndefinedHandler extends Handler {
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            try {
+                _currentDoc.put(cleanName(),new BSONUndefined());
             } catch (MongoDBException e) {
                 e.printStackTrace();
             }
@@ -419,9 +444,18 @@ public class XSON extends DefaultHandler {
 
     public class StringHandler extends Handler {
 
+        StringBuffer _stringValue = new StringBuffer();
+
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+             String s = new String(ch, start, length);
+
+            _stringValue.append(s);
+        }
+
         public void endElement(String uri, String localName, String qName) throws SAXException {
             try {
-                _currentDoc.put(cleanName(), _value);
+                _currentDoc.put(cleanName(), _stringValue.toString());
             } catch (MongoDBException e) {
                 e.printStackTrace();
             }
