@@ -267,10 +267,6 @@ public class XSON extends DefaultHandler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             try {
                 sun.misc.BASE64Decoder decoder =  new sun.misc.BASE64Decoder();
-
-                if (_value == null) {
-                    _value = "";
-                }
                 _currentDoc.put(cleanName(), decoder.decodeBuffer(buff.toString()));
             } catch (MongoDBException e) {
                 e.printStackTrace();
