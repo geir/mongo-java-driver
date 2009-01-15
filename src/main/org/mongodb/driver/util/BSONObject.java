@@ -413,26 +413,8 @@ public class BSONObject {
 
     private BSONRef deserializeRef(ByteBuffer buf, int totalSize) throws MongoDBException {
 
-
-        String ns = "";
-        int i = 0;
-        int loc = 0;
-
-        /*
-         *   first go find the null for the namespace and save that string
-         */
-        for (; i < totalSize; i++, loc++) {
-            _privateBuff[loc] = buf.get();
-
-            if (_privateBuff[loc] == 0) {
-                try {
-                    ns =  new String(_privateBuff, 0, loc, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    throw new MongoDBException("Error: decoding deserializeRef ", e);
-                }
-                break;
-            }
-        }
+               
+        String ns = this.deserializeSTRINGData(buf);
 
         /*
          *  now read the 12 byte OID
@@ -915,10 +897,23 @@ public class BSONObject {
         bufSizeDelta += serializeCSTR(buf, key);
 
         /*
+         * set the value :  length cstr - first set a hole for the string size
+         */
+        int pos = buf.position();
+        buf.putInt(0);
+        bufSizeDelta += 4;
+
+
+        /*
          * now the ns
          */
+        int strSize = serializeCSTR(buf, val.getNamespace());
+        bufSizeDelta += strSize;
 
-        bufSizeDelta += serializeCSTR(buf, val.getNamespace());
+        /*
+         *  now that we know the size, patch it in the front.
+         */
+        buf.putInt(pos, strSize);
 
         /*
          * and then the OID  - TODO refactor w/ real OID code
