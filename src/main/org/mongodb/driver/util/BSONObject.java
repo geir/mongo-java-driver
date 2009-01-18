@@ -1048,9 +1048,20 @@ public class BSONObject {
         bufSizeDelta += serializeCSTR(buf, key);
 
         /*
-         * set the size
+         * set the first size :   size + 4
          */
+        buf.putInt((arr.length + 4));
+        bufSizeDelta += 4;
 
+        /*
+         *   set the subtype as 0x02
+         */
+        buf.put((byte) 0x02);
+        bufSizeDelta += 1;
+
+        /*
+         * set the second size
+         */
         buf.putInt(arr.length);
         bufSizeDelta += 4;
 
