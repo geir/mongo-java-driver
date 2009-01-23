@@ -402,8 +402,23 @@ public class BSONObject {
 
     private static byte[] deserializeBinary(ByteBuffer buf) throws MongoDBException{
 
+        /*
+         *   this is the first size  (len + 4)
+         */
         int len = buf.getInt();
 
+        /*
+         * now the subtype
+         */
+        byte b = buf.get();
+
+        assert(b == 0x02);  // we only support 0x02
+
+        /*
+         *   now the real length
+         */
+        len = buf.getInt();
+        
         byte[] woogie = new byte[len];
 
         buf.get(woogie);
