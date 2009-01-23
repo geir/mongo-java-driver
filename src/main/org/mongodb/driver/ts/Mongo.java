@@ -29,18 +29,39 @@ import org.mongodb.driver.impl.DBImpl;
  */
 public class Mongo extends MongoImpl {
 
+    /**
+     *   Creates a server instance connected to localhost on default port (27017)
+     */
     public Mongo() {
         super();
     }
 
+    /**
+     * Creates a server instance connected to the specified host/IP
+     * @param host host to connect to
+     * @throws MongoDBException in case of problem
+     */
     public Mongo(String host) throws MongoDBException {
         super(host);
     }
 
+    /**
+     * Creates a server instance connected to the specified host/IP and port
+     * @param host host to connect to
+     * @param port port number to connect to
+     * @throws MongoDBException in case of problem
+     */
     public Mongo(String host, int port) throws MongoDBException {
         super(host, port);
     }
 
+    /**
+     *   Gets the named DB object.  The DB will be created if it doesn't exist.
+     * 
+     * @param dbName name of database.  Will be created if it doesn't exist.
+     * @return DB object
+     * @throws MongoDBException in case of problem
+     */
     public DB getDB(String dbName) throws MongoDBException {
         return new DBImpl(this, dbName);
     }
