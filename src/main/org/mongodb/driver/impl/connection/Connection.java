@@ -5,7 +5,9 @@ import java.io.IOException;
 
 public interface Connection {
 
+    public void close();
     public void connect() throws IOException;
     public boolean isConnected();
-    public SocketChannel getSocketChannel() throws IOException;
+    public SocketChannel getReadChannel() throws IOException;
+    public SocketChannel getWriteChannel() throws IOException;
 }

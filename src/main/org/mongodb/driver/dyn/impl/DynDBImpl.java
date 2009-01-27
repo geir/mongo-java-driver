@@ -43,7 +43,7 @@ public class DynDBImpl implements DB {
     }
 
     public DynDBImpl(MongoImpl mongo, String dbName) throws MongoDBException {
-        _db = new DBImpl(mongo, dbName);
+        _db = new DBImpl(mongo, mongo.getConnection(), dbName);
     }
 
     public List<String> getCollectionNames() throws MongoDBException {

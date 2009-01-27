@@ -39,6 +39,7 @@ import org.mongodb.driver.impl.msg.DBMsgMessage;
 import org.mongodb.driver.impl.msg.DBQueryMessage;
 import org.mongodb.driver.impl.msg.DBRemoveMessage;
 import org.mongodb.driver.impl.msg.DBUpdateMessage;
+import org.mongodb.driver.impl.connection.Connection;
 import org.mongodb.mql.MQL;
 
 import java.util.List;
@@ -61,20 +62,26 @@ public class DBImpl implements DB {
 
     protected String _dbName;
 
-    protected SocketChannel _socketChannel;
+    protected Connection _connection;
+
+//    protected SocketChannel _socketChannel;
 
     protected final Object _dbMonitor = new Object();
 
     protected final MongoImpl _myMongoServer;
 
-    public DBImpl(MongoImpl mongo, String dbName) throws MongoDBException {
+    public DBImpl(MongoImpl mongo, Connection c, String dbName) throws MongoDBException {
         checkDBName(dbName);
 
         _myMongoServer = mongo;
         _dbName = dbName;
 
         try {
-            _socketChannel = SocketChannel.open(_myMongoServer.getServerAddress());
+
+            _connection = c;
+            _connection.connect();
+            
+//            _socketChannel = SocketChannel.open(_myMongoServer.getServerAddress());
 
             /*
              *  set the TLS for our direct ByteBuffers.  Gets us out of needing to pool, since
@@ -306,7 +313,8 @@ public class DBImpl implements DB {
      * @throws Exception if a problem
      */
     public void close() throws Exception {
-        _socketChannel.close();
+//        _socketChannel.close();
+        _connection.close();
         DirectBufferTLS.getThreadLocal().unset();        
     }
 
@@ -318,7 +326,7 @@ public class DBImpl implements DB {
      */
     public void sendMessage(String m) throws MongoDBException {
         DBMsgMessage msg = new DBMsgMessage(m);
-        sendToDB(msg);
+        sendWriteToDB(msg);
     }
 
 
@@ -358,7 +366,7 @@ public class DBImpl implements DB {
     protected DBCursor queryDB(String collection, DBQuery q) throws MongoDBException {
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBQueryMessage(_dbName, collection, q));
+            sendReadToDB(new DBQueryMessage(_dbName, collection, q));
 
             return new DBCursorImpl(this, collection, q.getNumberToReturn());
         }
@@ -367,14 +375,14 @@ public class DBImpl implements DB {
     protected boolean removeFromDB(String collection, MongoSelector selector) throws MongoDBException {
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBRemoveMessage(_dbName, collection, selector));
+            sendWriteToDB(new DBRemoveMessage(_dbName, collection, selector));
             return true;
         }
     }
 
     protected boolean replaceInDB(String collection, MongoSelector selector, MongoDoc obj) throws MongoDBException {
         synchronized(_dbMonitor) {
-            sendToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
+            sendWriteToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
             return true;
         }
     }
@@ -384,14 +392,14 @@ public class DBImpl implements DB {
         // TODO - if  PKInjector, inject
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBUpdateMessage(_dbName, collection, selector, obj, true));
+            sendWriteToDB(new DBUpdateMessage(_dbName, collection, selector, obj, true));
             return obj;
         }
     }
 
     protected boolean modifyInDB(String collection, MongoSelector selector, MongoModifier obj) throws MongoDBException {
         synchronized(_dbMonitor) {
-            sendToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
+            sendWriteToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
             return true;
         }
     }
@@ -507,7 +515,7 @@ public class DBImpl implements DB {
         doc.put("key", selector);
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBInsertMessage(_dbName, SYSTEM_INDEX_COLLECTION, doc));
+            sendWriteToDB(new DBInsertMessage(_dbName, SYSTEM_INDEX_COLLECTION, doc));
             return true;
         }
     }
@@ -515,7 +523,7 @@ public class DBImpl implements DB {
     protected boolean insertIntoDB(String collection, MongoDoc object) throws MongoDBException {
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBInsertMessage(_dbName, collection, object));
+            sendWriteToDB(new DBInsertMessage(_dbName, collection, object));
             return true;
         }
     }
@@ -523,20 +531,39 @@ public class DBImpl implements DB {
     protected boolean insertIntoDB(String collection, MongoDoc[] objects) throws MongoDBException {
 
         synchronized(_dbMonitor) {
-            sendToDB(new DBInsertMessage(_dbName, collection, objects));
+            sendWriteToDB(new DBInsertMessage(_dbName, collection, objects));
             return true;
         }
     }
 
-    protected void sendToDB(DBMessage msg) throws MongoDBIOException {
+    protected void sendWriteToDB(DBMessage msg) throws MongoDBIOException {
 
         synchronized(_dbMonitor) {
             try {
                 ByteBuffer buf = msg.getInternalByteBuffer();
 
                 buf.flip();
-                _socketChannel.write(buf);
+
+                _connection.getWriteChannel().write(buf);
+//                _socketChannel.write(buf);
                 
+            } catch (IOException e) {
+                throw new MongoDBIOException("IO Error : ", e);
+            }
+        }
+    }
+
+    protected void sendReadToDB(DBMessage msg) throws MongoDBIOException {
+
+        synchronized(_dbMonitor) {
+            try {
+                ByteBuffer buf = msg.getInternalByteBuffer();
+
+                buf.flip();
+
+                _connection.getReadChannel().write(buf);
+//                _socketChannel.write(buf);
+
             } catch (IOException e) {
                 throw new MongoDBIOException("IO Error : ", e);
             }

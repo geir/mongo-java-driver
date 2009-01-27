@@ -33,13 +33,33 @@ public class SimpleConnection implements Connection {
         return _socketChannel != null && _socketChannel.isConnected();
     }
 
-    public SocketChannel getSocketChannel() throws IOException {
+    public SocketChannel getReadChannel() throws IOException {
+        return getChannel();
+    }
+
+    public SocketChannel getWriteChannel() throws IOException {
+        return getChannel();
+    }
+
+    private SocketChannel getChannel() throws IOException {
 
         if (!isConnected()) {
             connect();
         }
 
         return _socketChannel;
+    }
 
+    public void close() {
+
+        if (!isConnected()) {
+            return;
+        }
+
+        try {
+            _socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

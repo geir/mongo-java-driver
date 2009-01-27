@@ -211,8 +211,12 @@ public abstract class DBMessage {
             boolean reading = true;
 
             while (reading) {
-                sc.read(buf);
+                long i = sc.read(buf);
 
+                if (i == -1)  {
+                    throw new IOException("End of stream");
+                }
+                
                 if (buf.position() >= msgSize) {
                     reading = false;
                 }

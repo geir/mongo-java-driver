@@ -33,7 +33,7 @@ public class DBTest {
         Mongo m = new Mongo();
 
         try {
-            new DBImpl(null, null);
+            new DBImpl(null,null, null);
             fail();
         }
         catch(Exception e) {
@@ -41,7 +41,7 @@ public class DBTest {
         }
 
         try {
-            new DBImpl(m, "");
+            new DBImpl(m, null,"");
             fail();
         }
         catch(Exception e) {
@@ -49,14 +49,14 @@ public class DBTest {
         }
 
         try {
-            new DBImpl(m, "a.b");
+            new DBImpl(m, null,"a.b");
             fail();
         }
         catch(Exception e) {
             // ok
         }
 
-        DBImpl db = new DBImpl(m, "test_me");
+        DBImpl db = new DBImpl(m, m.getConnection(), "test_me");
         
         assert(db.getName().equals("test_me"));
 
@@ -92,7 +92,7 @@ public class DBTest {
 
         Mongo m = new Mongo();
 
-        DB db = new DBImpl(m, "org_mongo_driver_DBTest");
+        DB db = new DBImpl(m, m.getConnection(), "org_mongo_driver_DBTest");
         db.setDBOptions(new DBOptions().setStrictCollectionMode(true));
 
         for (String n : db.getCollectionNames()) {

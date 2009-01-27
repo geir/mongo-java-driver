@@ -58,7 +58,15 @@ public class DBMessageHeader {
         long i = 0;
 
         while(i < HEADER_SIZE) {
-            i += sc.read(headerBuf);
+            long r;
+            
+            r = sc.read(headerBuf);
+
+            if (r == -1) {
+                throw new IOException("End of stream");
+            }
+
+            i += r;            
         }
 
         if (i != HEADER_SIZE) {

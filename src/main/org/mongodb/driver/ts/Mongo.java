@@ -63,6 +63,6 @@ public class Mongo extends MongoImpl {
      * @throws MongoDBException in case of problem
      */
     public DB getDB(String dbName) throws MongoDBException {
-        return new DBImpl(this, dbName);
+        return new DBImpl(this, _connection, dbName);
     }
 }

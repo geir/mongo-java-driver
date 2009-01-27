@@ -109,7 +109,7 @@ class DBCursorImpl implements DBCursor {
             try {
                 ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
 
-                DBQueryReplyMessage.fillBufferWithHeaders(buf, _myDB._socketChannel);
+                DBQueryReplyMessage.fillBufferWithHeaders(buf, _myDB._connection.getReadChannel());
 
                 /*
                  * digest the message up to the objects... no nibbling..
@@ -126,7 +126,7 @@ class DBCursorImpl implements DBCursor {
 
                 if (_msg.getFlags() != 0) {
 
-                    MongoDoc md = DBQueryReplyMessage.readDocument(_myDB._socketChannel, buf, false);
+                    MongoDoc md = DBQueryReplyMessage.readDocument(_myDB._connection.getReadChannel(), buf, false);
 
                     throw new MongoDBQueryException("Error : cursor received am error response from server.  Flags = [ " + _msg.getFlags()
                             + "] Error msg :  " + md);
@@ -152,8 +152,13 @@ class DBCursorImpl implements DBCursor {
 
         ByteBuffer buf = DirectBufferTLS.getThreadLocal().getReadBuffer();
 
-        for (int i=0; i < _msg.getNumberReturned(); i++) {
-            _objects.offer(DBQueryReplyMessage.readDocument(_myDB._socketChannel, buf, true));
+        try {
+
+            for (int i=0; i < _msg.getNumberReturned(); i++) {
+                _objects.offer(DBQueryReplyMessage.readDocument(_myDB._connection.getReadChannel(), buf, true));
+            }
+        } catch (IOException e) {
+            throw new MongoDBException("ERROR : socket error ", e);
         }
     }
 
@@ -216,7 +221,7 @@ class DBCursorImpl implements DBCursor {
         // for a getmore right now.  The first response to a query is limited to not hurt those
         // that don't limit their requests, and the following after that get much bigger.
 
-        _myDB.sendToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _msg.getCursorID() ));
+        _myDB.sendReadToDB(new DBGetMoreMessage(_myDB.getName(), _collection, _msg.getCursorID() ));
 
         readAll();        
     }
@@ -228,7 +233,7 @@ class DBCursorImpl implements DBCursor {
     public void close() throws MongoDBException {
 
         if (_msg.getCursorID() != 0) {
-            _myDB.sendToDB(new DBKillCursorsMessage(_msg.getCursorID()));
+            _myDB.sendReadToDB(new DBKillCursorsMessage(_msg.getCursorID()));
         }
 
         _objects.clear();

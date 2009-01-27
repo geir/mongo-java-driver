@@ -20,6 +20,8 @@
 package org.mongodb.driver.impl;
 
 import org.mongodb.driver.MongoDBException;
+import org.mongodb.driver.impl.connection.Connection;
+import org.mongodb.driver.impl.connection.SimpleConnection;
 import org.mongodb.driver.ts.options.DBOptions;
 
 import java.net.InetSocketAddress;
@@ -32,11 +34,14 @@ public abstract class MongoImpl {
 
     public static final int DEFAULT_MONGO_PORT = 27017;
 
-    protected DBOptions _options;
+    protected DBOptions _options = null;
 
     protected InetSocketAddress _addr = new InetSocketAddress(DEFAULT_MONGO_PORT);
 
+    protected final Connection _connection;
+
     protected MongoImpl() {
+        _connection = new SimpleConnection(_addr);
     }
 
     protected MongoImpl(String host) throws MongoDBException {
@@ -46,10 +51,15 @@ public abstract class MongoImpl {
     protected MongoImpl(String host, int port) throws MongoDBException {
         try {
             _addr = new InetSocketAddress(host, port);
+            _connection = new SimpleConnection(_addr);
         }
         catch (IllegalArgumentException iae) {
             throw new MongoDBException("Invalid address : ",  iae);
         }
+    }
+
+    public Connection getConnection() {
+        return _connection;
     }
 
     public InetSocketAddress getServerAddress() {
