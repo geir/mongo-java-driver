@@ -1,11 +1,12 @@
 <?xml version='1.0'?>
-<project name="mongo-api" default="jar" basedir=".">
+<project name="xjdm" default="jar" basedir=".">
 
     <property name="targetdir" value="target"/>
     <property name="srcdir" value="src/main/"/>
     <property name="test_srcdir" value="src/test/"/>
     <property name="classdir" value="${targetdir}/classes"/>
     <property name="test_classdir" value="${targetdir}/tests"/>
+    <property name="docdir" value="docs"/>
 
     <target name="init">        
         <mkdir dir="${classdir}"/>
@@ -17,6 +18,7 @@
         <delete dir="${test_classdir}"/>
         <delete dir="${targetdir}/api"/>
         <delete file="mongo-driver.jar"/>
+        <delete dir="${docdir}"/>
     </target>
     
     <target name="compile" depends="clean, init">
@@ -39,14 +41,16 @@
     </target>
 
     <target name="jar" depends="compile" description="Builds a complete driver jar.">
-        <jar destfile="mongo-driver.jar" basedir="${classdir}"/>
+        <jar destfile="mongo-xjdm.jar" basedir="${classdir}"/>
     </target>
 
-    <target name="doc" depends="javadoc" description="Generates javadoc into target/api"/>
 
+    <target name="doc" depends="javadoc" description="Generates javadoc into target/api"/>
+    <target name="docs" depends="javadoc" description="Generates javadoc into target/api"/>
     <target name="javadoc" description="Generates javadoc into target/api">
+        <delete dir="${docdir}"/>
         <javadoc
-                  destdir="${targetdir}/api"
+                  destdir="${docdir}"
                   author="true"
                   version="true"
                   use="true"
