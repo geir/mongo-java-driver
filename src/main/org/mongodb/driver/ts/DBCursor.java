@@ -55,4 +55,7 @@ public interface DBCursor extends Iterable<Doc>, Enumeration {
      *  @throws MongoDBIOException in case of low-level io error
      */
     public void close() throws MongoDBException, MongoDBIOException;
+
+
+    public Doc getOne() throws MongoDBException;
 }

@@ -295,6 +295,12 @@ class DBCursorImpl implements DBCursor {
         };
     }
 
+    public Doc getOne() throws MongoDBException {
+        Doc d = getNextObject();
+        close();
+        return d;
+    }
+
     public String toString() {
         return "DBResponse : flags=[" + _msg.getFlags() + "]  cursorID=["
                     + _msg.getCursorID() + "] start=[" + _msg.getStartingFrom() + "] nreturned=[" + _msg.getNumberReturned() + "]";
