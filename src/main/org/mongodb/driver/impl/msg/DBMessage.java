@@ -19,8 +19,8 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBIOException;
 import org.mongodb.driver.impl.DirectBufferTLS;
@@ -132,7 +132,7 @@ public abstract class DBMessage {
         updateMessageLength(1);
     }
 
-    protected void writeMongoDoc(MongoDoc doc) throws MongoDBException {
+    protected void writeDoc(Doc doc) throws MongoDBException {
 
         BSONObject bson = new BSONObject();
         bson.serialize(doc);
@@ -156,11 +156,11 @@ public abstract class DBMessage {
         return BSONObject.deserializeSelector(sc, buf);
     }
 
-    protected MongoDoc readMongoDoc() throws MongoDBException {
-        return readMongoDoc(_buf);
+    protected Doc readDoc() throws MongoDBException {
+        return readDoc(_buf);
     }
 
-    protected static MongoDoc readMongoDoc(ByteBuffer buf) throws MongoDBException {
+    protected static Doc readDoc(ByteBuffer buf) throws MongoDBException {
         return BSONObject.deserializeObjectData(buf);
     }
 

@@ -19,7 +19,7 @@
 
 package org.mongodb.driver.dyn.impl;
 
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.Map;
 import java.util.Iterator;
@@ -29,9 +29,9 @@ import java.util.Iterator;
  */
 public class MapIterator implements Iterator<Map>, Iterable<Map> {
 
-    protected final Iterator<MongoDoc> _mdi;
+    protected final Iterator<Doc> _mdi;
 
-    protected MapIterator(Iterator<MongoDoc> mdi) {
+    protected MapIterator(Iterator<Doc> mdi) {
         _mdi = mdi;
     }
 
@@ -41,7 +41,7 @@ public class MapIterator implements Iterator<Map>, Iterable<Map> {
     }
 
     public Map next() {
-        MongoDoc m = _mdi.next();
+        Doc m = _mdi.next();
 
         if (m == null) {
             return null;

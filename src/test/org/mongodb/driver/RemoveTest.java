@@ -25,8 +25,8 @@ import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.Doc;
 
 public class RemoveTest extends TestBase {
 
@@ -49,7 +49,7 @@ public class RemoveTest extends TestBase {
     void testClear() throws MongoDBException {
         DBCollection testColl = _db.getCollection("test");
 
-        MongoDoc doc = new MongoDoc();
+        Doc doc = new Doc();
 
         doc.put("a", 1);
         testColl.insert(doc);
@@ -71,10 +71,10 @@ public class RemoveTest extends TestBase {
 
         assert(testColl.getCount() == 0);
 
-        MongoDoc[] objs = new MongoDoc[10];
+        Doc[] objs = new Doc[10];
 
         for (int i = 0; i < 10; i++) {
-            objs[i] = new MongoDoc("a", i);
+            objs[i] = new Doc("a", i);
         }
 
         testColl.insert(objs);

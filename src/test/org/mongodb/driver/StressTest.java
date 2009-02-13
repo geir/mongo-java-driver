@@ -23,10 +23,10 @@ import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.Random;
 
@@ -62,7 +62,7 @@ public class StressTest {
         
         long start = System.currentTimeMillis();
 
-        MongoDoc d = new MongoDoc();
+        Doc d = new Doc();
         d.put("name", "asdasdasda0da-0asd-0asd-a0sd-0as-da0s-as-d0koaspdoakspoda-09a-s0da-s0da-s0das");
 
         for (int i = 0; i < num; i++) {
@@ -103,7 +103,7 @@ public class StressTest {
 
         DBCursor cur = _coll.find();
 
-        for (MongoDoc d : cur) {
+        for (Doc d : cur) {
 
             if ((d.getInt("num") % 2) == 0) {
                 _coll.remove(new MongoSelector(d.getMap()));
@@ -144,7 +144,7 @@ public class StressTest {
             DBCursor cur = _coll.find(new DBQuery("this.num > " + st + " && this.num < " + (st + num)));
 
             int x = 0;
-            for (MongoDoc d : cur) {
+            for (Doc d : cur) {
                 x++;
             }
             assert(x == num);

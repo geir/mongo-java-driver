@@ -37,7 +37,7 @@ import java.util.Enumeration;
  *  </p>
  * 
  */
-public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
+public interface DBCursor extends Iterable<Doc>, Enumeration {
 
     /**
      *  Returns the next object in the cursor.
@@ -46,7 +46,7 @@ public interface DBCursor extends Iterable<MongoDoc>, Enumeration {
      * @throws MongoDBException on error
      * @throws MongoDBIOException in case of low-level io error
      */
-    public MongoDoc getNextObject() throws MongoDBException, MongoDBIOException;
+    public Doc getNextObject() throws MongoDBException, MongoDBIOException;
 
     /**
      *  Closes the cursor, closing any server-side resources being used.

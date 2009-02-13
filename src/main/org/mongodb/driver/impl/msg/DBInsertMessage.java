@@ -19,7 +19,7 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
@@ -34,7 +34,7 @@ public class DBInsertMessage extends DBMessage {
 
     protected final String _dbName;
     protected final String _collection;
-    protected final MongoDoc[] _objs;
+    protected final Doc[] _objs;
 
     public DBInsertMessage(ByteBuffer buf) throws MongoDBException {
         super(buf);
@@ -47,21 +47,21 @@ public class DBInsertMessage extends DBMessage {
         _dbName = ss[0];
         _collection = ss[1];
 
-        List<MongoDoc> objs = new ArrayList<MongoDoc>();
+        List<Doc> objs = new ArrayList<Doc>();
 
         while(buf.position() < buf.limit()) {
-            objs.add(readMongoDoc());
+            objs.add(readDoc());
         }
 
-        _objs = objs.toArray(new MongoDoc[objs.size()]);        
+        _objs = objs.toArray(new Doc[objs.size()]);
     }
     
-    public DBInsertMessage(String dbName, String collection, MongoDoc obj) throws MongoDBException {
+    public DBInsertMessage(String dbName, String collection, Doc obj) throws MongoDBException {
         super(MessageType.OP_INSERT);
         _dbName = dbName;
         _collection = collection;
 
-        MongoDoc[] arr = new MongoDoc[1];
+        Doc[] arr = new Doc[1];
         arr[0] = obj;
 
         _objs = arr;
@@ -69,12 +69,12 @@ public class DBInsertMessage extends DBMessage {
         init();
     }
 
-    public DBInsertMessage(String dbName, String collection, MongoDoc[] objs) throws MongoDBException {
+    public DBInsertMessage(String dbName, String collection, Doc[] objs) throws MongoDBException {
         super(MessageType.OP_INSERT);
         _dbName = dbName;
         _collection =   collection;
 
-        _objs = new MongoDoc[objs.length];
+        _objs = new Doc[objs.length];
         System.arraycopy(objs, 0, _objs, 0, objs.length);
 
         init();
@@ -90,8 +90,8 @@ public class DBInsertMessage extends DBMessage {
         writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
         writeString(_dbName + "." + _collection);
 
-        for (MongoDoc doc : _objs) {
-            writeMongoDoc(doc);
+        for (Doc doc : _objs) {
+            writeDoc(doc);
         }
     }
 

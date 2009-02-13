@@ -25,7 +25,6 @@ import java.util.Stack;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,7 +38,7 @@ import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.util.types.BSONUndefined;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.util.BSONObject;
 
@@ -100,7 +99,7 @@ public class XSON extends DefaultHandler {
 
             BSONObject bson = new BSONObject();
 
-            bson.serialize((MongoDoc) xson._doc.get("$root"));
+            bson.serialize((Doc) xson._doc.get("$root"));
 
             fos.write(bson.toArray());
             fos.close();
@@ -198,33 +197,21 @@ public class XSON extends DefaultHandler {
 
     public class IntHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), Integer.parseInt(_value));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(), Integer.parseInt(_value));
             super.endElement(uri, localName, qName);
         }
     }
 
     public class BooleanHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), Boolean.parseBoolean(_value));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(), Boolean.parseBoolean(_value));
             super.endElement(uri, localName, qName);
         }
     }
 
     public class DateHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), new Date(Long.parseLong(_value)));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(), new Date(Long.parseLong(_value)));
             super.endElement(uri, localName, qName);
         }
     }
@@ -232,22 +219,14 @@ public class XSON extends DefaultHandler {
 
     public class NullHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(),(Object) null);
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(),(Object) null);
             super.endElement(uri, localName, qName);
         }
     }
 
     public class UndefinedHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(),new BSONUndefined());
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(),new BSONUndefined());
             super.endElement(uri, localName, qName);
         }
     }
@@ -265,11 +244,10 @@ public class XSON extends DefaultHandler {
 
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
+
             try {
                 sun.misc.BASE64Decoder decoder =  new sun.misc.BASE64Decoder();
                 _currentDoc.put(cleanName(), decoder.decodeBuffer(buff.toString()));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -280,22 +258,14 @@ public class XSON extends DefaultHandler {
 
     public class CodeHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), _value);
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(), _value);
             super.endElement(uri, localName, qName);
         }
     }
 
     public class NumberHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), Double.parseDouble(_value));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(cleanName(), Double.parseDouble(_value));
             super.endElement(uri, localName, qName);
         }
     }
@@ -331,11 +301,7 @@ public class XSON extends DefaultHandler {
                     e.printStackTrace();
                 }
 
-                try {
-                    _currentDoc.put(cleanName(), br);
-                } catch (MongoDBException e) {
-                    e.printStackTrace();
-                }
+                _currentDoc.put(cleanName(), br);
                 super.endElement(uri, localName, qName);
             }
             else {
@@ -376,11 +342,7 @@ public class XSON extends DefaultHandler {
             if ("regex".equals(qName)) {
 
                 BSONRegex br = new BSONRegex(_data.get("pattern").toString(), _data.get("options").toString());
-                try {
-                    _currentDoc.put(cleanName(), br);
-                } catch (MongoDBException e) {
-                    e.printStackTrace();
-                }
+                _currentDoc.put(cleanName(), br);
                 super.endElement(uri, localName, qName);
             }
             else {
@@ -412,28 +374,20 @@ public class XSON extends DefaultHandler {
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
             _currentDoc = _oldDoc;
-            try {
-                List<Object> l = new ArrayList<Object>();
+            List<Object> l = new ArrayList<Object>();
 
-                for (String s : _myDoc.orderedKeyList()) {
-                    l.add(_myDoc.get(s));
-                }
-                _currentDoc.put(cleanName(), l);
-            } catch (MongoDBException e) {
-                e.printStackTrace();
+            for (Doc.Duple d : _myDoc) {
+                l.add(d._value);
             }
+
+            _currentDoc.put(cleanName(), l);
             super.endElement(uri, localName, qName);
         }
     }
 
     public class SymbolHandler extends Handler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), new BSONSymbol(_value));
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
-
+            _currentDoc.put(cleanName(), new BSONSymbol(_value));
             super.endElement(uri, localName, qName);
         }
     }
@@ -450,12 +404,7 @@ public class XSON extends DefaultHandler {
         }
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            try {
-                _currentDoc.put(cleanName(), _stringValue.toString());
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
-
+            _currentDoc.put(cleanName(), _stringValue.toString());
             super.endElement(uri, localName, qName);
         }
     }
@@ -483,11 +432,7 @@ public class XSON extends DefaultHandler {
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
             _currentDoc = _oldDoc;
-            try {
-                _currentDoc.put(_name == null ? "$root" : _name, _myDoc);
-            } catch (MongoDBException e) {
-                e.printStackTrace();
-            }
+            _currentDoc.put(_name == null ? "$root" : _name, _myDoc);
             super.endElement(uri, localName, qName);
         }
     }

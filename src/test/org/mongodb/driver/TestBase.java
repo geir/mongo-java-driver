@@ -20,14 +20,14 @@
 package org.mongodb.driver;
 
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 
 public class TestBase {
 
     int cursorCount(DBCursor c) {
 
         int i = 0;
-        for (MongoDoc d : c) {
+        for (Doc d : c) {
             i++;
         }
 

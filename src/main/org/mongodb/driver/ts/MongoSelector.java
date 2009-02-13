@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Typsafe selector
  */
-public class MongoSelector extends MongoDoc {
+public class MongoSelector extends Doc {
 
     public static final String LTE = "$lte";
     public static final String LE = "$le";
@@ -36,6 +36,22 @@ public class MongoSelector extends MongoDoc {
     
     public MongoSelector() {
         super();
+    }
+
+    public Object put(String key, Object val) {
+
+        try {
+            checkKey(key);
+        }
+        catch(MongoDBException e) {
+            throw new RuntimeException("Error - invalid key ", e);
+        }
+
+        return super.put(key, val);
+    }
+
+    public MongoSelector(Doc m) throws MongoDBException {
+        super(m);
     }
 
     public MongoSelector(Map m) throws MongoDBException {

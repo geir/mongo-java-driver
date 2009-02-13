@@ -158,28 +158,19 @@ public class DBCollectionOptions {
     public MongoSelector getSelector() {
         MongoSelector ms = new MongoSelector();
 
-        try {
-            if (_isCapped) {
+        if (_isCapped) {
 
-                ms.put("capped", Boolean.TRUE);
-                ms.put("size", _initialExtent);
+            ms.put("capped", Boolean.TRUE);
+            ms.put("size", _initialExtent);
 
-                if (_cappedObjectMax != DB_DEFAULT) {
-                    ms.put("max", _cappedObjectMax);
-                }
+            if (_cappedObjectMax != DB_DEFAULT) {
+                ms.put("max", _cappedObjectMax);
             }
-            else {
-                ms.put("size", _initialExtent);
-            }
-
-            return ms;
         }
-        catch(MongoDBException e) {
-            // should never happen
-            e.printStackTrace();
+        else {
+            ms.put("size", _initialExtent);
         }
 
-        return  null;
+        return ms;
     }
-
 }

@@ -26,7 +26,7 @@ import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 
 public class CappedTest extends TestBase {
 
@@ -45,13 +45,13 @@ public class CappedTest extends TestBase {
         DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000, 10));
 
         for (int i=0; i < 10; i++) {
-            testColl.insert(new MongoDoc("name", i));
+            testColl.insert(new Doc("name", i));
         }
 
         assert(testColl.getCount() == 10);
 
         for (int i=0; i < 10; i++) {
-            testColl.insert(new MongoDoc("name", i));
+            testColl.insert(new Doc("name", i));
         }
         assert(testColl.getCount() == 10);
     }
@@ -64,7 +64,7 @@ public class CappedTest extends TestBase {
         DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000, 10));
 
         for (int i=0; i < 20; i++) {
-            testColl.insert(new MongoDoc("name", i));
+            testColl.insert(new Doc("name", i));
         }
 
         assert(testColl.getCount() == 10);
@@ -85,7 +85,7 @@ public class CappedTest extends TestBase {
         DBCollection testColl = _db.createCollection("test", new DBCollectionOptions().setCapped(2000));
 
         for (int i=0; i < 20; i++) {
-            testColl.insert(new MongoDoc("name", i));
+            testColl.insert(new Doc("name", i));
         }
 
         assert(testColl.getCount() == 20);
@@ -106,7 +106,7 @@ public class CappedTest extends TestBase {
         DBCollection testColl = _db.createCollection("test");
 
         for (int i=0; i < 20; i++) {
-            testColl.insert(new MongoDoc("name", i));
+            testColl.insert(new Doc("name", i));
         }
 
         assert(testColl.getCount() == 20);

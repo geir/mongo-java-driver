@@ -19,7 +19,7 @@
 
 package org.mongodb.driver.util;
 
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.MongoDBException;
 
@@ -38,10 +38,10 @@ public class JSPKInjector implements PKInjector {
     }
 
     public boolean injectPK(Map doc) throws MongoDBException {
-        return injectPK(new MongoDoc(doc));
+        return injectPK(new Doc(doc));
     }
 
-    public boolean injectPK(MongoDoc doc) throws MongoDBException {
+    public boolean injectPK(Doc doc) throws MongoDBException {
 
         if (doc.get(KEY) == null) {
             doc.put(KEY, new BabbleOID());

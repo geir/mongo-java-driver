@@ -20,7 +20,7 @@
 
 package org.mongodb.driver.util;
 
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.util.Map;
@@ -43,7 +43,7 @@ public interface PKInjector {
      * @return true if PK added, false if not
      * @throws org.mongodb.driver.MongoDBException if a problem with key
      */
-    public boolean injectPK(MongoDoc doc) throws MongoDBException;
+    public boolean injectPK(Doc doc) throws MongoDBException;
 
     public boolean injectPK(Map doc) throws MongoDBException;
 

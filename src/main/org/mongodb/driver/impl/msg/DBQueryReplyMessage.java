@@ -19,7 +19,7 @@
 
 package org.mongodb.driver.impl.msg;
 
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
@@ -58,7 +58,7 @@ public class DBQueryReplyMessage extends DBMessage {
     protected long _cursorID;
     protected int _startingFrom;
     protected int _numberReturned;
-    protected List<MongoDoc> _objects = new ArrayList<MongoDoc>();
+    protected List<Doc> _objects = new ArrayList<Doc>();
     
     protected DBQueryReplyMessage(ByteBuffer buf) throws MongoDBException {
         this(buf, true);
@@ -74,7 +74,7 @@ public class DBQueryReplyMessage extends DBMessage {
 
         if (nibbleObjects) {
             for (int i=0; i < _numberReturned; i++) {
-                _objects.add(readMongoDoc());
+                _objects.add(readDoc());
             }
         }
     }
@@ -88,7 +88,7 @@ public class DBQueryReplyMessage extends DBMessage {
      * @return a MongoDoc
      * @throws MongoDBException in case things go wrong
      */
-    public static MongoDoc readDocument(SocketChannel sc, ByteBuffer buf, boolean validate) throws MongoDBException {
+    public static Doc readDocument(SocketChannel sc, ByteBuffer buf, boolean validate) throws MongoDBException {
 
         return DBMessage.readMongoSelector(sc, buf);
     }

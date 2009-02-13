@@ -34,6 +34,7 @@ public class DBQuery  {
     protected MongoSelector _retFieldsDoc; // fields to populate in returned query
     protected MongoSelector _orderBy;      // this needs to be an array
 
+    protected String _indexHint;
 
     public DBQuery() {
         this(new MongoSelector(), null, 0, 0);
@@ -58,6 +59,14 @@ public class DBQuery  {
         setNumberToReturn(nReturn);
     }
 
+    public DBQuery(MongoSelector query, MongoSelector fields, int nSkip, int nReturn, String hintIndexName) {
+        setQuerySelector(query);
+        setReturnFieldsSelector(fields);
+        setNumberToSkip(nSkip);
+        setNumberToReturn(nReturn);
+        setIndexHint(hintIndexName);
+    }
+    
     public void setQuery(String q) throws MongoDBException{
         setQuerySelector(selectorFromString(q));
     }
@@ -88,15 +97,15 @@ public class DBQuery  {
         _numberToReturn = nReturn;
     }
 
-    public void setCompleteQuery(MongoDoc doc) throws MongoDBException {
+    public void setCompleteQuery(Doc doc) throws MongoDBException {
 
         if (doc.get("query") != null) {
 
             // must be a layered query object
 
-            _querySelector = new MongoSelector(((MongoDoc) doc.get("query")).getMap());
+            _querySelector = new MongoSelector(doc.getDoc("query"));
 
-            MongoDoc d = (MongoDoc) doc.get("orderby");
+            Doc d = (Doc) doc.get("orderby");
 
             if (d != null) {
                 _orderBy = new MongoSelector(d.getMap());
@@ -116,9 +125,9 @@ public class DBQuery  {
      * @return mongodoc with complete query
      * @throws MongoDBException in case of problem
      */
-    public MongoDoc getCompleteQuery() throws MongoDBException {
+    public Doc getCompleteQuery() throws MongoDBException {
 
-        MongoDoc m = new MongoDoc();
+        MongoSelector m = new MongoSelector();
 
         m.put("query", _querySelector);
 
@@ -126,10 +135,13 @@ public class DBQuery  {
             m.put("orderby", _orderBy );
         }
 
+        if (_indexHint != null) {
+            m.put("$hint", _indexHint);
+        }
         return m;
     }
     
-    public MongoDoc getQuerySelector() {
+    public Doc getQuerySelector() {
         return _querySelector;
     }
 
@@ -153,6 +165,10 @@ public class DBQuery  {
         _orderBy = selector;
     }
 
+    public void setIndexHint(String indexName) {
+        _indexHint = indexName;
+    }
+
     public String toString() {
         StringBuffer sb = new StringBuffer("skip[");
         sb.append(_numberToSkip);
@@ -164,6 +180,8 @@ public class DBQuery  {
         sb.append(_retFieldsDoc);
         sb.append("] orderby[");
         sb.append(_orderBy);
+        sb.append("] hint[");
+        sb.append(_indexHint);
         sb.append("]");
 
         return sb.toString();

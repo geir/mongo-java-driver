@@ -20,8 +20,8 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.DBQuery;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
@@ -65,7 +65,7 @@ public class DBQueryMessage extends DBMessage {
 
         if (_buf.position() < _buf.limit()) {
 
-            MongoDoc m = readMongoDoc();
+            Doc m = readDoc();
 
             if (m != null) {
                 _query.setReturnFieldsSelector(new MongoSelector(m.getMap()));
@@ -92,11 +92,11 @@ public class DBQueryMessage extends DBMessage {
         writeInt(0); // reserved for future use - mongo might call this "options" in the comments.  or it may not.
         writeString(_dbName + "." + _collection);
         writeInt(_query.getNumberToSkip());
-        writeInt(_query.getNumberToReturn());
-        writeMongoDoc(_query.getCompleteQuery());
+        writeInt(-_query.getNumberToReturn());
+        writeDoc(_query.getCompleteQuery());
 
         if(_query.getReturnFieldsSelector() != null) {
-            writeMongoDoc(_query.getReturnFieldsSelector());
+            writeDoc(_query.getReturnFieldsSelector());
         }
     }
 

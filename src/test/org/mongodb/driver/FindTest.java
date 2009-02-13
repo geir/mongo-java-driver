@@ -25,9 +25,9 @@ import org.testng.annotations.AfterClass;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,10 +54,10 @@ public class FindTest extends TestBase {
         DBCollection testColl = _db.getCollection("test");
         testColl.clear();
 
-        MongoDoc[] objs = new MongoDoc[10];
+        Doc[] objs = new Doc[10];
 
         for (int i = 0; i < 10; i++) {
-            objs[i] = new MongoDoc("a", i);
+            objs[i] = new Doc("a", i);
         }
 
         testColl.insert(objs);
@@ -83,10 +83,10 @@ public class FindTest extends TestBase {
 
         testColl.clear();
 
-        MongoDoc[] objs = new MongoDoc[10];
+        Doc[] objs = new Doc[10];
 
         for (int i = 0; i < 10; i++) {
-            objs[i] = new MongoDoc("a", i);
+            objs[i] = new Doc("a", i);
         }
 
         testColl.insert(objs);
@@ -123,9 +123,9 @@ public class FindTest extends TestBase {
 
         testColl.clear();
 
-        testColl.insert(new MongoDoc("name", "geir"));
-        testColl.insert(new MongoDoc("name", "neir"));
-        testColl.insert(new MongoDoc("name", "ged"));
+        testColl.insert(new Doc("name", "geir"));
+        testColl.insert(new Doc("name", "neir"));
+        testColl.insert(new Doc("name", "ged"));
 
         assert(testColl.getCount() == 3);
 
@@ -140,10 +140,10 @@ public class FindTest extends TestBase {
         DBCollection testColl = _db.getCollection("test");
         testColl.clear();
 
-        MongoDoc[] objs = new MongoDoc[10];
+        Doc[] objs = new Doc[10];
 
         for (int i = 0; i < 10; i++) {
-            objs[i] = new MongoDoc("a", i);
+            objs[i] = new Doc("a", i);
         }
 
         testColl.insert(objs);

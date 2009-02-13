@@ -16,9 +16,9 @@
 
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.Doc;
 
 /**
  *  Simple example on how to use mongo driver from java
@@ -32,7 +32,7 @@ public class MongoDemo {
         DBCollection coll = db.getCollection("test");
         coll.clear();
 
-        MongoDoc doc = new MongoDoc();
+        Doc doc = new Doc();
         doc.put("a", 1);
         coll.insert(doc);
 
@@ -41,8 +41,8 @@ public class MongoDemo {
 
         DBCursor cur = coll.find();
 
-        for(MongoDoc d : cur) {
-            System.out.println("MongoDoc : " + d);
+        for(Doc d : cur) {
+            System.out.println("Doc : " + d);
         }
     }
 }

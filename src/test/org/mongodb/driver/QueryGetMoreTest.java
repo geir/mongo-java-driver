@@ -26,10 +26,10 @@ import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.HashMap;
 
@@ -58,7 +58,7 @@ public class QueryGetMoreTest extends TestBase{
         DBCollection c = _db.getCollection("test");
         c.createIndex(new IndexInfo("i_1", "i"));
 
-        MongoDoc doc = new MongoDoc("name", "asasdaspoaspdoiaspdoaisdpoasidpaosidaposdiapsodiaposdiaposdias");
+        Doc doc = new Doc("name", "asasdaspoaspdoiaspdoaisdpoasidpaosidaposdiapsodiaposdiaposdias");
 
         long start = System.currentTimeMillis();
 
@@ -81,7 +81,7 @@ public class QueryGetMoreTest extends TestBase{
         DBCursor cursor = c.find(dbq);
 
         int count = 0;
-        for (MongoDoc d : cursor) {
+        for (Doc d : cursor) {
             if (d.getInt("i") != count)
                 assert(d.getInt("i") == count);
             count++;

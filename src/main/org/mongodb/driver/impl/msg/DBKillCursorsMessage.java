@@ -20,13 +20,8 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.MongoDoc;
 
-import java.io.InputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.ArrayList;
 
 
 /**

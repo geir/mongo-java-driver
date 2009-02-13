@@ -21,8 +21,8 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.fail;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoModifier;
+import org.mongodb.driver.ts.Doc;
 
 /**
  * Tests for MongoModifier class
@@ -42,20 +42,20 @@ public class MongoModifierTest {
         mm.put("$inc", "froop");
         assert(!mm.valid());
 
-        mm.put("$inc", new MongoDoc());
+        mm.put("$inc", new Doc());
         assert(mm.valid());
 
         mm.put("$set", "asdasd");
         assert(!mm.valid());
 
-        mm.put("$set", new MongoDoc());
+        mm.put("$set", new Doc());
         assert(mm.valid());
     }
 
     @Test
     public void verbotenKeyTest() throws MongoDBException {
 
-        MongoDoc m = new MongoDoc();
+        MongoModifier m = new MongoModifier();
 
         try {
             m.put(null, "hi");

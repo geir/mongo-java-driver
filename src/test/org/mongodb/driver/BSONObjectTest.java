@@ -24,7 +24,7 @@ import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
@@ -33,9 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * User: geir
- * Date: Oct 10, 2008
- * Time: 7:30:15 AM
+ * Tests for serialization and de-serialization
  */
 public class BSONObjectTest {
 
@@ -44,20 +42,20 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc inner = new MongoDoc();
+        Doc inner = new Doc();
 
         inner.put("age", 41.2);
         inner.put("name", "geir");
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("doc", inner);
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
-        inner = (MongoDoc) md2.get("doc");
+        inner = (Doc) md2.get("doc");
 
         assert(((Number) inner.get("age")).doubleValue() == 41.2);
         assert(inner.get("name").equals("geir"));
@@ -68,7 +66,7 @@ public class BSONObjectTest {
 
         md2 = bo2.deserialize(barr);
 
-        inner = (MongoDoc) md2.get("doc");
+        inner = (Doc) md2.get("doc");
 
         assert(((Number) inner.get("age")).doubleValue() == 41.2);
         assert(inner.get("name").equals("geir"));
@@ -80,13 +78,13 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("age", 41.2);
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(((Number) md2.get("age")).doubleValue() == 41.2);
 
@@ -104,13 +102,13 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("age", 40);
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(((Integer) md2.get("age")) == 40);
 
@@ -128,7 +126,7 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         String code = "function() { return this.a;}";
 
@@ -136,7 +134,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(md2.get("where").equals(code));
 
@@ -154,7 +152,7 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         BSONSymbol bs = new BSONSymbol("this is stupid");
 
@@ -162,7 +160,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         BSONSymbol bstoo = (BSONSymbol) md2.get("bs");
 
@@ -175,13 +173,13 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("name", "geir");
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(md2.get("name").equals("geir"));
 
@@ -225,7 +223,7 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         Date now = new Date();
 
@@ -233,7 +231,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(md2.get("date").equals(now));
 
@@ -251,13 +249,13 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("date", true);
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(md2.get("date").equals(true));
 
@@ -284,13 +282,13 @@ public class BSONObjectTest {
 
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         md.put("date", (String) null);
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         assert(md2.get("date") == null);
 
@@ -307,7 +305,7 @@ public class BSONObjectTest {
     public void testArray() throws Exception {
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         String[] arr = new String[] { "a", "b", "c"};
 
@@ -315,7 +313,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         List l = (List) md2.get("array");
 
@@ -331,7 +329,7 @@ public class BSONObjectTest {
     public void testListAsArray() throws Exception {
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         List<String> l = new ArrayList<String>();
 
@@ -343,7 +341,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         List ll= (List) md2.get("list");
 
@@ -358,7 +356,7 @@ public class BSONObjectTest {
     public void testOID() throws Exception {
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         BabbleOID oid = new BabbleOID();
 
@@ -366,7 +364,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         BabbleOID oid2 = (BabbleOID) md2.get("oid");
 
@@ -376,7 +374,7 @@ public class BSONObjectTest {
     @Test
     public void testRef() throws Exception {
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         BSONRef ref = new BSONRef("mystring", new BabbleOID("000102030405060708090a0b"));
 
@@ -386,7 +384,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         BSONRef ref2 = (BSONRef) md2.get("ref");
 
@@ -399,7 +397,7 @@ public class BSONObjectTest {
     @Test
     public void testBinary() throws Exception {
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         byte[] arr = {1, 2, 3, 4};
 
@@ -409,7 +407,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         byte[] arr2 = (byte[]) md2.get("binary");
 
@@ -423,7 +421,7 @@ public class BSONObjectTest {
     public void testRegex() throws Exception {
         BSONObject bo = new BSONObject();
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         Pattern p = Pattern.compile("foo*", Pattern.CASE_INSENSITIVE);
 
@@ -431,7 +429,7 @@ public class BSONObjectTest {
 
         bo.serialize(md);
 
-        MongoDoc md2 = bo.deserialize();
+        Doc md2 = bo.deserialize();
 
         p = (Pattern) md2.get("pattern");
 

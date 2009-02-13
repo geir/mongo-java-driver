@@ -24,6 +24,8 @@ import org.mongodb.driver.MongoDBException;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Typesafe class for an MongoDoc that contains
@@ -37,9 +39,13 @@ import java.util.Map;
  *
  * Note that only the Number BSON datatype is supported right now.
  */
-public class MongoModifier extends MongoDoc {
+public class MongoModifier extends Doc {
 
     public MongoModifier() {
+    }
+
+    public MongoModifier(String key, Object val) throws MongoDBException {
+        super(key, val);
     }
 
     public MongoModifier(Map m) throws MongoDBException {
@@ -57,18 +63,33 @@ public class MongoModifier extends MongoDoc {
         }
     };
 
+    public Object put(String key, Object val) {
+
+        try {
+            checkKey(key);
+        }
+        catch(MongoDBException e) {
+            throw new RuntimeException("Error - invalid key ", e);
+        }
+
+        return super.put(key, val);
+    }
+    
     /**
      * Basic validation - ensure that any keys in the doc are suppored modifier verbs
      * 
      * @return true if valid doc, false otherwise
      */
     public boolean valid() {
-        for (String key : this) {
+        for (Duple d : this) {
+
+            String key = d._key;
+            
             if (!_MODIFIER_SET.contains(key)) {
                 return false;
             }
 
-            if (!(get(key) instanceof MongoDoc)) {
+            if (!(get(key) instanceof Doc)) {
                 return false;
             }
         }
@@ -85,5 +106,4 @@ public class MongoModifier extends MongoDoc {
             throw new MongoDBException("Error : key contains a '.'");
         }
     }
-
 }

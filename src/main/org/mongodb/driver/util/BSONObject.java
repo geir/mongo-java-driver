@@ -19,13 +19,13 @@
 
 package org.mongodb.driver.util;
 
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.util.types.BSONUndefined;
 import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.lang.StringBuilder;
@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -102,7 +103,7 @@ public class BSONObject {
         return msg;
     }
 
-    public void serialize(MongoDoc m) throws MongoDBException {
+    public void serialize(Map m) throws MongoDBException {
 
         if (m == null) {
             throw new MongoDBException("Document was null");
@@ -118,71 +119,9 @@ public class BSONObject {
 
         // now put in the doc elements
 
-        for (String key : m.orderedKeyList()) {
-            Object v = m.get(key);
-
-            switch(getType(v, key)) {
-
-                case STRING :
-                    messageSize += serializeStringElement(_buf, key, (String) v, STRING);
-                    break;
-
-                case SYMBOL :
-                    messageSize += serializeStringElement(_buf, key, ((BSONSymbol) v).getSymbol(), SYMBOL);
-                    break;
-
-                case CODE :
-                    messageSize += serializeStringElement(_buf, key, (String) v, CODE);
-                    break;
-
-                case NUMBER :
-                    messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER);
-                    break;
-
-                case NUMBER_INT :
-                    messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER_INT);
-                    break;
-
-                case OBJECT :
-                    messageSize += serializeObjectElement(_buf, key, (MongoDoc) v);
-                    break;
-
-                case OID :
-                    messageSize += serializeOIDElement(_buf, key, (BabbleOID) v);
-                    break;
-
-                case BOOLEAN :
-                    messageSize += serializeBooleanElement(_buf, key, (Boolean) v);
-                    break;
-
-                case DATE :
-                    messageSize += serializeDateElement(_buf, key, (Date) v);
-                    break;
-
-                case NULL :
-                case UNDEFINED :
-                    messageSize += serializeNullElement(_buf, key, getType(v, key));
-                    break;
-
-                case ARRAY:
-                    messageSize += serializeArrayElement(_buf, key, v);
-                    break;
-
-                case REGEX:
-                    messageSize += serializeRegexElement(_buf, key, v);
-                    break;
-
-                case BINARY:
-                    messageSize += serializeBinaryElement(_buf, key, v);
-                    break;
-
-                case REF:
-                    messageSize += serializeRefElement(_buf, key, (BSONRef) v);
-                    break;
-
-                default :
-                    throw new MongoDBException("Unhandled type " + getType(v, key));
-            }
+        for (Object key : m.keySet()) {
+            Object value = m.get(key.toString());
+            messageSize += _serialize(key.toString(), value);
         }
 
         // add the EOO
@@ -193,8 +132,107 @@ public class BSONObject {
         _buf.flip();
     }
 
+    public void serialize(Doc m) throws MongoDBException {
 
-    public MongoDoc deserialize(byte[] byteBuff) throws MongoDBException {
+        if (m == null) {
+            throw new MongoDBException("Document was null");
+        }
+
+        _buf.position(0);
+
+        int messageSize = 0;
+
+        // put in a placeholder for the total size
+        _buf.putInt(0);
+        messageSize += 4;  //
+
+        // now put in the doc elements
+
+        List<Doc.Duple> list = m.getList();
+
+        for (Doc.Duple d : m.getList()) {
+            messageSize += _serialize(d._key, d._value);
+        }
+
+        // add the EOO
+
+        messageSize += serializeEOOElement(_buf);
+
+        _buf.putInt(0, messageSize);
+        _buf.flip();
+    }
+
+    public int _serialize(String key, Object v) throws MongoDBException {
+
+        int messageSize = 0;
+
+        switch(getType(v, key)) {
+
+            case STRING :
+                messageSize += serializeStringElement(_buf, key, (String) v, STRING);
+                break;
+
+            case SYMBOL :
+                messageSize += serializeStringElement(_buf, key, ((BSONSymbol) v).getSymbol(), SYMBOL);
+                break;
+
+            case CODE :
+                messageSize += serializeStringElement(_buf, key, (String) v, CODE);
+                break;
+
+            case NUMBER :
+                messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER);
+                break;
+
+            case NUMBER_INT :
+                messageSize += serializeNumberElement(_buf, key, (Number) v, NUMBER_INT);
+                break;
+
+            case OBJECT :
+                messageSize += serializeObjectElement(_buf, key, v);
+                break;
+
+            case OID :
+                messageSize += serializeOIDElement(_buf, key, (BabbleOID) v);
+                break;
+
+            case BOOLEAN :
+                messageSize += serializeBooleanElement(_buf, key, (Boolean) v);
+                break;
+
+            case DATE :
+                messageSize += serializeDateElement(_buf, key, (Date) v);
+                break;
+
+            case NULL :
+            case UNDEFINED :
+                messageSize += serializeNullElement(_buf, key, getType(v, key));
+                break;
+
+            case ARRAY:
+                messageSize += serializeArrayElement(_buf, key, v);
+                break;
+
+            case REGEX:
+                messageSize += serializeRegexElement(_buf, key, v);
+                break;
+
+            case BINARY:
+                messageSize += serializeBinaryElement(_buf, key, v);
+                break;
+
+            case REF:
+                messageSize += serializeRefElement(_buf, key, (BSONRef) v);
+                break;
+
+            default :
+                throw new MongoDBException("Unhandled type " + getType(v, key));
+        }
+
+        return messageSize;
+    }
+
+    public Doc deserialize(byte[] byteBuff) throws MongoDBException {
 
         return deserialize(byteBuff, true);
     }
@@ -207,7 +245,7 @@ public class BSONObject {
      * @return new mongo doc
      * @throws MongoDBException if a problem
      */
-    public MongoDoc deserialize(byte[] byteBuff, boolean keySafety) throws MongoDBException {
+    public Doc deserialize(byte[] byteBuff, boolean keySafety) throws MongoDBException {
         _buf = ByteBuffer.wrap(byteBuff);
         _buf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -219,22 +257,20 @@ public class BSONObject {
         assert(messageSize <= byteBuff.length);  // comeone could pass a buffer bigger than the message
         _buf.position(0);
 
-        MongoDoc md = keySafety ? new MongoDoc() : new MongoDoc() {
-                protected void checkKey(String key) throws MongoDBException {
-                }
-            };
+        Doc md = new Doc();
+
         _deserializeInto(md, keySafety);
         return md;
     }
 
-    public MongoDoc deserialize() throws MongoDBException {
+    public Doc deserialize() throws MongoDBException {
 
-        MongoDoc md = new MongoDoc();
+        Doc md = new Doc();
 
         return _deserializeInto(md, true);
     }
 
-    private MongoDoc _deserializeInto(MongoDoc doc, boolean keySafety) throws MongoDBException {
+    private Doc _deserializeInto(Doc doc, boolean keySafety) throws MongoDBException {
 
         _buf.position(0);
 
@@ -447,12 +483,12 @@ public class BSONObject {
      * @return deserialized String
      * @throws MongoDBException on error
      */
-    public static MongoDoc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
+    public static Doc deserializeObjectData(ByteBuffer buf) throws MongoDBException {
 
         return _deserializeObjectData(buf, true);
     }
 
-    private static MongoDoc _deserializeObjectData(ByteBuffer buf, boolean keySafety) throws MongoDBException{
+    private static Doc _deserializeObjectData(ByteBuffer buf, boolean keySafety) throws MongoDBException{
 
         /*
          * read the first 4 bytes (size) into a ByteBuf, and get that
@@ -532,7 +568,7 @@ public class BSONObject {
      */
     public static MongoSelector deserializeSelector(ByteBuffer buf) throws MongoDBException {
 
-        MongoDoc md = _deserializeObjectData(buf, false);
+        Doc md = _deserializeObjectData(buf, false);
 
         return new MongoSelector(md.getMap());  // TODO - clean this mess up
     }
@@ -546,7 +582,7 @@ public class BSONObject {
      */
     protected List deserializeArrayData(ByteBuffer buf) throws MongoDBException {
 
-        MongoDoc doc = deserializeObjectData(buf);
+        Doc doc = deserializeObjectData(buf);
 
         Object[] arr = new Object[doc.size()];
 
@@ -835,7 +871,7 @@ public class BSONObject {
      * @return number of bytes used in buffer
      * @throws MongoDBException on error
      */
-    protected int serializeObjectElement(ByteBuffer buf, String key, MongoDoc val) throws MongoDBException {
+    protected int serializeObjectElement(ByteBuffer buf, String key, Object val) throws MongoDBException {
 
         /*
          * set the type byte
@@ -855,7 +891,15 @@ public class BSONObject {
 
         BSONObject o = new BSONObject();
 
-        o.serialize(val);
+        if (val instanceof Doc) {
+            o.serialize((Doc) val);
+        }
+        else if (val instanceof Map) {
+            o.serialize((HashMap) val);
+        }
+        else {
+            throw new MongoDBException("I have no idea how to serialize val : " + val.getClass());
+        }
 
         byte[] arr = o.toArray();
 
@@ -1022,7 +1066,7 @@ public class BSONObject {
             throw new MongoDBException("I don't know how to handle " + v.getClass());
         }
 
-        MongoDoc m = new MongoDoc();
+        Doc m = new Doc();
 
         int i = 0;
         for (Object o : l) {
@@ -1283,7 +1327,10 @@ public class BSONObject {
         if ( o instanceof BSONRegex)
             return REGEX;
 
-        if ( o instanceof MongoDoc )
+        if ( o instanceof Doc )
+            return OBJECT;
+
+        if ( o instanceof Map)
             return OBJECT;
 
         if (o instanceof BSONRef) {

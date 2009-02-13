@@ -20,12 +20,10 @@
 package org.mongodb.driver.impl.msg;
 
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoDoc;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 
 import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Represents a dbUpdate mongo operation
@@ -35,10 +33,10 @@ public class DBUpdateMessage extends DBMessage {
     protected final String _dbName;
     protected final String _collection;
     protected final MongoSelector _selector;
-    protected final MongoDoc _obj;
+    protected Doc _obj;
     protected final boolean _repsert;
 
-    public DBUpdateMessage(String dbName, String collection, MongoSelector sel, MongoDoc obj, boolean repsert)
+    public DBUpdateMessage(String dbName, String collection, MongoSelector sel, Doc obj, boolean repsert)
             throws MongoDBException {
         super(MessageType.OP_UPDATE);
         _dbName = dbName;
@@ -66,7 +64,7 @@ public class DBUpdateMessage extends DBMessage {
         _repsert = (readInt() == 1);
 
         _selector = readMongoSelector();
-        _obj = readMongoDoc();
+    //$$$ fix me    _obj = readMongoDoc();
     }
 
     /**
@@ -80,8 +78,8 @@ public class DBUpdateMessage extends DBMessage {
         writeString(_dbName + "." + _collection);
 
         writeInt( _repsert ? 1 : 0);   // 1 if a repsert operation (upsert)
-        writeMongoDoc(_selector);
-        writeMongoDoc(_obj);
+        writeDoc(_selector);
+        writeDoc(_obj);
     }
 
     public String toString() {

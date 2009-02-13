@@ -27,10 +27,9 @@ import org.mongodb.driver.impl.DBImpl;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -70,11 +69,11 @@ public class CollectionImpl implements Collection {
 
     public boolean insert(Map[] objects) throws MongoDBException {
 
-        MongoDoc[] mds = new MongoDoc[objects.length];
+        Doc[] mds = new Doc[objects.length];
 
         int i = 0;
         for (Map m : objects) {
-            mds[i++] = new MongoDoc(m);
+            mds[i++] = new Doc(m);
         }
 
         return _coll.insert(mds);
@@ -91,7 +90,7 @@ public class CollectionImpl implements Collection {
 
     public Map repsert(Map selector, Map obj) throws MongoDBException {
 
-        MongoDoc m =  _coll.repsert(new MongoSelector(selector), new MongoDoc(obj));
+        Doc m =  _coll.repsert(new MongoSelector(selector), new Doc(obj));
 
         if (m == null) {
             return null;
@@ -102,12 +101,12 @@ public class CollectionImpl implements Collection {
 
     public boolean replace(Map selector, Map obj) throws MongoDBException {
 
-        return _coll.replace(new MongoSelector(selector), new MongoDoc(obj));
+        return _coll.replace(new MongoSelector(selector), new Doc(obj));
     }
 
     public boolean modify(Map selector, Map modifierObj) throws MongoDBException {
 
-        return _coll.modify(new MongoSelector(selector), new MongoModifier(modifierObj));
+        return _coll.modify(new MongoSelector(selector), new Doc(modifierObj));
     }
 
     public boolean createIndex(Map indexInfo) throws MongoDBException {

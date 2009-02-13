@@ -23,10 +23,10 @@ import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class MongoDriverTest {
         
         DBCursor cur = coll.find();
 
-        MongoDoc doc;
+        Doc doc;
         while((doc = cur.getNextObject()) != null) {
             System.out.println(doc.toString());
         }
@@ -68,7 +68,7 @@ public class MongoDriverTest {
 
         System.out.println("------------");
         
-        doc = new MongoDoc();
+        doc = new Doc();
 
         doc.put("a", 21);
 
@@ -82,10 +82,10 @@ public class MongoDriverTest {
 
         System.out.println("------------");
 
-        MongoDoc[] docs = new MongoDoc[5];
+        Doc[] docs = new Doc[5];
 
         for (int i = 17; i < 22; i++) {
-            doc = new MongoDoc();
+            doc = new Doc();
             doc.put("b", i);
             docs[i-17] = doc;
         }

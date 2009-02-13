@@ -22,10 +22,10 @@ package org.mongodb.driver.impl;
 import org.mongodb.driver.admin.DBAdmin;
 import org.mongodb.driver.admin.ProfileInfo;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ class DBAdminImpl implements DBAdmin {
 
         DBCursor cur = _myDB.queryDB(_SYSTEM_PROFILE, new DBQuery());
 
-        for (MongoDoc doc : cur) {
+        for (Doc doc : cur) {
 
             String q = (String) doc.get(_QUERY_KEY);
             long t = ((Double) doc.get(_EXEC_TIME_KEY)).longValue();
@@ -69,7 +69,7 @@ class DBAdminImpl implements DBAdmin {
 
         MongoSelector sel = new MongoSelector("profile", -1);
 
-        MongoDoc md = _myDB.dbCommand(sel);
+        Doc md = _myDB.dbCommand(sel);
 
         Object o = md.get("was");
 
@@ -111,7 +111,7 @@ class DBAdminImpl implements DBAdmin {
 
         MongoSelector sel = new MongoSelector("profile", level);
 
-        MongoDoc md = _myDB.dbCommand(sel);
+        Doc md = _myDB.dbCommand(sel);
 
         Object o = md.get("ok");
 
@@ -128,7 +128,7 @@ class DBAdminImpl implements DBAdmin {
 
         MongoSelector sel = new MongoSelector("validate", collectionName);
 
-        MongoDoc md = _myDB.dbCommand(sel);
+        Doc md = _myDB.dbCommand(sel);
 
         Object o = md.get("ok");
 

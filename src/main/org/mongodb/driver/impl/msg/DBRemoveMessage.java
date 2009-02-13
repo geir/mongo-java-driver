@@ -51,7 +51,7 @@ public class DBRemoveMessage extends DBMessage {
 
         readInt();  // flags?
 
-        _selector = new MongoSelector(readMongoDoc().getMap());
+        _selector = new MongoSelector(readDoc().getMap());
     }
 
     public DBRemoveMessage(String dbName, String collection, MongoSelector sel) throws MongoDBException {
@@ -78,7 +78,7 @@ public class DBRemoveMessage extends DBMessage {
         writeString(_dbName + "." + _collection);
 
         writeInt(0);   // flags ?
-        writeMongoDoc(_selector);
+        writeDoc(_selector);
     }
 
     public String toString() {

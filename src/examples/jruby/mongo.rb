@@ -51,7 +51,7 @@ coll.find.each { |row| puts row.to_s }
 coll.clear
 coll.insert 'a' => [42, 7]
 rows = coll.find.collect
-# We need to call .get('a') becase rows[0] is a MongoDoc object
+# We need to call .get('a') becase rows[0] is a Doc object
 a = rows[0].get('a')
 a.each { |val| puts val.to_s }
 

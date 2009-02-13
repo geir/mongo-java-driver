@@ -20,9 +20,9 @@
 package org.mongodb.driver.impl;
 
 import org.mongodb.driver.MongoDBException;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.Doc;
 
 /**
  *  A query for Mongo
@@ -34,7 +34,7 @@ public class DBCommand extends DBQuery {
         setNumberToReturn(1); // tis required to be only 1 return, technally -1?
     }
 
-    public MongoDoc getCompleteQuery() throws MongoDBException {
+    public Doc getCompleteQuery() throws MongoDBException {
         return _querySelector;
     }
 }

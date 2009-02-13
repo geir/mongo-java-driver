@@ -19,8 +19,8 @@
 
 package org.mongodb.driver.impl;
 
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBQueryException;
 import org.mongodb.driver.impl.msg.DBKillCursorsMessage;
@@ -44,7 +44,7 @@ import java.util.LinkedList;
  */
 class DBCursorImpl implements DBCursor {
 
-    protected Queue<MongoDoc> _objects = new LinkedList<MongoDoc>();
+    protected Queue<Doc> _objects = new LinkedList<Doc>();
 
     protected DBImpl _myDB;
     protected String _collection;
@@ -126,7 +126,7 @@ class DBCursorImpl implements DBCursor {
 
                 if (_msg.getFlags() != 0) {
 
-                    MongoDoc md = DBQueryReplyMessage.readDocument(_myDB._connection.getReadChannel(), buf, false);
+                    Doc md = DBQueryReplyMessage.readDocument(_myDB._connection.getReadChannel(), buf, false);
 
                     throw new MongoDBQueryException("Error : cursor received am error response from server.  Flags = [ " + _msg.getFlags()
                             + "] Error msg :  " + md);
@@ -168,13 +168,13 @@ class DBCursorImpl implements DBCursor {
      * @return next object, or null if there are no more remaining
      * @throws MongoDBException
      */
-    public MongoDoc getNextObject() throws MongoDBException {
+    public Doc getNextObject() throws MongoDBException {
 
         if (!isMoreObjects()) {
             refillViaGetMore();
         }
 
-        MongoDoc m = _objects.poll();
+        Doc m = _objects.poll();
 
         if (m != null) {
             _objectsReturned++;
@@ -267,14 +267,14 @@ class DBCursorImpl implements DBCursor {
 
     /* --- Iterable interface --- */
 
-    public Iterator<MongoDoc> iterator() {
+    public Iterator<Doc> iterator() {
 
-        return new Iterator<MongoDoc>() {
+        return new Iterator<Doc>() {
             public boolean hasNext() {
                 return hasMoreElements();
             }
 
-            public MongoDoc next() {
+            public Doc next() {
                 try {
                     return getNextObject();
                 }

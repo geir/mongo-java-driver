@@ -91,7 +91,7 @@ public interface DBCollection {
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(MongoDoc object) throws MongoDBException;
+    public boolean insert(Doc object) throws MongoDBException;
 
     /**
      * Inserts (saves) multiple objects to this collection.
@@ -100,7 +100,7 @@ public interface DBCollection {
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(MongoDoc[] objects) throws MongoDBException;
+    public boolean insert(Doc[] objects) throws MongoDBException;
 
     /**
      * Removes all objects from the collection
@@ -129,7 +129,7 @@ public interface DBCollection {
      * @return modified doc (will have new PK if injector present)
      * @throws MongoDBException if problem
      */
-    public MongoDoc repsert(MongoSelector selector, MongoDoc obj) throws MongoDBException;
+    public Doc repsert(MongoSelector selector, Doc obj) throws MongoDBException;
 
     /**
      *   Replaces objects found with the supplied object.  If a PK injector
@@ -140,7 +140,7 @@ public interface DBCollection {
      * @return true always
      * @throws MongoDBException on error
      */
-    public boolean replace(MongoSelector sel , MongoDoc obj) throws MongoDBException;
+    public boolean replace(MongoSelector sel , Doc obj) throws MongoDBException;
 
     /**
      *   Modifies objects found with the modifiers in the supplied object.
@@ -150,7 +150,7 @@ public interface DBCollection {
      * @return true always
      * @throws MongoDBException if problem
      */
-    public boolean modify(MongoSelector selector , MongoModifier modifierObj) throws MongoDBException;
+    public boolean modify(MongoSelector selector , Doc modifierObj) throws MongoDBException;
 
     /**
      * Creates an index on a set of fields, if one does not already exist.

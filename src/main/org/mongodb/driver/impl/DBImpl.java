@@ -23,13 +23,11 @@ import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.MongoDBIOException;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
-import org.mongodb.driver.ts.MongoModifier;
 import org.mongodb.driver.ts.IndexInfo;
-import org.mongodb.driver.ts.commands.*;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
@@ -45,7 +43,6 @@ import org.mongodb.mql.MQL;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
 import java.nio.ByteBuffer;
 
 /**
@@ -108,7 +105,7 @@ public class DBImpl implements DB {
         return dqi.execQuery(this);
     }
 
-    public MongoDoc executeCommand(org.mongodb.driver.ts.commands.DBCommand command) throws MongoDBException {
+    public Doc executeCommand(org.mongodb.driver.ts.commands.DBCommand command) throws MongoDBException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -122,7 +119,7 @@ public class DBImpl implements DB {
             DBCursor resp = getCollectionsInfo();
 
             List<String> list = new ArrayList<String>();
-            MongoDoc doc;
+            Doc doc;
 
             while( (doc = resp.getNextObject()) != null) {
 
@@ -217,7 +214,7 @@ public class DBImpl implements DB {
             sel.add(options.getSelector());
         }
 
-        MongoDoc md = dbCommand(sel);
+        Doc md = dbCommand(sel);
 
         Object o = md.get("ok");
 
@@ -292,7 +289,7 @@ public class DBImpl implements DB {
          */
         MongoSelector sel = new MongoSelector("drop", name);
 
-        MongoDoc md = dbCommand(sel);
+        Doc md = dbCommand(sel);
 
         Object o = md.get("ok");
 
@@ -380,14 +377,14 @@ public class DBImpl implements DB {
         }
     }
 
-    protected boolean replaceInDB(String collection, MongoSelector selector, MongoDoc obj) throws MongoDBException {
+    protected boolean replaceInDB(String collection, MongoSelector selector, Doc obj) throws MongoDBException {
         synchronized(_dbMonitor) {
             sendWriteToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
             return true;
         }
     }
 
-    protected MongoDoc repsertInDB(String collection, MongoSelector selector, MongoDoc obj) throws MongoDBException {
+    protected Doc repsertInDB(String collection, MongoSelector selector, Doc obj) throws MongoDBException {
 
         // TODO - if  PKInjector, inject
 
@@ -397,7 +394,7 @@ public class DBImpl implements DB {
         }
     }
 
-    protected boolean modifyInDB(String collection, MongoSelector selector, MongoModifier obj) throws MongoDBException {
+    protected boolean modifyInDB(String collection, MongoSelector selector, Doc obj) throws MongoDBException {
         synchronized(_dbMonitor) {
             sendWriteToDB(new DBUpdateMessage(_dbName, collection, selector, obj, false));
             return true;
@@ -410,7 +407,7 @@ public class DBImpl implements DB {
         sel.put("count", collection);
         sel.put("query", query);
 
-        MongoDoc doc = dbCommand(sel);
+        Doc doc = dbCommand(sel);
 
         // first check return code
 
@@ -440,7 +437,7 @@ public class DBImpl implements DB {
         return dbCommand(sel) != null;
     }
 
-    protected MongoDoc dbCommand(MongoSelector selector) throws MongoDBException {
+    protected Doc dbCommand(MongoSelector selector) throws MongoDBException {
         
         synchronized(_dbMonitor) {
             DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommand(selector));
@@ -461,7 +458,7 @@ public class DBImpl implements DB {
 
             List<IndexInfo> list = new ArrayList<IndexInfo>();
 
-            MongoDoc d;
+            Doc d;
             while((d = cursor.getNextObject()) != null) {
 
                 String name = (String) d.get("name");
@@ -472,14 +469,14 @@ public class DBImpl implements DB {
 
                 IndexInfo ii = new IndexInfo(name);
 
-                MongoDoc keys = (MongoDoc) d.get("key");
+                Doc keys = (Doc) d.get("key");
 
                 if (keys == null) {
                     throw new MongoDBException("Keys for index on return from db was null. Coll = " + this._dbName + "." + collection);
                 }
 
-                for(String s : keys.orderedKeyList()) {
-                    ii.addField(s);
+                for (Doc.Duple s : keys) {
+                    ii.addField(s._key);
                 }
 
                 String ns = (String) d.get("ns");
@@ -501,7 +498,7 @@ public class DBImpl implements DB {
 
     protected boolean createIndex(String collection, IndexInfo info) throws MongoDBException {
 
-        MongoDoc doc = new MongoDoc();
+        Doc doc = new Doc();
 
         doc.put("name", info.getIndexName());
         doc.put("ns", _dbName + "." + collection);
@@ -520,7 +517,7 @@ public class DBImpl implements DB {
         }
     }
 
-    protected boolean insertIntoDB(String collection, MongoDoc object) throws MongoDBException {
+    protected boolean insertIntoDB(String collection, Doc object) throws MongoDBException {
 
         synchronized(_dbMonitor) {
             sendWriteToDB(new DBInsertMessage(_dbName, collection, object));
@@ -528,7 +525,7 @@ public class DBImpl implements DB {
         }
     }
 
-    protected boolean insertIntoDB(String collection, MongoDoc[] objects) throws MongoDBException {
+    protected boolean insertIntoDB(String collection, Doc[] objects) throws MongoDBException {
 
         synchronized(_dbMonitor) {
             sendWriteToDB(new DBInsertMessage(_dbName, collection, objects));

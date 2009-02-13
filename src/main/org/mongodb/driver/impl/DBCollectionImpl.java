@@ -23,10 +23,9 @@ import org.mongodb.driver.ts.DBCollection;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCursor;
 import org.mongodb.driver.ts.MongoSelector;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
-import org.mongodb.driver.ts.MongoModifier;
+import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.util.PKInjector;
@@ -74,10 +73,10 @@ class DBCollectionImpl implements DBCollection {
 
     public boolean insert(Map docMap) throws MongoDBException {
 
-        return insert(new MongoDoc(docMap));
+        return insert(new Doc(docMap));
     }
 
-    public boolean insert(MongoDoc doc) throws MongoDBException {
+    public boolean insert(Doc doc) throws MongoDBException {
 
         if (_pkInjector != null) {
             _pkInjector.injectPK(doc);
@@ -86,10 +85,10 @@ class DBCollectionImpl implements DBCollection {
         return _db.insertIntoDB(_collection, doc);
     }
 
-    public boolean insert(MongoDoc[] docs) throws MongoDBException {
+    public boolean insert(Doc[] docs) throws MongoDBException {
 
         if (_pkInjector != null) {
-            for (MongoDoc doc : docs) {
+            for (Doc doc : docs) {
                 _pkInjector.injectPK(doc);
             }
         }
@@ -110,15 +109,15 @@ class DBCollectionImpl implements DBCollection {
         return _db.removeFromDB(_collection, selector);
     }
 
-    public MongoDoc repsert(MongoSelector selector, MongoDoc obj) throws MongoDBException {
+    public Doc repsert(MongoSelector selector, Doc obj) throws MongoDBException {
         return _db.repsertInDB(_collection, selector, obj);
     }
 
-     public boolean replace(MongoSelector selector , MongoDoc obj) throws MongoDBException {
+     public boolean replace(MongoSelector selector , Doc obj) throws MongoDBException {
          return _db.replaceInDB(_collection, selector, obj);
      }
 
-    public boolean  modify(MongoSelector selector, MongoModifier modifierObj) throws MongoDBException{
+    public boolean  modify(MongoSelector selector, Doc modifierObj) throws MongoDBException{
 
         if (modifierObj == null) {
             throw new MongoDBException("no obj");
@@ -127,10 +126,10 @@ class DBCollectionImpl implements DBCollection {
         if (selector == null) {
             throw new MongoDBException("no selector");
         }
-
-        if (!modifierObj.valid()) {
-            throw new MongoDBException("Modifier object not valid");
-        }
+//
+//        if (!modifierObj.valid()) {
+//            throw new MongoDBException("Modifier object not valid");
+//        }
 
         return _db.modifyInDB(_collection, selector, modifierObj);
     }
@@ -178,9 +177,9 @@ class DBCollectionImpl implements DBCollection {
 
         DBCursor resp = _db.getCollectionsInfo(_collection);
 
-        MongoDoc doc = resp.getNextObject();
+        Doc doc = resp.getNextObject();
 
-        MongoDoc optionDoc = (MongoDoc) doc.get("options");
+        Doc optionDoc = (Doc) doc.get("options");
 
         DBCollectionOptions options = new DBCollectionOptions();
 

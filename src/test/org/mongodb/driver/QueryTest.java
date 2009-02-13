@@ -26,10 +26,9 @@ import static org.testng.AssertJUnit.fail;
 import org.mongodb.driver.ts.Mongo;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.DBCollection;
-import org.mongodb.driver.ts.DBCursor;
-import org.mongodb.driver.ts.MongoDoc;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
+import org.mongodb.driver.ts.Doc;
 
 import java.util.HashMap;
 
@@ -57,7 +56,7 @@ public class QueryTest extends TestBase {
 
         DBCollection c = _db.getCollection("test");
 
-        MongoDoc doc = new MongoDoc("name", "asasdaspoaspdoiaspdoaisdpoasidpaosidaposdiapsodiaposdiaposdias");
+        Doc doc = new Doc("name", "asasdaspoaspdoiaspdoaisdpoasidpaosidaposdiapsodiaposdiaposdias");
 
         int num = 100000;
         for (int i=0; i < num; i++) {

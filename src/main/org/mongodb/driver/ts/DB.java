@@ -53,7 +53,7 @@ public interface DB {
      *  @throws MongoDBException if something goes awry
      *  @throws MongoDBIOException on IO error with database
      */
-    public MongoDoc executeCommand(DBCommand command) throws MongoDBException;
+    public Doc executeCommand(DBCommand command) throws MongoDBException;
 
 
     /**
