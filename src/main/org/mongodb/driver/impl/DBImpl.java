@@ -359,6 +359,14 @@ public class DBImpl implements DB {
         return _strictCollections;
     }
 
+    public Doc eval(String function, Object... args) throws MongoDBException {
+
+        MongoSelector cmd = new MongoSelector("$eval", function);
+        cmd.put("args", args);
+
+        return dbCommand(cmd);
+    }
+
 
     protected DBCursor queryDB(String collection, DBQuery q) throws MongoDBException {
 
@@ -437,10 +445,10 @@ public class DBImpl implements DB {
         return dbCommand(sel) != null;
     }
 
-    protected Doc dbCommand(MongoSelector selector) throws MongoDBException {
+    protected Doc dbCommand(MongoSelector command) throws MongoDBException {
         
         synchronized(_dbMonitor) {
-            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommand(selector));
+            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommand(command));
             return cursor.getNextObject();
         }
     }

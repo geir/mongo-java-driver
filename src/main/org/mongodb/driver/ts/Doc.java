@@ -197,4 +197,20 @@ public class Doc implements Iterable<Doc.Duple>{
         public String _key;
         public Object _value;
     }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("{");
+
+        for (Duple d : _dupleList) {
+            sb.append(d._key);
+            sb.append(": ");
+            sb.append(d._value.toString());
+            sb.append(", ");
+        }
+        sb.append("}");
+
+        return sb.toString();
+    }
 }

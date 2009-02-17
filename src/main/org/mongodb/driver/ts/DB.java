@@ -144,5 +144,5 @@ public interface DB {
 
     public void close() throws Exception;
 
-   // DB.prototype.eval (and dbEval, which is same)
+    public Doc eval(String function, Object... args) throws MongoDBException;
 }
