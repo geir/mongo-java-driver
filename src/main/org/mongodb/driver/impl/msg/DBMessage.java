@@ -134,13 +134,12 @@ public abstract class DBMessage {
 
     protected void writeDoc(Doc doc) throws MongoDBException {
 
-        BSONObject bson = new BSONObject();
-        bson.serialize(doc);
+        long start = _buf.position();
 
-        byte[] arr = bson.toArray();
-        _buf.put(arr);
+        BSONObject bson = new BSONObject(_buf);
+        bson.serializeInBuffer(doc);
 
-        updateMessageLength(arr.length);
+        updateMessageLength((int) (_buf.position() - start));
     }
 
     protected MongoSelector readMongoSelector() throws MongoDBException {
