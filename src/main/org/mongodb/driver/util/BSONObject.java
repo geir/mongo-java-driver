@@ -517,6 +517,8 @@ public class BSONObject {
 
         System.arraycopy(tempBuf.array(), 0, arr, 0, 4);
 
+        //TODO - fix this
+
         BSONObject o = new BSONObject();
 
         return o.deserialize(arr);
@@ -1306,7 +1308,6 @@ public class BSONObject {
         
         if ( o instanceof byte[] )
             return BINARY;
-
 
         if ( o.getClass().isArray())
             return ARRAY;
