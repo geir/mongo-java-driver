@@ -23,41 +23,26 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  *  First run at an ordered, multi-entry "map"
  */
-public class Doc implements Iterable<Doc.Duple>{
-
-    protected final List<Duple> _dupleList = new ArrayList<Duple>();
+public class Doc extends LinkedHashMap<String, Object> {
 
     public Doc() {
     }
 
     public Doc(String key, Object value) {
-        add(key, value);
+        put(key, value);
     }
 
     public Doc(Doc doc) {
-        add(doc);
+        this.putAll(doc);
     }
 
     public Doc(Map doc) {
-        add(doc);
-    }
-
-    /**
-     *  Returns a map - last for a given key wins
-     * @return Map form of this Doc
-     */
-    public Map getMap() {
-
-        Map<String, Object> m = new HashMap<String, Object>();
-
-        for (Duple d : _dupleList) {
-            m.put(d._key, d._value);
-        }
-        return m;
+        this.putAll(doc);
     }
 
     /**
@@ -70,21 +55,16 @@ public class Doc implements Iterable<Doc.Duple>{
      * @return this document for ease of chaining
      */
     public Doc add(String key, Object value) {
-        _dupleList.add(new Duple(key, value));
+        put(key, value);
         return this;
     }
 
     public void add(Doc doc) {
-        for(Duple d : doc._dupleList) {
-            _dupleList.add(new Duple(d));
-        }
+        this.putAll(doc);
     }
 
     public void add(Map map) {
-        for(Object e : map.entrySet()) {
-            Duple d = new Duple(((Map.Entry) e).getKey().toString(), ((Map.Entry) e).getValue());
-            _dupleList.add(d);
-        }
+        this.putAll(map);
     }
 
     /**
@@ -102,16 +82,7 @@ public class Doc implements Iterable<Doc.Duple>{
             throw new NullPointerException("Null key not allowed");
         }
 
-        for (Duple d : _dupleList) {
-            if (d._key.equals(key)) {
-                Object oldValue = d._value;
-                d._value = value;
-                return oldValue;
-            }
-        }
-        _dupleList.add(new Duple(key, value));
-
-        return null;
+        return super.put(key,value);
     }
 
     /**
@@ -125,30 +96,7 @@ public class Doc implements Iterable<Doc.Duple>{
             throw new NullPointerException("Null key not allowed");
         }
 
-        for (Duple d : _dupleList) {
-            if (d._key.equals(key)) {
-                return d._value;
-            }
-        }
-
-        return null;
-    }
-
-    public Object[] getAll(String key) {
-
-        if (key == null ) {
-            throw new NullPointerException("Null key not allowed");
-        }
-
-        List<Object> ol = new ArrayList<Object>();
-
-        for (Duple d : _dupleList) {
-            if (d._key.equals(key)) {
-                ol.add(d._value);
-            }
-        }
-
-        return ol.toArray();
+        return super.get(key);
     }
 
     public int getInt(String key) {
@@ -159,26 +107,17 @@ public class Doc implements Iterable<Doc.Duple>{
         return (Doc) get(key);
     }
 
-    public int size() {
-        return _dupleList.size();
-    }
-
-    public void clear() {
-        _dupleList.clear();
-    }
-
     public List<Duple> getList() {
-        return _dupleList;
-    }
 
-    /**
-     *  Key iterator
-     * @return iterator over element in the document
-     */
-    public Iterator<Duple> iterator() {
-        return _dupleList.iterator();
-    }
+        List<Duple> list = new ArrayList<Duple>();
 
+        for (Map.Entry<String, Object> e : entrySet()) {
+            list.add(new Duple(e.getKey(), e.getValue()));
+        }
+
+        return list;
+    }
+    
     public class Duple {
 
         Duple(Duple d) {
@@ -203,10 +142,11 @@ public class Doc implements Iterable<Doc.Duple>{
 
         sb.append("{");
 
-        for (Duple d : _dupleList) {
-            sb.append(d._key);
+        for (Map.Entry<String, Object> e : this.entrySet()) {
+
+            sb.append(e.getKey());
             sb.append(": ");
-            sb.append(d._value.toString());
+            sb.append(e.getValue());
             sb.append(", ");
         }
         sb.append("}");

@@ -171,8 +171,8 @@ public class BSONObject {
 
         // now put in the doc elements
 
-        for (Doc.Duple d : m.getList()) {
-            messageSize += _serialize(d._key, d._value);
+        for (Map.Entry<String,Object> e : m.entrySet()) {
+            messageSize += _serialize(e.getKey(), e.getValue());
         }
 
         // add the EOO
@@ -576,7 +576,7 @@ public class BSONObject {
 
         Doc md = _deserializeObjectData(buf);
 
-        return new MongoSelector(md.getMap());  // TODO - clean this mess up
+        return new MongoSelector(md);  // TODO - clean this mess up
     }
 
     /**
@@ -592,7 +592,7 @@ public class BSONObject {
 
         Object[] arr = new Object[doc.size()];
 
-        for (Object o : doc.getMap().entrySet()) {
+        for (Object o : doc.entrySet()) {
 
             Map.Entry e = (Map.Entry) o;
 
@@ -1073,15 +1073,11 @@ public class BSONObject {
             m.put(String.valueOf(i++), o);
         }
 
-        BSONObject o = new BSONObject();
+        int start = _buf.position();
 
-        o.serialize(m);
+        serializeInBuffer(m);
 
-        byte[] arr = o.toArray();
-
-        buf.put(arr);
-
-        bufSizeDelta += arr.length;
+        bufSizeDelta += (_buf.position() - start);
 
         return bufSizeDelta;
     }

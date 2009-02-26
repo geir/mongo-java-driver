@@ -108,11 +108,11 @@ public class DBQuery  {
             Doc d = (Doc) doc.get("orderby");
 
             if (d != null) {
-                _orderBy = new MongoSelector(d.getMap());
+                _orderBy = new MongoSelector(d);
             }
         }
         else {
-            _querySelector = new MongoSelector(doc.getMap());
+            _querySelector = new MongoSelector(doc);
         }
     }
 

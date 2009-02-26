@@ -28,6 +28,7 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
 import org.mongodb.driver.ts.Doc;
+import org.mongodb.driver.ts.DocList;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
@@ -42,6 +43,7 @@ import org.mongodb.mql.MQL;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -483,8 +485,8 @@ public class DBImpl implements DB {
                     throw new MongoDBException("Keys for index on return from db was null. Coll = " + this._dbName + "." + collection);
                 }
 
-                for (Doc.Duple s : keys) {
-                    ii.addField(s._key);
+                for (Map.Entry<String, Object> e : keys.entrySet()) {
+                    ii.addField(e.getKey());
                 }
 
                 String ns = (String) d.get("ns");

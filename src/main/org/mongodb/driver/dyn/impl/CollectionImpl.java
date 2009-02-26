@@ -96,7 +96,7 @@ public class CollectionImpl implements Collection {
             return null;
         }
 
-        return m.getMap();
+        return m;
     }
 
     public boolean replace(Map selector, Map obj) throws MongoDBException {

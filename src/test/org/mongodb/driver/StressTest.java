@@ -106,7 +106,7 @@ public class StressTest {
         for (Doc d : cur) {
 
             if ((d.getInt("num") % 2) == 0) {
-                _coll.remove(new MongoSelector(d.getMap()));
+                _coll.remove(new MongoSelector(d));
                 i++;
             }
 

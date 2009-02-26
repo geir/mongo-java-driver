@@ -51,7 +51,7 @@ public class DBRemoveMessage extends DBMessage {
 
         readInt();  // flags?
 
-        _selector = new MongoSelector(readDoc().getMap());
+        _selector = new MongoSelector(readDoc());
     }
 
     public DBRemoveMessage(String dbName, String collection, MongoSelector sel) throws MongoDBException {

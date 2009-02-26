@@ -376,8 +376,8 @@ public class XSON extends DefaultHandler {
             _currentDoc = _oldDoc;
             List<Object> l = new ArrayList<Object>();
 
-            for (Doc.Duple d : _myDoc) {
-                l.add(d._value);
+            for (Map.Entry<String, Object> e : _myDoc.entrySet()) {
+                l.add(e.getValue());
             }
 
             _currentDoc.put(cleanName(), l);

@@ -26,6 +26,8 @@ public class SimpleConnection implements Connection {
         }
 
         _socketChannel = SocketChannel.open(_inetAddr);
+
+        _socketChannel.socket().setTcpNoDelay(true);
     }
 
     

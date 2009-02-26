@@ -81,15 +81,13 @@ public class MongoModifier extends Doc {
      * @return true if valid doc, false otherwise
      */
     public boolean valid() {
-        for (Duple d : this) {
+        for (Map.Entry<String, Object> e : this.entrySet()) {
 
-            String key = d._key;
-            
-            if (!_MODIFIER_SET.contains(key)) {
+            if (!_MODIFIER_SET.contains(e.getKey())) {
                 return false;
             }
 
-            if (!(get(key) instanceof Doc)) {
+            if (!(get(e.getKey()) instanceof Doc)) {
                 return false;
             }
         }

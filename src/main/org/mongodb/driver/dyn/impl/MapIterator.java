@@ -47,7 +47,7 @@ public class MapIterator implements Iterator<Map>, Iterable<Map> {
             return null;
         }
 
-        return m.getMap();
+        return m;
     }
 
     public void remove() {

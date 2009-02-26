@@ -32,9 +32,10 @@ public class DirectBufferTLS {
      * @param setInTLS true if the instance should be set as the thread local
      */
     public DirectBufferTLS(boolean setInTLS) {
-        _readBuf = ByteBuffer.allocateDirect(1024*50);
+
+        _readBuf = ByteBuffer.allocateDirect(1024*150);
         _readBuf.order(ByteOrder.LITTLE_ENDIAN);
-        _writeBuf = ByteBuffer.allocateDirect(1024*50);
+        _writeBuf = ByteBuffer.allocateDirect(1024*150);
         _writeBuf.order(ByteOrder.LITTLE_ENDIAN);
 
         if (setInTLS) {
@@ -49,7 +50,7 @@ public class DirectBufferTLS {
 
     public CharBuffer getCharBuffer(int sizeNeeded) {
         if (_charBuffer == null || _charBuffer.capacity() < sizeNeeded) {
-            _charBuffer = CharBuffer.allocate(sizeNeeded * 2);
+            _charBuffer = CharBuffer.allocate(sizeNeeded * 5);
         }
 
         _charBuffer.clear();

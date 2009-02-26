@@ -68,7 +68,7 @@ public class DBQueryMessage extends DBMessage {
             Doc m = readDoc();
 
             if (m != null) {
-                _query.setReturnFieldsSelector(new MongoSelector(m.getMap()));
+                _query.setReturnFieldsSelector(new MongoSelector(m));
             }
         }
     }
