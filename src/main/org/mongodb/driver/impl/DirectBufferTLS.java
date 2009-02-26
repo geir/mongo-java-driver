@@ -12,35 +12,22 @@ import java.nio.charset.Charset;
  */
 public class DirectBufferTLS {
 
-    ByteBuffer _readBuf;
-    ByteBuffer _writeBuf;
-    CharBuffer _charBuffer = null;
-    final CharsetEncoder _encoder = Charset.forName("UTF-8").newEncoder();
+    private ByteBuffer _readBuf;
+    private ByteBuffer _writeBuf;
+    private CharBuffer _charBuffer = null;
+    private final CharsetEncoder _encoder = Charset.forName("UTF-8").newEncoder();
 
-    static ThreadLocal<DirectBufferTLS> _tl = new ThreadLocal<DirectBufferTLS>();
+    private static ThreadLocal<DirectBufferTLS> _tl = new ThreadLocal<DirectBufferTLS>();
 
-    /**
-     * CTOR that does allocation and attaches as a threadlocal.
-     */
     public DirectBufferTLS() {
-        this(true);
-    }
-
-    /**
-     *  CTOR that does allocation, but has option to not be a TLS for local use
-     *
-     * @param setInTLS true if the instance should be set as the thread local
-     */
-    public DirectBufferTLS(boolean setInTLS) {
-
         _readBuf = ByteBuffer.allocateDirect(1024*150);
         _readBuf.order(ByteOrder.LITTLE_ENDIAN);
         _writeBuf = ByteBuffer.allocateDirect(1024*150);
         _writeBuf.order(ByteOrder.LITTLE_ENDIAN);
+    }
 
-        if (setInTLS) {
-            _tl.set(this);
-        }            
+    public void set() {
+        _tl.set(this);
     }
 
     public CharsetEncoder getEncoder() {

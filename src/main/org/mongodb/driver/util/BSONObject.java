@@ -1263,7 +1263,7 @@ public class BSONObject {
         DirectBufferTLS tls = DirectBufferTLS.getThreadLocal();
 
         if (tls == null) {
-            tls = new DirectBufferTLS(false);
+            tls = new DirectBufferTLS();
         }
 
         CharBuffer cbuf = tls.getCharBuffer(val.length());

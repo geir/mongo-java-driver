@@ -79,13 +79,12 @@ public class DBImpl implements DB {
             _connection = c;
             _connection.connect();
             
-//            _socketChannel = SocketChannel.open(_myMongoServer.getServerAddress());
-
             /*
              *  set the TLS for our direct ByteBuffers.  Gets us out of needing to pool, since
              *  each DBImplis *NOT* threadsafe, so this should work just fine.
              */
             DirectBufferTLS tls = new DirectBufferTLS();
+            tls.set();
         }
         catch (IOException e) {
             throw new MongoDBException("Error connecting.", e);
@@ -107,7 +106,7 @@ public class DBImpl implements DB {
     }
 
     public Doc executeCommand(org.mongodb.driver.ts.commands.DBCommand command) throws MongoDBException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
 
@@ -311,7 +310,6 @@ public class DBImpl implements DB {
      * @throws Exception if a problem
      */
     public void close() throws Exception {
-//        _socketChannel.close();
         _connection.close();
         DirectBufferTLS.getThreadLocal().unset();        
     }

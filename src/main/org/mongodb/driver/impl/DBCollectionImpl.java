@@ -42,7 +42,7 @@ class DBCollectionImpl implements DBCollection {
 
     protected final DBImpl _db;
     protected final String _collection;
-    protected PKInjector _pkInjector;
+    protected PKInjector _pkInjector = null;
 
     protected DBCollectionImpl(DBImpl db, String collection) {
         _db = db;
