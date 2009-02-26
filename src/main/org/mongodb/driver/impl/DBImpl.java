@@ -28,7 +28,6 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
 import org.mongodb.driver.ts.Doc;
-import org.mongodb.driver.ts.DocList;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
