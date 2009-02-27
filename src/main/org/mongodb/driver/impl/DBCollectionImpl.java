@@ -57,6 +57,27 @@ class DBCollectionImpl implements DBCollection {
         return _db.queryDB(_collection, query);
     }
 
+    public Doc findOne(DBQuery query) throws MongoDBException {
+
+        DBCursor c = find(query);
+
+        if (c == null) {
+            return null;
+        }
+
+        try {
+            return c.hasMoreElements() ? c.getNextObject() : null;
+        }
+        finally {
+            c.close();
+        }
+    }
+
+    public Doc findOne(MongoSelector selector) throws MongoDBException {
+        return findOne(new DBQuery(selector, null, 0, 1));
+    }
+
+
     public DBCursor find(MongoSelector selector) throws MongoDBException {
         DBQuery q = new DBQuery(selector);
 
@@ -69,6 +90,10 @@ class DBCollectionImpl implements DBCollection {
 
     public DBCursor find() throws MongoDBException {
         return find(new DBQuery());
+    }
+
+    public Doc findOne() throws MongoDBException {
+        return findOne(new DBQuery(new MongoSelector(), null, 0, 1));
     }
 
     public boolean insert(Map docMap) throws MongoDBException {

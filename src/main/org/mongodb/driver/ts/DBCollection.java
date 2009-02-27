@@ -32,78 +32,106 @@ import java.util.Map;
 public interface DBCollection {
 
     /**
-     *  Finds all objects in the collection
+     *  Finds all documents in the collection
      *
-     * @return cursor to get objects from the result set
-     * @throws org.mongodb.driver.MongoDBException if somethign goes wrong
+     * @return cursor to get documents from the result set
+     * @throws MongoDBException if something goes wrong
      */
     public DBCursor find() throws MongoDBException;
 
     /**
-     *  Finds all objects in the collection
+     *  Returns the "first" document in the collection. YMMV with regards to "first'.
+     *
+     * @return document
+     * @throws MongoDBException if something goes wrong
+     */
+    public Doc findOne() throws MongoDBException;
+
+    /**
+     *  Finds all documents in the collection
      *
      * @param selectorMap  selector expressed as a regular <code>java.util.Map</code>
-     * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
+     * @return cursor to get documents from the result set
+     * @throws MongoDBException if something goes wrong
      */
     public DBCursor find(Map selectorMap) throws MongoDBException;
 
     /**
-     *  Finds objects in the collection that match the specified query selector
+     *  Finds documents in the collection that match the specified query selector
      *
-     * @param selector Selector to use to select objects 
-     * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
+     * @param selector Selector to use to select documents
+     * @return cursor to get documents from the result set
+     * @throws MongoDBException if something goes wrong
      */
     public DBCursor find(MongoSelector selector) throws MongoDBException;
-    
+
     /**
-     *  Finds objects in the collection that match the specified query
+     *  Returns the first document in the collection that matches the
+     *  specified selector
      *
-     * @param query query to use to select objects
-     * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
+     * @param selector - query used to select the document to return
+     * @return document
+     * @throws MongoDBException if something goes wrong
+     */
+    public Doc findOne(MongoSelector selector) throws MongoDBException;
+
+    /**
+     *  Finds documents in the collection that match the specified query
+     *
+     * @param query query to use to select documents
+     * @return cursor to get documents from the result set
+     * @throws MongoDBException if something goes wrong
      */
     public DBCursor find(DBQuery query) throws MongoDBException;
 
     /**
-     *  Finds objects in the collection that match the specified query
+     *  Returns the first document in the collection that matches the
+     *  specified selector
      *
-     * @param whereClause query to use to select objects
-     * @return cursor to get objects from the result set
-     * @throws MongoDBException if somethign goes wrong
+     * @param query - query used to select the document to return
+     * @return document
+     * @throws MongoDBException if something goes wrong
+     */
+    public Doc findOne(DBQuery query) throws MongoDBException;
+
+    /**
+     *  Finds documents in the collection that match the specified query
+     *
+     * @param whereClause query to use to select documents
+     * @return cursor to get documents from the result set
+     * @throws MongoDBException if something goes wrong
      */
     public DBCursor find(String whereClause) throws MongoDBException;
 
     /**
-     * Inserts (saves) a single object to this collection.
+     * Inserts (saves) a single document to this collection.
      *
-     * @param object the object to save
+     * @param document the document to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(Map object) throws MongoDBException;
+    public boolean insert(Map document) throws MongoDBException;
 
     /**
-     * Inserts (saves) a single object to this collection.
+     * Inserts (saves) a single document to this collection.
      *
-     * @param object the object to save
+     * @param document the document to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(Doc object) throws MongoDBException;
+    public boolean insert(Doc document) throws MongoDBException;
 
     /**
-     * Inserts (saves) multiple objects to this collection.
+     * Inserts (saves) multiple documents to this collection.
      *
-     * @param objects the objects to save
+     * @param documents the documents to save
      * @return true always for now
      * @throws MongoDBException if something goes wrong
      */
-    public boolean insert(Doc[] objects) throws MongoDBException;
+    public boolean insert(Doc[] documents) throws MongoDBException;
 
     /**
-     * Removes all objects from the collection
+     * Removes all documents from the collection
      *
      *  @return true if successful
      *  @throws MongoDBException on error
@@ -111,42 +139,42 @@ public interface DBCollection {
      public boolean clear() throws MongoDBException;
 
     /**
-     * Removes objects from the database collection that match a specified selector.
+     * Removes documents from the database collection that match a specified selector.
      *
-     *  @param selector Selector for objects to remove.  Cannot be null
+     *  @param selector Selector for documents to remove.  Cannot be null
      *  @return true if successful
      *  @throws MongoDBException on error
       */
      public boolean remove(MongoSelector selector) throws MongoDBException;
 
     /**
-     * Performs an replace operation if the object is found, an insert otherwise.
-     * Note that if there's a PKInjector, the object will be injected with a new PK,
+     * Performs an replace operation if the document is found, an insert otherwise.
+     * Note that if there's a PKInjector, the document will be injected with a new PK,
      * and if replaced, will have the new PK
      *
-     * @param selector search query for old object to replace
-     * @param obj object with which to replace or insert
+     * @param selector search query for old document to replace
+     * @param obj document with which to replace or insert
      * @return modified doc (will have new PK if injector present)
      * @throws MongoDBException if problem
      */
     public Doc repsert(MongoSelector selector, Doc obj) throws MongoDBException;
 
     /**
-     *   Replaces objects found with the supplied object.  If a PK injector
-     *   is present, a PK will be added to the new object
+     *   Replaces documents found with the supplied document.  If a PK injector
+     *   is present, a PK will be added to the new document
      *
-     * @param sel Selector to select objects to be replaced
-     * @param obj object to replace found objects with
+     * @param sel Selector to select documents to be replaced
+     * @param obj document to replace found documents with
      * @return true always
      * @throws MongoDBException on error
      */
     public boolean replace(MongoSelector sel , Doc obj) throws MongoDBException;
 
     /**
-     *   Modifies objects found with the modifiers in the supplied object.
+     *   Modifies documents found with the modifiers in the supplied document.
      *
-     * @param selector selector that specifies objects to match
-     * @param modifierObj object that has modifier elements
+     * @param selector selector that specifies documents to match
+     * @param modifierObj document that has modifier elements
      * @return true always
      * @throws MongoDBException if problem
      */
@@ -155,7 +183,7 @@ public interface DBCollection {
     /**
      * Creates an index on a set of fields, if one does not already exist.
      * 
-     * @param indexInfo an object with a key set of the fields desired for the index and the name
+     * @param indexInfo an document with a key set of the fields desired for the index and the name
      * @return true always for now
      * @throws MongoDBException if error
      */
@@ -192,19 +220,19 @@ public interface DBCollection {
     public List<IndexInfo> getIndexInformation() throws MongoDBException;
 
     /**
-     * Returns the number of objects in the collection
+     * Returns the number of documents in the collection
      * 
-     * @return number of objects
+     * @return number of documents
      * @throws MongoDBException in case of problem
      */
     public int getCount() throws MongoDBException;
 
     /**
-     * Returns the number of objects in the collection
+     * Returns the number of documents in the collection
      * that match the supplied query selector
      *
-     * @param selector selector to match objects for counting
-     * @return number of objects
+     * @param selector selector to match documents for counting
+     * @return number of documents
      * @throws MongoDBException in case of problem
      */
     public int getCount(MongoSelector selector) throws MongoDBException;
