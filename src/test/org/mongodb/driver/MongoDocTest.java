@@ -37,9 +37,9 @@ public class MongoDocTest {
         d.put("index", "bar");
 
         assert(d.size() == 2);
-        assert(d.getList().size() == 2);
-        assert(d.getList().get(0)._key.equals("deleteIndexes"));
-        assert(d.getList().get(1)._key.equals("index"));
+        assert(d.entrySet().size() == 2);
+        assert(((Map.Entry) d.entrySet().toArray()[0]).getKey().equals("deleteIndexes"));
+        assert(((Map.Entry) d.entrySet().toArray()[1]).getKey().equals("index"));
     }
 
     @Test
@@ -51,12 +51,12 @@ public class MongoDocTest {
         d.put("a", 1);
 
         assert(d.size() == 1);
-        assert(d.getList().size() == 1);
+        assert(d.entrySet().size() == 1);
 
         d.clear();
 
         assert(d.size() == 0);
-        assert(d.getList().size() == 0);
+        assert(d.entrySet().size() == 0);
     }
 
     @Test

@@ -18,11 +18,7 @@
  */
 package org.mongodb.driver.ts;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -33,22 +29,44 @@ public class Doc extends LinkedHashMap<String, Object> {
     public Doc() {
     }
 
+    /**
+     *  CTOR to initialize Doc w/ a key/value pair
+     * _
+     * @param key key for storing value
+     * @param value value for given key
+     */
     public Doc(String key, Object value) {
-        put(key, value);
-    }
-
-    public Doc(Doc doc) {
-        this.putAll(doc);
-    }
-
-    public Doc(Map doc) {
-        this.putAll(doc);
+        _put(key, value);
     }
 
     /**
-     *  Adds a key/value pair to the document.  It will not
-     *  replace the existing value for the key if it exists - it will
-     *  add another
+     *  CTOR to initialize Doc w/ contents of another Doc
+     *
+     * @param doc doc to copy key/value pairs from
+     */
+    public Doc(Doc doc) {
+        _putAll(doc);
+    }
+
+    /**
+     *  CTOR to initialize Doc w/ contents from a Map
+     *
+     * @param map doc to copy key/value pairs from
+     */
+    public Doc(Map<String, Object> map) {
+        _putAll(map);
+    }
+
+    private Object _put(String key, Object val) {
+        return put(key, val);
+    }
+
+    private  void _putAll(Map<String, Object> map) {
+        putAll(map);
+    }
+
+    /**
+     *  Adds a key/value pair to the document.  Useful for chainging.
      * 
      * @param key key
      * @param value value to store
@@ -59,19 +77,19 @@ public class Doc extends LinkedHashMap<String, Object> {
         return this;
     }
 
-    public void add(Doc doc) {
+    public Doc add(Doc doc) {
         this.putAll(doc);
+        return this;
     }
 
-    public void add(Map map) {
+    public Doc add(Map<String, Object> map) {
         this.putAll(map);
+        return this;
     }
 
     /**
      *  Adds or replaces the value for a key.  (E.g. Map.put() semantics)
-     *
-     *  TODO : If there are multiple entries for this key, they will be removed (?)
-     *  
+     *     *  
      * @param key key
      * @param value value to store
      * @return old value, or null if not currently in Doc
@@ -86,55 +104,58 @@ public class Doc extends LinkedHashMap<String, Object> {
     }
 
     /**
-     *  Returns the first object for a given key
+     *  Returns the  object for a given key
      * 
-     * @param key
-     * @return
+     * @param key key whose associated value is to be returned
+     * @return value associated with specified key
      */
     public Object get(String key) {
-        if (key == null ) {
+        if (key == null) {
             throw new NullPointerException("Null key not allowed");
         }
 
         return super.get(key);
     }
 
+    /**
+     *  Convenience method to return the object for a given key as an integer.
+     *  Note that the implementation is simple - you'll get a ClassCastException
+     *  if the stored item isn't an integer
+     *
+     *  TODO - make this more helpful
+     *
+     * @param key key whose associated value is to be returned
+     * @return value associated with specified key
+     */
     public int getInt(String key) {
         return (Integer) get(key);
     }
 
+    /**
+     *  Convenience method to return the object for a given key as a string.
+     *
+     * @param key key whose associated value is to be returned
+     * @return value associated with specified key
+     */
+    public String getString(String key) {
+
+        Object o = get(key);
+
+        return o == null?  null : o.toString();
+    }
+
+    /**
+     *  Convenience method to return the object for a given key as a Doc.
+     *  Note that the implementation is simple - you'll get a ClassCastException
+     *  if the stored item isn't a Doc
+     *
+     *  TODO - make this more helpful
+     *
+     * @param key key whose associated value is to be returned
+     * @return value associated with specified key
+     */
     public Doc getDoc(String key) {
         return (Doc) get(key);
-    }
-
-    public List<Duple> getList() {
-
-        List<Duple> list = new ArrayList<Duple>();
-
-        for (Map.Entry<String, Object> e : entrySet()) {
-            list.add(new Duple(e.getKey(), e.getValue()));
-        }
-
-        return list;
-    }
-    
-    public class Duple {
-
-        Duple(Duple d) {
-            if (d == null || d._key == null) {
-                throw new NullPointerException("Null duple or duple key");
-            }
-            _key = d._key;
-            _value = d._value;
-        }
-
-        Duple(String key, Object value) {
-            _key = key;
-            _value = value;
-        }
-
-        public String _key;
-        public Object _value;
     }
 
     public String toString() {
