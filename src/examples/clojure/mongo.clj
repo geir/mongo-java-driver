@@ -43,7 +43,7 @@
 (loop [i (seq (.find coll))]
   (when i
     (do (println (first i))
-        (recur (rest i)))))
+        (recur (next i)))))
 
 ; Another way to perform a query. Again, we turn the results into a seq.
 (dorun (map println (seq (.find coll))))
