@@ -58,3 +58,9 @@
 (let [cursor (.find coll)]
   (while (.hasNext cursor)
          (println (.next cursor))))
+
+
+; Find with select.
+(def query {"a" 3})
+(dorun (map println (seq (.find coll query))))
+(doseq [i (.find coll query)] (println i))
