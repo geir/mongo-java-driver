@@ -112,6 +112,7 @@ public class BSONObject {
      * @throws MongoDBException in case of problem
      */
     public void serialize(Map m) throws MongoDBException {
+        _buf.clear();
         serializeInBuffer(m);
         _buf.flip();
     }
@@ -151,6 +152,7 @@ public class BSONObject {
      * @throws MongoDBException in case of problem
      */    
     public void serialize(Doc m) throws MongoDBException {
+        _buf.clear();
         serializeInBuffer(m);
         _buf.flip();
     }

@@ -145,6 +145,23 @@ public class Doc extends LinkedHashMap<String, Object> {
     }
 
     /**
+     *  Convenience method to return the object for a given key as a byte array.
+     *
+     * @param key key whose associated value is to be returned
+     * @return value associated with specified key
+     */
+    public byte[] getBytes(String key) {
+
+        Object o = get(key);
+
+        if (o instanceof byte[]) {
+            return (byte[]) o;
+        }
+
+        return o == null?  null : o.toString().getBytes();
+    }
+
+    /**
      *  Convenience method to return the object for a given key as a Doc.
      *  Note that the implementation is simple - you'll get a ClassCastException
      *  if the stored item isn't a Doc
