@@ -262,6 +262,9 @@ public class BSONObject {
      * @throws MongoDBException if a problem
      */
     public Doc deserialize(byte[] byteBuff) throws MongoDBException {
+
+        ByteBuffer oldBuf = _buf;
+
         _buf = ByteBuffer.wrap(byteBuff);
         _buf.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -273,7 +276,11 @@ public class BSONObject {
         assert(messageSize <= byteBuff.length);  // comeone could pass a buffer bigger than the message
         _buf.position(0);
 
-        return deserialize();
+        Doc d = deserialize();
+
+        _buf = oldBuf;
+
+        return d;
     }
 
     public Doc deserialize() throws MongoDBException {
