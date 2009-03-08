@@ -311,7 +311,12 @@ public class DBImpl implements DB {
      */
     public void close() throws Exception {
         _connection.close();
-        DirectBufferTLS.getThreadLocal().unset();        
+
+        DirectBufferTLS tls = DirectBufferTLS.getThreadLocal();
+
+        if (tls != null) {
+            tls.unset();
+        }
     }
 
     /**
