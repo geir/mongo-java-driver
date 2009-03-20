@@ -40,7 +40,7 @@ public class XGenPerfTests {
     }
 
 
-    public long singleInsertTest(Doc d, int count, String collName, boolean index) throws MongoDBException {
+    public long singleInsertTest(Doc d, int count, String collName, boolean index, boolean findOne) throws MongoDBException {
 
         DBCollection dbc = _db.getCollection(collName);
 
@@ -57,7 +57,9 @@ public class XGenPerfTests {
             dbc.insert(d);
         }
 
-//        dbc.find().close();
+        if (findOne) {
+            dbc.findOne();
+        }
         
         long end = System.currentTimeMillis();
 
@@ -85,29 +87,56 @@ public class XGenPerfTests {
 
         System.out.println("========================================== START ============================================");
 
-        d = makeLargeDoc();
-        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_large", true);
-        System.out.println("singleInsertTest_withIndex_large : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
-
-        d = makeMediumDoc();
-        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_medium", true);
-        System.out.println("singleInsertTest_withIndex_medium : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
-
         d = makeSmallDoc();
-        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_small", true);
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_small", true, false);
         System.out.println("singleInsertTest_withIndex_small : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
 
-        d = makeLargeDoc();
-        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_large", false);
-        System.out.println("singleInsertTestNoIndex_large : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
-
         d = makeMediumDoc();
-        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_medium", false);
-        System.out.println("singleInsertTestNoIndex_medium : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_medium", true, false);
+        System.out.println("singleInsertTest_withIndex_medium : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeLargeDoc();
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_large", true, false);
+        System.out.println("singleInsertTest_withIndex_large : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
 
         d = makeSmallDoc();
-        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_small", false);
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_small_f1", true, true);
+        System.out.println("singleInsertTest_withIndex_small FINDONE : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeMediumDoc();
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_medium_f1", true, true);
+        System.out.println("singleInsertTest_withIndex_medium  FINDONE: " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeLargeDoc();
+        time =  singleInsertTest(d, count, "singleInsertTest_withIndex_large_f1", true, true);
+        System.out.println("singleInsertTest_withIndex_large FINDONE : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+
+        d = makeSmallDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_small", false, false);
         System.out.println("singleInsertTestNoIndex_small : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeMediumDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_medium", false, false);
+        System.out.println("singleInsertTestNoIndex_medium : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeLargeDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_large", false, false);
+        System.out.println("singleInsertTestNoIndex_large : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+
+        d = makeSmallDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_small_f1", false, true);
+        System.out.println("singleInsertTestNoIndex_small FINDONE : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeMediumDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_medium_f1", false, true);
+        System.out.println("singleInsertTestNoIndex_medium FINDONE : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
+
+        d = makeLargeDoc();
+        time =  singleInsertTest(d, count, "singleInsertTestNoIndex_large_f1", false, true);
+        System.out.println("singleInsertTestNoIndex_large FINDONE : " + 1.0 * count / (time) * 1000 + " time = " + time + " count = " + count);
 
         System.out.println("=========================================== END ===========================================");
         
