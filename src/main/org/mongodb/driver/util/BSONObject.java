@@ -79,8 +79,8 @@ public class BSONObject {
     private static final int _DEFAULT_BYTEBUF_SIZE = 1024 * 100;
 
     private byte[] _privateBuff = new byte[1024];
-
     private ByteBuffer _buf;
+    private BSONObjectCallback _callback = null;
 
     public BSONObject() {
         this(_DEFAULT_BYTEBUF_SIZE);
@@ -93,6 +93,10 @@ public class BSONObject {
     public BSONObject(int bufSize) {
         _buf  = ByteBuffer.allocate(bufSize);
         _buf.order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public void setBSONObjectCallback(BSONObjectCallback boc) {
+        _callback = boc;
     }
 
     /**
@@ -302,82 +306,15 @@ public class BSONObject {
 
             byte type = _buf.get();
 
-            String key;
-
-            switch (type) {
-                case STRING:
-                case CODE:
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeSTRINGData(_buf));
-                    break;
-
-                case SYMBOL:
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, new BSONSymbol(deserializeSTRINGData(_buf)));
-                    break;
-
-                case NUMBER :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeNumberData(_buf));
-                    break;
-
-                case NUMBER_INT :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeNumberIntData(_buf));
-                    break;
-
-                case OID :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeOIDData(_buf));
-                    break;
-
-                case OBJECT :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, _deserializeObjectData(_buf));
-                    break;
-
-                case BOOLEAN :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeBooleanData(_buf));
-                    break;
-
-                case DATE :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeDateData(_buf));
-                    break;
-
-                case NULL :
-                case UNDEFINED :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, null);
-                    break;
-
-                case ARRAY :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeArrayData(_buf));
-                    break;
-
-                case REGEX :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeRegexData(_buf, totalSize));
-                    break;
-
-                case BINARY :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeBinary(_buf));
-                    break;
-
-                case REF :
-                    key = deserializeCSTR(_buf);
-                    doc.put(key, deserializeRef(_buf));
-                    break;
-
-                case EOO:
-                    break;
-
-                default :
-                    throw new MongoDBException("Unknown type " + type);
+            if (type == EOO) {
+                break;
             }
+
+            String key = deserializeCSTR(_buf);
+
+            Object o = _deserializeObjectByType(key, type, _buf, totalSize);
+
+            doc.put(key, o);
         }
 
         _buf.flip();
@@ -385,6 +322,71 @@ public class BSONObject {
         return doc;
     }
 
+    protected Object _deserializeObjectByType(String key, byte type, ByteBuffer buf, int totalSize) throws MongoDBException  {
+
+        switch (type) {
+            case STRING:
+            case CODE:
+                return deserializeSTRINGData(buf);
+
+            case SYMBOL:
+                return new BSONSymbol(deserializeSTRINGData(buf));
+
+            case NUMBER :
+                return deserializeNumberData(buf);
+
+            case NUMBER_INT :
+                return deserializeNumberIntData(buf);
+
+            case OID :
+                return deserializeOIDData(buf);
+
+            case OBJECT :
+                if (_callback != null && _callback.deserializeObjectAsBSON(key)) {
+
+                    int pos = _buf.position();
+                    int size = _buf.getInt();
+                    _buf.position(pos);
+
+                    byte[] arr = new byte[size];
+                    _buf.get(arr);
+
+                    return new BSONBytes(arr);
+                }
+                else {
+                    return  _deserializeObjectData(buf);
+                }
+
+            case BOOLEAN :
+                return deserializeBooleanData(buf);
+
+            case DATE :
+                return deserializeDateData(buf);
+
+            case NULL :
+            case UNDEFINED :
+                return null;
+
+            case ARRAY :
+                return deserializeArrayData(buf);
+
+            case REGEX :
+                return deserializeRegexData(buf, totalSize);
+
+            case BINARY :
+                return deserializeBinary(buf);
+
+            case REF :
+                return deserializeRef(buf);
+
+            case EOO:
+                throw new MongoDBException("Programmer Error - shouldn't get here " + type);
+
+            default :
+                throw new MongoDBException("Unknown type " + type);
+        }
+    }
+    
     /**
      * Formats the BSON data to be suitable for a hex dump.
      *
@@ -504,6 +506,12 @@ public class BSONObject {
         return _deserializeObjectData(buf);
     }
 
+    /**
+     *  THis is foolish.... we should just be able to call deserialize()
+     * @param buf buffer to deserialize from
+     * @return object deserialized as a doc
+     * @throws MongoDBException in case of error
+     */
     private static Doc _deserializeObjectData(ByteBuffer buf) throws MongoDBException{
 
         /*

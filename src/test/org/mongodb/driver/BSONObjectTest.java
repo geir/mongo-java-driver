@@ -21,6 +21,7 @@ package org.mongodb.driver;
 
 import org.testng.annotations.Test;
 import org.mongodb.driver.util.BSONObject;
+import org.mongodb.driver.util.BSONObjectCallback;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
@@ -112,6 +113,40 @@ public class BSONObjectTest {
         assert(inner.get("name").equals("geir"));
     }
 
+    @Test
+    public void testBSOBBytesDecoding() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        Doc inner = new Doc();
+
+        inner.put("age", 41.2);
+        inner.put("name", "geir");
+
+        Doc md = new Doc();
+        md.put("doc", inner);
+
+        bo.serialize(md);
+
+        bo.setBSONObjectCallback(new BSONObjectCallback() {
+            public boolean deserializeObjectAsBSON(String key) {
+                return "doc".equals(key);
+            }
+        });
+
+        Doc md2 = bo.deserialize();
+
+        Object o = md2.get("doc");
+
+        assert(o instanceof BSONBytes);
+
+        bo = new BSONObject();
+
+        Doc out = bo.deserialize(((BSONBytes)o).getBytes());
+
+        assert(((Number) out.get("age")).doubleValue() == 41.2);
+        assert(out.get("name").equals("geir"));
+    }
 
 
     @Test
@@ -325,7 +360,7 @@ public class BSONObjectTest {
 
         Doc md = new Doc();
 
-        md.put("date", (String) null);
+        md.put("date", null);
 
         bo.serialize(md);
 
