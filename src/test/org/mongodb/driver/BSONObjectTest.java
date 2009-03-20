@@ -24,6 +24,7 @@ import org.mongodb.driver.util.BSONObject;
 import org.mongodb.driver.util.types.BabbleOID;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
+import org.mongodb.driver.util.types.BSONBytes;
 import org.mongodb.driver.ts.Doc;
 
 import java.nio.ByteBuffer;
@@ -71,6 +72,46 @@ public class BSONObjectTest {
         assert(((Number) inner.get("age")).doubleValue() == 41.2);
         assert(inner.get("name").equals("geir"));
     }
+
+    @Test
+    public void testBSOBBytesEncoding() throws Exception {
+
+        BSONObject bo = new BSONObject();
+
+        Doc inner = new Doc();
+
+        inner.put("age", 41.2);
+        inner.put("name", "geir");
+
+        bo.serialize(inner);
+
+        BSONBytes bb = new BSONBytes(bo.toArray());
+
+        Doc md = new Doc();
+        md.put("doc", bb);
+
+        bo = new BSONObject();
+
+        bo.serialize(md);                
+        Doc md2 = bo.deserialize();
+
+        inner = (Doc) md2.get("doc");
+
+        assert(((Number) inner.get("age")).doubleValue() == 41.2);
+        assert(inner.get("name").equals("geir"));
+
+        byte[] barr = bo.toArray();
+
+        BSONObject bo2 = new BSONObject();
+
+        md2 = bo2.deserialize(barr);
+
+        inner = (Doc) md2.get("doc");
+
+        assert(((Number) inner.get("age")).doubleValue() == 41.2);
+        assert(inner.get("name").equals("geir"));
+    }
+
 
 
     @Test

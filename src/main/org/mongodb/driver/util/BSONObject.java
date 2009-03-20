@@ -24,6 +24,7 @@ import org.mongodb.driver.util.types.BSONRegex;
 import org.mongodb.driver.util.types.BSONRef;
 import org.mongodb.driver.util.types.BSONSymbol;
 import org.mongodb.driver.util.types.BSONUndefined;
+import org.mongodb.driver.util.types.BSONBytes;
 import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.Doc;
 import org.mongodb.driver.MongoDBException;
@@ -913,6 +914,9 @@ public class BSONObject {
         else if (val instanceof Map) {
             serializeInBuffer((Map) val);
         }
+        else if (val instanceof BSONBytes) {
+            buf.put(((BSONBytes) val).getBytes());
+        }
         else
             throw new MongoDBException("I have no idea how to serialize val : " + val.getClass());
 
@@ -1342,8 +1346,12 @@ public class BSONObject {
         if ( o instanceof Doc )
             return OBJECT;
 
-        if ( o instanceof Map)
+        if (o instanceof Map)
             return OBJECT;
+
+        if (o instanceof BSONBytes) {
+            return OBJECT;
+        }
 
         if (o instanceof BSONRef) {
             return REF;
