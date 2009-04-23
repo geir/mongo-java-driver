@@ -49,11 +49,12 @@ public interface DB {
      *  Executes a command on the database
      *
      *  @param command to execute
-     *  @return MongoDoc with the results
+     *  @return boolean if successful. Command object has results
+     * 
      *  @throws MongoDBException if something goes awry
      *  @throws MongoDBIOException on IO error with database
      */
-    public Doc executeCommand(DBCommand command) throws MongoDBException;
+    public boolean executeCommand(DBCommand command) throws MongoDBException;
 
 
     /**

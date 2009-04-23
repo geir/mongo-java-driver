@@ -19,16 +19,33 @@
 
 package org.mongodb.driver.ts.commands;
 
-import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.Doc;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
- *  Marker interface for database commands
+ *
  */
-public interface DBCommand {
+public class ListDatabasesCmd extends DBCommandBase {
 
-    public MongoSelector getSelector();
+    public String getCommandString() {
+        return "listDatabases";
+    }
 
-    public void setResultDoc(Doc d);
+    public List<String> getDatabaseNames() {
 
+        List<String> list = new ArrayList<String>();
+
+        if (_resultDoc != null) {
+
+            List<Doc> res = (List<Doc>)_resultDoc.get("databases");
+
+            for (Doc d : res) {
+                list.add(d.getString("name"));
+            }
+        }
+
+        return list;
+    }
 }

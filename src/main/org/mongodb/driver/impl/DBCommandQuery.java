@@ -27,9 +27,9 @@ import org.mongodb.driver.ts.Doc;
 /**
  *  A query for Mongo
  */
-public class DBCommand extends DBQuery {
+public class DBCommandQuery extends DBQuery {
 
-    public DBCommand(MongoSelector sel) {
+    public DBCommandQuery(MongoSelector sel) {
         _querySelector = sel;
         setNumberToReturn(1); // tis required to be only 1 return, technally -1?
     }

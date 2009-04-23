@@ -28,6 +28,7 @@ import org.mongodb.driver.ts.MongoSelector;
 import org.mongodb.driver.ts.DBQuery;
 import org.mongodb.driver.ts.IndexInfo;
 import org.mongodb.driver.ts.Doc;
+import org.mongodb.driver.ts.commands.DBCommand;
 import org.mongodb.driver.ts.options.DBOptions;
 import org.mongodb.driver.ts.options.DBCollectionOptions;
 import org.mongodb.driver.admin.DBAdmin;
@@ -105,8 +106,20 @@ public class DBImpl implements DB {
         return dqi.execQuery(this);
     }
 
-    public Doc executeCommand(org.mongodb.driver.ts.commands.DBCommand command) throws MongoDBException {
-        return null;
+    public boolean executeCommand(DBCommand command) throws MongoDBException {
+
+        Doc doc = dbCommand(command.getSelector());
+
+        Object o = doc.get("ok");
+
+        if (o != null && o instanceof Number) {
+            if (((Number)o).intValue() == 1) {
+                command.setResultDoc(doc);
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -452,7 +465,7 @@ public class DBImpl implements DB {
     protected Doc dbCommand(MongoSelector command) throws MongoDBException {
         
         synchronized(_dbMonitor) {
-            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommand(command));
+            DBCursor cursor = queryDB(SYSTEM_COMMAND_COLLECTION, new DBCommandQuery(command));
             return cursor.getNextObject();
         }
     }
@@ -591,4 +604,6 @@ public class DBImpl implements DB {
 
         throw new MongoDBException("Invalid DB Name");
     }
+
+    
 }

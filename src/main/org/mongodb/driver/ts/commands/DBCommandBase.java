@@ -18,10 +18,33 @@
  */
 package org.mongodb.driver.ts.commands;
 
+import org.mongodb.driver.ts.MongoSelector;
+import org.mongodb.driver.ts.Doc;
+import org.mongodb.driver.MongoDBException;
+
 /**
  *
  */
 public abstract class DBCommandBase implements DBCommand{
 
+    protected Doc _resultDoc;
+
     public abstract String getCommandString();
+
+    public MongoSelector getSelector() {
+
+        try {
+            return new MongoSelector(getCommandString(), 1);
+        }
+        catch(MongoDBException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void setResultDoc(Doc d) {
+        _resultDoc = d;
+    }
+
 }

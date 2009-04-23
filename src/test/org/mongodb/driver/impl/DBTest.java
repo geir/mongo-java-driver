@@ -22,6 +22,7 @@ package org.mongodb.driver.impl;
 import org.testng.annotations.Test;
 import org.mongodb.driver.ts.DB;
 import org.mongodb.driver.ts.Mongo;
+import org.mongodb.driver.ts.commands.ListDatabasesCmd;
 import org.mongodb.driver.ts.options.DBOptions;
 import static org.testng.AssertJUnit.*;
 
@@ -116,6 +117,19 @@ public class DBTest {
         assert(db.getCollection("woogie") != null);
         assert(db.getCollectionNames().size() == 1);
 
+    }
+
+    @Test
+    public void testGetDatabaseNames() throws Exception {
+
+        Mongo m = new Mongo();
+
+        DB db = m.getDB("admin");
+
+        ListDatabasesCmd cmd = new ListDatabasesCmd();
+
+        db.executeCommand(cmd);
+        
     }
 
 }
