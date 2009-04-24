@@ -51,8 +51,9 @@ public class MQLQueryTest extends TestBase {
 
         assert(testColl.getCount() == 10);
 
-        assert(cursorCount(_db.executeQuery("select from test")) == 10);
+     //   assert(cursorCount(_db.executeQuery("select from test")) == 10);
         assert(cursorCount(_db.executeQuery("select from test where a = 2")) == 1);
         assert(cursorCount(_db.executeQuery("select from test where a > 5")) == 4);
+        _db.executeQuery("select from test where x > y");
     }
 }

@@ -23,6 +23,9 @@ import org.mongodb.mql.MQL;
 import org.mongodb.mql.QueryInfo;
 import org.mongodb.mql.MQLTreeConstants;
 
+import java.util.Set;
+import java.util.HashSet;
+
 public class MQLWHERE extends SimpleNode {
     public MQLWHERE(int id) {
         super(id);
@@ -34,11 +37,16 @@ public class MQLWHERE extends SimpleNode {
 
     public void render(QueryInfo qi) {
 
-        qi.setWhereClause(walk((SimpleNode) this.children[0]));
+        Set<String> set = new HashSet<String>();
 
+        qi.setWhereClause(walk((SimpleNode) this.children[0], set));
+
+        for (String s : set) {
+            System.out.println(" -> " + s);
+        }
     }
 
-    public String walk(SimpleNode sn) {
+    public String walk(SimpleNode sn, Set<String> fields) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -51,8 +59,10 @@ public class MQLWHERE extends SimpleNode {
             if (left.getId() == MQLTreeConstants.JJTPATH) {
                 sb.append("obj.");
                 sb.append(left.stringJSForm());
+
+                fields.add(left.stringJSForm());
             } else {
-                sb.append(walk(left));
+                sb.append(walk(left, fields));
             }
         }
 
@@ -64,8 +74,11 @@ public class MQLWHERE extends SimpleNode {
             if (right.getId() == MQLTreeConstants.JJTPATH) {
                 sb.append("obj.");
                 sb.append(right.stringJSForm());
+
+                fields.add(right.stringJSForm());
+
             } else {
-                sb.append(walk(right));
+                sb.append(walk(right, fields));
             }
         }
 

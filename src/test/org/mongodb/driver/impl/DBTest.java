@@ -128,8 +128,7 @@ public class DBTest {
 
         ListDatabasesCmd cmd = new ListDatabasesCmd();
 
-        db.executeCommand(cmd);
-        
+        db.executeCommand(cmd);        
     }
 
 }
